@@ -1,0 +1,5 @@
+127.0.0.1 - GET /123 HTTP/1.1 404 1334 - 9.753 ms
+127.0.0.1 - GET /public/img/border.jpg HTTP/1.1 404 1334 - 2.225 ms
+127.0.0.1 - GET /public/img/tab_pay.jpg HTTP/1.1 404 1334 - 0.880 ms
+127.0.0.1 - GET /blo HTTP/1.1 404 1329 - 20.472 ms
+127.0.0.1 - GET /1 HTTP/1.1 404 1329 - 14.995 ms
