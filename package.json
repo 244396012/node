@@ -1,7 +1,7 @@
 {
-  "name": "practice demo",
+  "name": "express-web",
   "version": "1.0.0",
-  "description": "express+ejs+ejs-layouts+node作为API中间层搭建网站",
+  "description": "知识说",
   "main": "app.js",
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -15,7 +15,8 @@
     "serve-favicon": "^2.4.5"
   },
   "scripts": {
-    "app": "supervisor app.js"
+    "app": "supervisor app.js",
+    "server": "webpack-dev-server"
   },
   "author": "zhaoyong",
   "license": "ISC",
@@ -28,9 +29,12 @@
     "babel-loader": "^7.1.3",
     "babel-preset-es2015": "^6.24.1",
     "css-loader": "^0.28.10",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^1.1.10",
-    "vue-loader": "^14.1.1",
-    "vue-template-compiler": "^2.5.13",
+    "globby": "^8.0.1",
+    "node-sass": "^4.10.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
     "webpack": "^4.0.0"
   }
 }

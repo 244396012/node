@@ -76,7 +76,7 @@ if (app.get('env') === 'development') {
             default:
                 res.render('error', {
                     message: err.message,
-                    title: 'error 错误',
+                    title: 'error 未知错误',
                     layout: 'error'
                 });
         }
