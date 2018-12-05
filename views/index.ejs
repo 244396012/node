@@ -1,6 +1,20 @@
-<div class="index">
+<div class="index" style="height: 100px;">
     index page
 </div>
 <script>
-    $('.index').css('background','green')
+    var params = {
+        "text": '公司出资、股权变更、企业行政许可。',
+        "originalLanguage": 'zhCN',
+        "targetLanguage": 'enUS',
+        "mttype": '4'
+    }
+    $.ajax({
+        type: 'post',
+        url: '/frontEnd/api/values',
+        dataType: 'json',
+        data: params,
+        success: function (data) {
+            console.log(data);
+        }
+    });
 </script>

@@ -16,7 +16,7 @@
   },
   "scripts": {
     "app": "supervisor app.js",
-    "server": "webpack-dev-server"
+    "pack": "webpack --watch"
   },
   "author": "zhaoyong",
   "license": "ISC",

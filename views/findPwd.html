@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="pinterest" content="nopin">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="zhaoyong">
+    <meta rel="me" href="https://www.github.com/244396012">
+    <meta rel="me" href="mailto:244396012@qq.com">
+    <meta rel="me" href="tel:13980476439">
+    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="">
+    <meta name="description" content="找回密码">
+    <title>找回密码</title>
+    <link rel="stylesheet" href="/static/lib/amazeui.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/prev.css">
+    <style>
+        .prev-home{padding: 20px 5px;padding-bottom: 0;}
+        .am-form-group{margin-bottom: 2.5rem}
+        .am-form,.sy-fd-nav{display: none;}
+        #step-3 p{margin: 0;font-size: 14px;}
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <header id="header">
+        <div class="content">
+            <div class="am-g">
+                <div class="am-u-sm-6">
+                    logo
+                </div>
+                <div class="am-u-sm-6" style="text-align: right">
+                    <a class="am-btn am-btn-default sy-font-fm reg" href="/login.html">登录</a>
+                    <a class="am-btn am-btn-default sy-font-fm home" href="/">首页</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section id="content">
+        <div class="content">
+            <div class="prev-home">
+                <div class="am-g">
+                    <div class="am-u-sm-6 sy-lg-out">
+                        <div class="sy-lg"></div>
+                    </div>
+                    <div class="am-u-sm-6" style="padding-top: 95px;">
+                        <div class="am-g" style="padding:20px 20px 0 20px;">
+                            <div class="am-u-sm-6" style="text-align: right;">
+                                <h3 class="sy-font-xlg sy-font-fm"><a class="sy-reg-type sy-active" href="javascript:;">手机验证</a></h3>
+                            </div>
+                            <div class="am-u-sm-6" style="text-align: center;">
+                                <h3 class="sy-font-xlg sy-font-fm"><a class="sy-reg-type" href="/findPwde.html#step-1">邮箱验证</a></h3>
+                            </div>
+                        </div>
+                        <!--获取验证码-->
+                        <form id="step-1" class="am-form am-form-horizontal" style="padding: 20px;">
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">手机号</label>
+                                <div class="am-u-sm-9">
+                                    <input type="tel" class="sy-input" placeholder="请输入手机号" required >
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">验证码</label>
+                                <div class="am-u-sm-5" style="padding-right: 0;">
+                                    <input type="text" class="form-control sy-input" placeholder="请输入验证码" required >
+                                </div>
+                                <div class="am-u-sm-4">
+                                    <a class="am-btn am-btn-default sy-btn sy-btn-default sy-font-md">获取验证码</a>
+                                </div>
+                            </div>
+                            <div class="am-form-group"  style="margin-bottom: 0">
+                                <div class="am-u-sm-9 am-u-sm-offset-3">
+                                    <button type="button" id="nextBtn" class="btn btn-default sy-btn sy-btn-default">下一步</button>
+                                </div>
+                                <div class="am-u-sm-9 am-u-sm-offset-3 sy-font-md" style="line-height: 60px;text-align: center">
+                                    还没有帐号？<a class="sy-link" href="/register.html">立即注册</a>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="sy-fd-nav sy-font-sm">
+                            <div class="sy-line"></div>
+                            <div class="sy-sp sy-sp-1" style="color: #333;">
+                                <div><span style="border-color: #333;">1</span></div>
+                                <span>获取验证码</span>
+                            </div>
+                            <div class="sy-sp sy-sp-2">
+                                <div><span>2</span></div>
+                                <span>修改密码</span>
+                            </div>
+                            <div class="sy-sp sy-sp-3">
+                                <div><span>3</span></div>
+                                <span>修改成功</span>
+                            </div>
+                        </div>
+                <!--设置密码-->
+                        <form id="step-2" class="am-form am-form-horizontal" style="padding: 20px;">
+                            <div class="am-form-group" style="margin-bottom: 3rem">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">新密码</label>
+                                <div class="am-u-sm-9">
+                                    <input type="password" class="sy-input" placeholder="请输入密码" required >
+                                    <p class="tips">*请输入6-20个字母和数字组合的密码</p>
+                                </div>
+                            </div>
+                            <div class="am-form-group" style="margin-bottom: 3rem">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">确认密码</label>
+                                <div class="am-u-sm-9">
+                                    <input type="password" class="sy-input" placeholder="请输入确认密码" required >
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <div class="am-u-sm-9 am-u-sm-offset-3">
+                                    <button type="button" id="updateBtn" class="btn btn-default sy-btn sy-btn-default">提 交</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="sy-fd-nav sy-font-sm">
+                            <div class="sy-line"></div>
+                            <div class="sy-sp sy-sp-1" style="color: #41cca6">
+                                <div><span style="border-color: #41cca6"><i class="am-icon-check"></i></span></div>
+                                <span>获取验证码</span>
+                            </div>
+                            <div class="sy-sp sy-sp-2" style="color: #333;">
+                                <div><span style="border-color: #333;">2</span></div>
+                                <span>修改密码</span>
+                            </div>
+                            <div class="sy-sp sy-sp-3">
+                                <div><span>3</span></div>
+                                <span>修改成功</span>
+                            </div>
+                        </div>
+                <!--修改成功-->
+                        <form id="step-3" class="am-form am-form-horizontal" style="padding: 20px;">
+                            <div class="am-form-group">
+                                <div class="am-u-sm-offset-3 am-u-sm-9" style="text-align: center">
+                                    <img src="/static/image/main-success.png" alt="success">
+                                    <p>恭喜您</p>
+                                </div>
+                                <div class="am-u-sm-offset-3 am-u-sm-9" style="text-align: center;margin: 1rem 0;">
+                                    <p>密码设置成功</p>
+                                    <p>您可以使用新密码登录平台！</p>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <div class="am-u-sm-9 am-u-sm-offset-3" style="text-align: center">
+                                    <a id="goLogin" class="btn btn-default sy-btn sy-btn-green" style="width: 50%;"
+                                    href="/login.html">立即登录</a>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="sy-fd-nav sy-font-sm">
+                            <div class="sy-line"></div>
+                            <div class="sy-sp sy-sp-1" style="color: #41cca6;">
+                                <div><span style="border-color: #41cca6"><i class="am-icon-check"></i></span></div>
+                                <span>获取验证码</span>
+                            </div>
+                            <div class="sy-sp sy-sp-2" style="color: #41cca6;">
+                                <div><span style="border-color: #41cca6"><i class="am-icon-check"></i></span></div>
+                                <span>修改密码</span>
+                            </div>
+                            <div class="sy-sp sy-sp-3" style="color: #41cca6;">
+                                <div><span style="border-color: #41cca6;"><i class="am-icon-check"></i></span></div>
+                                <span>修改成功</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer id="footer">
+        <div class="content">
+            footer
+        </div>
+    </footer>
+</div>
+</body>
+</html>
+<script src="/static/lib/jquery-2.1.4.min.js"></script>
+<script src="/js/bundle.js"></script>
+<script type="text/javascript">
+
+
+
+</script>

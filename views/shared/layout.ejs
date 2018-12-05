@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="pinterest" content="nopin">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="zhaoyong">
+    <meta rel="me" href="https://www.github.com/244396012">
+    <meta rel="me" href="mailto:244396012@qq.com">
+    <meta rel="me" href="tel:13980476439">
+    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="">
+    <meta name="description" content="首页">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/static/lib/amazeui.min.css">
+</head>
+<body>
+<% include header.ejs %>
+<div class="content">
+<%- body %>
+</div>
+<% include footer.ejs %>
+</body>
+<script type="text/javascript" src="/static/lib/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="/static/lib/amazeui.min.js"></script>
+<script type="text/javascript" src="/js/bundle.js"></script>
+<script type="text/javascript" src="/js/webservice.js"></script>
+<%- script %>
+</html>

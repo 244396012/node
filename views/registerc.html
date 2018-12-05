@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="pinterest" content="nopin">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="zhaoyong">
+    <meta rel="me" href="https://www.github.com/244396012">
+    <meta rel="me" href="mailto:244396012@qq.com">
+    <meta rel="me" href="tel:13980476439">
+    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="">
+    <meta name="description" content="帐号注册,个人注册,企业注册">
+    <title>企业版注册</title>
+    <link rel="stylesheet" href="/static/lib/amazeui.min.css">
+    <link rel="stylesheet" href="/static/lib/slide.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/prev.css">
+    <style>
+        .prev-home{padding: 20px 5px;padding-bottom: 0;}
+        .sy-lg{top: 100px}
+        #content{margin-top: -220px}
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <header id="header">
+        <div class="content">
+            <div class="am-g">
+                <div class="am-u-sm-6">
+                    logo
+                </div>
+                <div class="am-u-sm-6" style="text-align: right">
+                    <a class="am-btn am-btn-default sy-font-fm reg" href="/login.html">登录</a>
+                    <a class="am-btn am-btn-default sy-font-fm home" href="/">首页</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section id="content">
+        <div class="content">
+            <div class="prev-home">
+                <div class="am-g">
+                    <div class="am-u-sm-6 sy-lg-out">
+                        <div class="sy-lg"></div>
+                    </div>
+                    <div class="am-u-sm-6">
+                        <form class="am-form am-form-horizontal" style="padding: 20px;">
+                            <div class="am-form-group" style="margin-bottom: 1.5rem;">
+                                <div class="am-u-sm-6" style="text-align: right;">
+                                    <h3 class="sy-font-xlg sy-font-fm"><a class="sy-reg-type" href="/register.html">个人版注册</a></h3>
+                                </div>
+                                <div class="am-u-sm-6" style="text-align: center">
+                                    <h3 class="sy-font-xlg sy-font-fm"><a class="sy-reg-type sy-active" href="javascript:;">企业版注册</a></h3>
+                                </div>
+                            </div>
+                            <div class="am-form-group" style="margin-bottom: 2.5rem;">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">企业名称</label>
+                                <div class="am-u-sm-9">
+                                    <input type="text" class="sy-input" placeholder="请输入企业名称" required>
+                                    <p class="tips">*请确保与营业执照一致</p>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">联系人</label>
+                                <div class="am-u-sm-9">
+                                    <input type="text" class="sy-input" placeholder="请输入联系人" required>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">手机号</label>
+                                <div class="am-u-sm-9">
+                                    <input type="tel" class="sy-input" placeholder="请输入手机号" required>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">邮箱地址</label>
+                                <div class="am-u-sm-9">
+                                    <input type="email" class="sy-input" placeholder="请输入邮箱" required>
+                                </div>
+                            </div>
+                            <div class="am-form-group" style="margin-bottom: 2.5rem;">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">设置密码</label>
+                                <div class="am-u-sm-9">
+                                    <input type="password" class="sy-input" placeholder="请输入密码" required>
+                                    <p class="tips">*请输入6-20个字母和数字组合的密码</p>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">手机验证码</label>
+                                <div class="am-u-sm-5" style="padding-right: 0;">
+                                    <input type="text" class="form-control sy-input" placeholder="请输入验证码" required>
+                                </div>
+                                <div class="am-u-sm-4">
+                                    <a class="am-btn am-btn-default sy-btn sy-btn-default sy-font-md">获取验证码</a>
+                                </div>
+                            </div>
+                            <div class="am-form-group" style="margin-bottom: 1rem">
+                                <label class="am-u-sm-3 am-form-label sy-font-fm">安全验证</label>
+                                <div class="am-u-sm-9 sy-font-md">
+                                    <div id="slide_box">
+                                        <div id="slide_xbox">
+                                            <div id="btn">
+                                                <i class="iconfont icon-double-right"></i>
+                                            </div>
+                                        </div>
+                                        请按住滑块，拖动到最右边
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="am-form-group sy-font-md" style="margin-bottom: 1.5rem">
+                                <div class="am-u-sm-offset-3 am-u-sm-9">
+                                    <div class="checkbox">
+                                        <label class="am-checkbox">
+                                            <input onclick="this.checked ? $('#regBtn').removeAttr('disabled') : $('#regBtn').attr('disabled',true)"
+                                                   type="checkbox"
+                                                   data-am-ucheck checked> 我已阅读并同意<a href="/agreement.html" class="sy-link" target="_blank">《服务条款》</a>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="am-form-group"  style="margin-bottom: 0">
+                                <div class="am-u-sm-9 am-u-sm-offset-3">
+                                    <button type="button" id="regBtn" class="btn btn-default sy-btn sy-btn-default">注 册</button>
+                                </div>
+                                <div class="am-u-sm-9 am-u-sm-offset-3 sy-font-md" style="line-height: 60px;text-align: center">
+                                    已有帐号？<a class="sy-link" href="/login.html">立即登录</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer id="footer">
+        <div class="content">
+            footer
+        </div>
+    </footer>
+</div>
+</body>
+</html>
+<script src="/static/lib/jquery-2.1.4.min.js"></script>
+<script src="/static/lib/amazeui.min.js"></script>
+<script src="/js/bundle.js"></script>
+<script type="text/javascript">
+
+// $.confirm();
+// $('#my-confirm').modal({
+//     onConfirm: function (e) {
+//         console.log('confirm')
+//     },
+//     onCancel: function (e) {
+//         console.log('cancel')
+//     }
+// });
+
+</script>

@@ -1,3 +1,6 @@
+import slide from './slide';
+import './modal';
 
-console.log('bundle')
+//加载安全验证
+location.pathname.includes('register') && slide();
 

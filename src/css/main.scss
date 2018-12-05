@@ -1,6 +1,111 @@
-html{
-  height: 100px;
-  width: 200px;
-  background-color: red;
-  border: 1px solid black;
+.sy-font-xlg{font-size: 18px;}
+.sy-font-lg{font-size: 16px;}
+.sy-font-md{font-size: 14px;}
+.sy-font-sm{font-size: 12px;}
+.sy-font-fm{font-family: "Microsoft yahei", Verdana, Geneva, sans-serif}
+
+.sy-btn{
+  display: inline-block;
+  padding: 0;
+  width: 100%;
+  height: 42px;
+  line-height: 42px;
+  border: 1px solid;
+  outline: none;
+  border-radius: 4px;
+  text-align: center;
+  font-family: "Microsoft yahei", Verdana, Geneva, sans-serif;
+  cursor: pointer;
+}
+.sy-btn-default{
+  background-color: #fff;
+  border-color: #41cca6;
+  color: #41cca6;
+  &:hover{
+    background-color: #41cca6;
+    border-color: #41cca6;
+    color: #fff;
+  }
+}
+.sy-btn-default:active{
+  background-color: #41cca6;
+  border-color: #41cca6;
+  color: #fff;
+  opacity: .8;
+}
+.sy-btn-default[disabled]{
+  background-color: #BFBFBF;
+  border-color: #BFBFBF;
+  color: #fff;
+  &:hover{
+    cursor: not-allowed;
+    background-color: #BFBFBF;
+    border-color: #BFBFBF;
+    color: #fff;
+  }
+}
+.sy-btn-default[disabled]:active{
+  background-color: #BFBFBF;
+  border-color: #BFBFBF;
+  color: #fff;
+}
+.sy-btn-green{
+  background-color: #41cca6;
+  border-color: #41cca6;
+  color: #fff;
+  &:hover{
+    opacity: .8;
+  }
+  &:active{
+    background-color: #41cca6;
+  }
+}
+.sy-btn-white{
+  background-color: #fff;
+  border-color: #ddd;
+  color: #333;
+  &:hover{
+    opacity: .8;
+  }
+  &:active{
+    background-color: #fff;
+  }
+}
+.sy-input{
+  height: 42px;
+  line-height: 42px;
+  color: #333!important;
+  border-radius: 4px!important;
+  font-size: 14px!important;
+  &:focus{
+    border-color: #41cca6!important;
+  }
+}
+.sy-link{ color: #36A1B8; }
+
+#header,#content,#footer,
+.wrapper{width: 100%;min-width: 1200px;}
+#header>div.content,
+#content>div.content,
+#footer>div.content {width: 1200px;margin: 0 auto;}
+
+
+label{font-weight: 400;}
+label.am-form-label{padding-left: 0;padding-right: 0;padding-top: 0.5em}
+input[type=checkbox], input[type=radio]{vertical-align: text-top}
+.am-form-horizontal .am-checkbox{padding-top: 0;}
+.am-ucheck-icons{top: 1px;}
+.am-ucheck-checkbox:checked+.am-ucheck-icons{color: #41cca6}
+.am-modal-btn.sy-btn{
+  display: inline-block!important;
+  width: 80px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.am-modal-btn.sy-btn-white{
+  border: 1px solid #ddd;
+  margin-left: 10px;
+}
+.am-modal-btn.sy-btn-green{
+  margin-right: 10px;
 }

@@ -56,7 +56,7 @@ module.exports = [
         //入口文件的配置项
         entry: {
             bundle: './src/js/bundle.js',
-            webservice: './src/js/webservice.js'
+            webservice: './src/js/service.js'
         },
         //出口文件的配置项
         output: {

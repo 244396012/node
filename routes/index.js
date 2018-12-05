@@ -7,7 +7,6 @@ routes.get('/',function (req, res, next) {
     });
 });
 
-
 routes.get('/1', function (req, res, next) {
     res.render('page/a',{
         title: 'page a'
@@ -25,6 +24,5 @@ routes.get('/3', function (req, res, next) {
         title: 'page c'
     })
 })
-
 
 module.exports = routes;

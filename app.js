@@ -3,7 +3,7 @@ var fs = require('fs');
 var express = require('express');
 var ejs = require('ejs');
 var ejsLayout = require('express-ejs-layouts');
-var session = require('express-session');
+// var session = require('express-session');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var favicon = require('serve-favicon');
@@ -12,88 +12,85 @@ var FileStreamRotator = require('file-stream-rotator');//分割日志
 var app = express();
 
 //基本设置
-// app.use(favicon(__dirname + '/static/image/favicon.png'));
+app.use(favicon(__dirname + '/static/image/404.png'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'views')));
-app.set('view engine', 'ejs');
 app.use(ejsLayout);
+app.set("layout extractScripts", true);
+app.set('layout','shared/layout');
+app.set('view engine', 'ejs');
 app.engine('.ejs', ejs.__express);
-app.use('/public', express.static('public'));
+app.use(express.static('public'));
 app.use('/static', express.static('static'));
 
 //获取路由
-var indexRoute = require('./routes/index');
+var pageRoute = require('./routes');
+var apiRoute = require('./routes/apiMiddle');
 
-//使用路由
-app.use('/', indexRoute);
+
+//使用路由，控制页面跳转、加载等
+app.use('/', pageRoute);
+//转发后端接口服务器，前端调用
+app.use('/frontEnd', apiRoute);
 
 
 //打印本地日志log
-// var logStream = fs.createWriteStream(path.join(__dirname,'log/information.log'),{flags:'a'});
-var logDirectory = path.join(__dirname, 'log');
+var logDirectory = path.join(__dirname, 'logger');
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);//-- ensure log directory exists
 var infoLogStream = FileStreamRotator.getStream({//-- create a rotating write stream
     date_format: 'YYYYMMDD',
-    filename: path.join(logDirectory, 'information-%DATE%.log'),
+    filename: path.join(logDirectory, 'log-%DATE%.log'),
     frequency: 'daily',
     verbose: false
 });
 app.use(morgan('short', {stream: infoLogStream}));//-- setup the logger
 
-//服务启动入口
-app.listen(80,'localhost', function () {
-    console.log('服务已启动');
-});
-
 //catch 404 and forward to error handler
 app.use(function (req, res, next) {
+    if(req.url === '/favicon.ico') return;
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
 // error handlers
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        switch (err.status){
-            case 404:
-                res.render('error-404', {
-                    title: '404 页面不存在',
-                    layout: 'error-404'
-                });
-                break;
-            case 500:
-                res.render('error-500', {
-                    title: '500 服务器错误',
-                    layout: 'error-500'
-                });
-                break;
-            default:
-                res.render('error', {
-                    message: err.message,
-                    title: 'error 未知错误',
-                    layout: 'error'
-                });
-        }
-    });
-}
-
-// production error handler
-// no stacktraces leaked to user
 app.use(function (err, req, res, next) {
-    if (req.url !== "/favicon.ico") {
-        res.status(err.status || 500);
-        res.render('error', {
-           message: err.message,
-           error: {}
-        });
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    switch (err.status){
+        case 404:
+            res.render('shared/error-404', {
+                title: '404 页面不存在',
+               layout: 'shared/error-404'
+            });
+            break;
+        case 500:
+            res.render('shared/error-500', {
+                title: '500 服务器错误',
+                layout: 'shared/error-500'
+            });
+            break;
+        default:
+            res.render('shared/error', {
+                message: err.message,
+                title: 'error 未知错误',
+                layout: 'shared/error'
+            });
     }
 });
 
-module.exports = app;
 
+//服务启动入口
+var server = app.listen(3000, '192.168.3.11', function () {
+    var host = server.address().address;
+    var port = server.address().port;
+    console.log("应用启动，访问地址为 http://%s:%s", host, port);
+});
+
+module.exports = app;
