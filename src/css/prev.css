@@ -7,7 +7,7 @@ a.am-btn.reg{background-color: #fff;border-color: #fff;color: #41cca6;}
 a.am-btn.reg:hover{background-color: #fff;border-color: #fff;color: #44cc99;}
 a.am-btn.home{background: none;border-color: #fff;color: #fff;}
 a.am-btn.home:hover{background: none;border-color: #fff;color: #fff;}
-.prev-home{width: 900px;margin: 0 auto;padding: 35px 5px;background-color: #fff;border-radius: 10px;box-shadow: 5px 10px 30px 5px #E7F4F7}
+.prev-home{width: 900px;margin: 0 auto;padding: 35px 5px;background-color: #fff;border-radius: 10px;box-shadow: 0px 5px 15px 2px #E7F4F7}
 #content{margin-top: -160px;}
 #content p.tips{position: absolute;color: #555;font-size: 12px;top: 28px;}
 #content p.tips.error{color: red}

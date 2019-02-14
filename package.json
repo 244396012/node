@@ -1,7 +1,7 @@
 {
-  "name": "express-web",
+  "name": "rm",
   "version": "1.0.0",
-  "description": "知识说",
+  "description": "rm",
   "main": "app.js",
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -9,9 +9,6 @@
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-ejs-layouts": "^2.5.0",
-    "express-session": "^1.15.6",
-    "file-stream-rotator": "^0.2.0",
-    "morgan": "^1.9.0",
     "serve-favicon": "^2.4.5"
   },
   "scripts": {
@@ -20,9 +17,6 @@
   },
   "author": "zhaoyong",
   "license": "ISC",
-  "bin": {
-    "node_project": "db.js"
-  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",

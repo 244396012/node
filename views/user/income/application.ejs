@@ -1,0 +1,436 @@
+<style>
+    .am-modal-dialog{width: 360px!important;}
+    #contentList .contentList .sy-withdrwa label.md{width: 130px;}
+</style>
+<div class="contentList sy-font-md sy-font-fm">
+    <div class="am-g">
+        <div class="am-u-sm-12 sy-font-md" style="margin-bottom: 1.5rem;padding-left: 0">
+            <span class="sy-bold sy-font-lg">申请提现&nbsp;</span>
+            <a class="sy-link" href="/income/application/detail">提现明细</a>
+        </div>
+    </div>
+    <div class="am-g sy-user-withdraw-nav am-btn-group" data-am-button>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="1" checked>云账户
+        </label>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="2">Paypal
+        </label>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="3">支付宝
+        </label>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="4">微信
+        </label>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="5">国内银行
+        </label>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="6">国外银行
+        </label>
+        <label class="am-u-sm-1 am-btn sy-font-md" style="width: 10%;">
+            <input type="radio" name="options" value="7">经营所得
+        </label>
+        <label class="am-u-sm-6" style="width: 22%">&nbsp;</label>
+    </div>
+    <!--云账户-->
+    <div class="sy-withdrwa sy-withdrwa-1 show">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input class="sy-put-sm" type="number" disabled>
+                <span class="tip">含奖金￥100.00</span>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">提现账户：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">申请金额：</label>
+                <input class="sy-put-sm" type="number" placeholder="请输入申请金额">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input class="sy-put-sm" type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md sy-bold">邮箱/手机验证码</label>
+                <input class="sy-put-sm" type="text" placeholder="请输入验证码">
+                <button class="sy-btn sy-btn-md sy-btn-blue-white sy-btn-sh">获取验证码</button>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+    <!--Paypal-->
+    <div class="sy-withdrwa sy-withdrwa-2">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input type="number" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">账号：</label>
+                <select class="sy-sel-default">
+                    <option value="">请选择账号</option>
+                </select>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户人姓名：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">联系方式：</label>
+                <input type="text" placeholder="请输入联系方式">
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">金额（CNY）：</label>
+                <input type="number" placeholder="请输入金额">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+    <!--支付宝-->
+    <div class="sy-withdrwa sy-withdrwa-3">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input type="number" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">账号：</label>
+                <select class="sy-sel-default">
+                    <option value="">请选择账号</option>
+                </select>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户人姓名：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">联系方式：</label>
+                <input type="text" placeholder="请输入联系方式">
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">金额（CNY）：</label>
+                <input type="number" placeholder="请输入金额">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+    <!--微信-->
+    <div class="sy-withdrwa sy-withdrwa-4">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input type="number" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">账号：</label>
+                <select class="sy-sel-default">
+                    <option value="">请选择账号</option>
+                </select>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户人姓名：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">联系方式：</label>
+                <input type="text" placeholder="请输入联系方式">
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">金额（CNY）：</label>
+                <input type="number" placeholder="请输入金额">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+    <!--国内银行-->
+    <div class="sy-withdrwa sy-withdrwa-5">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input type="number" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">账号：</label>
+                <select class="sy-sel-default">
+                    <option value="">请选择账号</option>
+                </select>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">证件类型：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">证件号：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户人姓名：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">银行账号：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">银行名称：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">银行支行名称：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户行支行所在省：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户行支行所在市：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">联系方式：</label>
+                <input type="text" placeholder="请输入联系方式">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">金额（CNY）：</label>
+                <input type="number" placeholder="请输入金额">
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+    <!--国外银行-->
+    <div class="sy-withdrwa sy-withdrwa-6">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input type="number" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">账号：</label>
+                <select class="sy-sel-default">
+                    <option value="">请选择账号</option>
+                </select>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户人姓名：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">国家：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">住址：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">BIC：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">IBAN：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">联系方式：</label>
+                <input type="text" placeholder="请输入联系方式">
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">金额（CNY）：</label>
+                <input type="number" placeholder="请输入金额">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+    <!--经营所得-->
+    <div class="sy-withdrwa sy-withdrwa-7">
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">可提现金额：</label>
+                <input type="number" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">账号：</label>
+                <select class="sy-sel-default">
+                    <option value="">请选择账号</option>
+                </select>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">开户人姓名：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">证件号：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">联系方式：</label>
+                <input type="text" placeholder="请输入联系方式">
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">金额（CNY）：</label>
+                <input type="number" placeholder="请输入金额">
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-6">
+                <label class="md" for="">个税：</label>
+                <input type="text" disabled>
+            </div>
+            <div class="am-u-sm-6">
+                <label class="md" for="">税后所得（CNY）：</label>
+                <input type="text" disabled>
+            </div>
+        </div>
+        <div class="am-g" style="margin-top: 2rem">
+            <div class="am-u-sm-12">
+                <label class="md" for=""></label>
+                <button class="sy-btn sy-btn-md sy-btn-blue-white">提 交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $.toolinfo({
+        title: '申请发送成功',
+        txt: '我们会在月底之前转入你的提现账户，请注意查收'
+    });
+    //获取选中的值
+    $(function() {
+        var $options = $('[name="options"]');
+        $options.on('change',function() {
+            var val = $options.filter(':checked').val();
+            $('.sy-withdrwa-'+ val)
+                .addClass('show')
+                .siblings('.sy-withdrwa')
+                .removeClass('show');
+        });
+    });
+</script>

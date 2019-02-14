@@ -3,12 +3,20 @@ var fs = require('fs');
 var express = require('express');
 var ejs = require('ejs');
 var ejsLayout = require('express-ejs-layouts');
-// var session = require('express-session');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var favicon = require('serve-favicon');
+/*
+*
+"express-session": "^1.15.6",
+"file-stream-rotator": "^0.2.0",
+"morgan": "^1.9.0",
+*
+var session = require('express-session');
 var morgan = require('morgan');//日志组件
 var FileStreamRotator = require('file-stream-rotator');//分割日志
+*
+* */
 var app = express();
 
 //基本设置
@@ -29,13 +37,13 @@ app.use('/static', express.static('static'));
 var pageRoute = require('./routes');
 var apiRoute = require('./routes/apiMiddle');
 
-
 //使用路由，控制页面跳转、加载等
 app.use('/', pageRoute);
 //转发后端接口服务器，前端调用
 app.use('/frontEnd', apiRoute);
 
-
+/*
+*
 //打印本地日志log
 var logDirectory = path.join(__dirname, 'logger');
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);//-- ensure log directory exists
@@ -46,6 +54,8 @@ var infoLogStream = FileStreamRotator.getStream({//-- create a rotating write st
     verbose: false
 });
 app.use(morgan('short', {stream: infoLogStream}));//-- setup the logger
+*
+* */
 
 //catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -85,9 +95,8 @@ app.use(function (err, req, res, next) {
     }
 });
 
-
 //服务启动入口
-var server = app.listen(3000, '192.168.3.11', function () {
+var server = app.listen(3000, '0.0.0.0', function () {
     var host = server.address().address;
     var port = server.address().port;
     console.log("应用启动，访问地址为 http://%s:%s", host, port);
