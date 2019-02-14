@@ -36,6 +36,8 @@ module.exports = [
             rules: [
                 {   //打包css、sass文件
                     test: /\.(scss|css)$/,
+					//打包除这个文件之外的文件
+                    exclude: path.resolve(__dirname,"./node_modules"),
                     //打包且压缩
                     use: ExtractTextPlugin.extract({
                         use:[{
@@ -44,7 +46,9 @@ module.exports = [
                             },
                             {
                                 loader:'sass-loader'
-                            }]
+                            },
+							'postcss-loader'
+						]
                     })
                 }
             ]
