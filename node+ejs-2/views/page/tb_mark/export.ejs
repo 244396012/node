@@ -1,0 +1,194 @@
+<link rel="stylesheet" href="/css/tb_mark.css">
+<div class="tb-page">
+    <div class="content-fasten">
+        <div class="tb-export">
+            <!--<p class="tips">词频：<span>(词频最高设置为100)</span></p>-->
+            <div class="operation">
+                <div class="scale">
+                    <!--<span class="reduce">-</span>-->
+                    <!--<input type="number" max="100" min="1" step="1" value="1">-->
+                    <!--<span class="plus">+</span>-->
+                </div>
+                <div class="pagination">
+                    <span class="prev"></span>
+                    <span class="current">-</span>/<span class="total">-</span>
+                    <span class="next"></span>
+                </div>
+            </div>
+            <div class="content">
+                <table class="am-table am-table-bordered am-table-centered">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>术语原文</th>
+                        <th>术语译文</th>
+                    </tr>
+                    </thead>
+                    <tbody id="exportTable">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tb-btn tb-export-btn">
+            <button class="am-btn am-btn-default" onclick="history.go(-1)"><i class="tb-icon"></i>返回结果页</button>
+            <button class="am-btn am-btn-default" id="exportBtn"><i class="tb-icon"></i>Excel导出</button>
+        </div>
+    </div>
+</div>
+<script>
+    $('header.header').addClass('header-bg');
+    $(function () {
+
+        //初始化，加载数据
+        (function () {
+            let init = new ExportFn();
+
+            init.load(init.page, init.size);
+
+            $('.prev').on('click',function () {
+                init.prev();
+            });
+
+            $('.next').on('click',function () {
+                init.next();
+            });
+
+            $('#exportTable').on('click', function (e) {
+                if(e.target.nodeName === 'A'){
+                    const id = e.target.dataset.id;
+                    init.del(id);
+                }
+            })
+
+            $('#exportBtn').on('click', function () {
+                init.expExcel(this);
+            });
+        })();
+
+
+
+    });
+
+    ExportFn.prototype = {
+        totalPage: 0,
+        size: 10,
+        page: 1,
+        //导出excel
+        expExcel: function (_this) {
+            const localData = JSON.parse(localStorage.getItem('yyq_zzs_client_local_term_unique'));
+            //要导出的json数据
+            const jsonData = [];
+            if(localData.length < 1){
+               return false;
+            }
+            localData.forEach((item, index) => {
+                jsonData.push({
+                    index: index + 1,
+                    source: item.source,
+                    target: item.target,
+                    desc: item.targetDesc
+                })
+            });
+
+            $(_this).prop('disabled', true);
+            $(_this).html('<i class="tb-icon"></i>导出中');
+
+            const url = __api__.dict + '/search/downloadMarkFile';
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          //  xhr.setRequestHeader('Authorization', 'Bearer 149fb0ef-0769-41d6-97d8-42e19041e7b2');
+            xhr.responseType = 'blob';
+
+            // 定义请求完成的处理函数
+            xhr.onload = function () {
+                // 请求完成
+                if (this.status === 200) {
+                    // 返回200
+                    const blob = this.response;
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);    // 转换为base64，可以直接放入a表情href
+                    reader.onload = function (e) {
+                        // 转换完成，创建一个a标签用于下载
+                        let a = document.createElement('a');
+                        a.download = '术语列表.xlsx';
+                        a.href = e.target.result;
+                        $("body").append(a);    // 修复firefox中无法触发click
+                        a.click();
+                        $(a).remove();
+                        $(_this).removeAttr('disabled');
+                        $(_this).html('<i class="tb-icon"></i>Excel导出');
+                    }
+                }
+            };
+            // 发送ajax请求
+            xhr.send('termStr='+JSON.stringify(jsonData));
+        }
+    }
+    //导出
+    function ExportFn() {
+        //加载数据
+        this.load = function (page, size) {
+            const localData = JSON.parse(localStorage.getItem('yyq_zzs_client_local_term_unique')),
+                total = localData.length,
+                totalPage = Math.ceil(total/size);
+            let str = '';
+            let start = (page - 1) * size,
+                end = size * page;
+            total < size && (end = total);
+            for(let i = start; i < end; i++){
+                const item = localData[i];
+                str += `<tr>
+                            <td>${i+1}</td>
+                            <td>${item.source}</td>
+                            <td>${item.target}<a class="del" href="javascript:void(0);" data-id="${item.id}">删除</a></td>
+                        </tr>`
+            }
+            if(total < 1){
+                str += `<tr>
+                            <td colspan="3">无数据</td>
+                        </tr>`
+            }else{
+                this.totalPage = totalPage;
+                $('.current').html(page);
+                $('.total').html(totalPage);
+            }
+            $('#exportTable').html(str);
+        }
+        //上一页
+        this.prev = function () {
+            let page = this.page;
+            if(page <= 1){
+                return false;
+            }
+            -- this.page;
+            this.load(this.page, this.size);
+        }
+        //下一页
+        this.next = function () {
+            let page = this.page;
+            if(page >= this.totalPage){
+                return false;
+            }
+            ++ this.page;
+            this.load(this.page, this.size);
+        }
+        //删除
+        this.del = function (id) {
+            const localData = JSON.parse(localStorage.getItem('yyq_zzs_local_term_unique'));
+            let i = 0;
+            while (i < localData.length){
+                if(id === localData[i].id){
+                    localData.splice(i,1);
+                    localStorage.setItem('yyq_zzs_local_term_unique',JSON.stringify(localData));
+                    this.load(1, this.size);
+                }
+                i ++;
+            }
+
+        }
+    }
+
+</script>

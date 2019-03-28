@@ -1,0 +1,132 @@
+<link rel="stylesheet" href="/css/tb_mark.css">
+<link rel="stylesheet" href="/static/lib/jquery.mCustomScrollbar.css">
+<link rel="stylesheet" href="/static/lib/jquery.mCustomScrollbar.extra_grey.css">
+<link rel="stylesheet" href="/static/lib/Huploadify.css">
+<div class="tb-page">
+    <div class="content-fasten">
+        <div class="search-box">
+            <select data-am-selected="{btnWidth: '120px', maxHeight: '180px', btnSize: 'sm', btnStyle: 'secondary'}">
+            </select>
+            <button id="drawBtn" class="am-btn am-btn-default draw-btn" disabled>提取术语</button>
+        </div>
+        <div id="tbBox" class="tb-textarea-box">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="tb-textarea">
+                <textarea id="tbArea" class="tb-textarea-inner"></textarea>
+                <div class="cancel" style="display: none"></div>
+            </div>
+            <div id="upload" class="upload"></div>
+            <div class="tb-total">
+                <span id="total">0</span>/5000
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/lib/jquery.mCustomScrollbar.js"></script>
+<script src="/static/lib/Huploadify.js"></script>
+<script>
+$('header.header').addClass('header-bg');
+$(function () {
+
+    const domain = __api__.dict;
+
+    $('#upload').Huploadify({
+        auto: true,
+        multi: false,
+        fileTypeExts:'*.doc;*.docx;*.txt',
+        fileSizeLimit: 2048,
+        showUploadedPercent:true,
+        showUploadedSize:true,
+        removeTimeout: 0,
+        uploader: domain + '/search/uploadTermMarkFile',
+        onUploadComplete:function(file, resTxt){
+            const res = JSON.parse(resTxt)
+            if(res.message === 'success'){
+                $('#tbArea').val(res.data);
+                $('#total').html(res.data.length);
+                $('div.cancel').show();
+                $('#drawBtn').removeAttr('disabled').addClass('active');
+            }else{
+                $.fail('上传失败，请重试');
+            }
+        }
+    });
+
+    //清除内容
+    $('div.cancel').on('click',function () {
+        $('#drawBtn').removeClass('active').prop('disabled',true);
+        $('#tbArea').val('');
+        $('#total').html(0);
+        $(this).hide();
+    });
+
+    //开关：术语提取、清除按钮功能
+    let timer = null;
+    $('#tbArea').on('input',function () {
+        const _this = this;
+        const total = _this.value.length;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            if(_this.value.trim() !== ''){
+                $('#total').html(total);
+                $('div.cancel').show();
+                $('#drawBtn').addClass('active').removeAttr('disabled');
+            }else{
+                $('div.cancel').hide();
+                $('#drawBtn').removeClass('active').prop('disabled',true);
+            }
+        },1000);
+    }).focus();
+
+    //提取术语
+    $('#drawBtn').on('click',function () {
+        const _this = this,
+            select = $('select[data-am-selected]');
+        const lan = select.val(),
+            txt = select.find('option:selected').text();
+        const source = lan.split(',')[0],
+            target = lan.split(',')[1];
+        const cnt = $('#tbArea').val(),
+            total = $('#total').text();
+        if($.trim(cnt) === ''){
+            $.fail('请输入提取内容');
+            return false;
+        }
+        if(+total > 5000){
+            $.fail('内容超出限制长度');
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: domain+ '/search/termMark',
+            dataType: 'json',
+            data: {
+                content: cnt,
+                sourceCode: source,
+                targetCode: target
+            },
+            beforeSend: function () {
+                $(_this).text('提取中');
+                $(_this).removeClass('active').prop('disabled',true);
+            },
+            success: function (res) {
+                if(res.message === 'success' && res.data.length > 0){
+                    $.success('提取成功');
+                    setTimeout(() => {
+                        location.href = '/tb/result?lan=' + encodeURIComponent(txt);
+                        localStorage.setItem('yyq_zzs_client_local_term',JSON.stringify(res.data));
+                    }, 1000);
+                }else{
+                    $.fail('提取失败，请重试');
+                }
+            },
+            complete: function () {
+                $(_this).text('提取术语');
+                $(_this).addClass('active').removeAttr('disabled');
+            }
+        });
+    })
+
+});
+</script>

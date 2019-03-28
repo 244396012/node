@@ -1,0 +1,20 @@
+.scroller .mCSB_scrollTools,
+.scroller .mCSB_scrollTools .mCSB_draggerRail,
+.scroller .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+    width: 5px; }
+
+.scroller .mCSB_scrollTools .mCSB_draggerRail {
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    background-color: #ccc; }
+
+.scroller .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    background-color: #999999; }
+.scroller .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar:hover {
+    background-color: #888; }
+.scroller .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar:active {
+    background-color: #888; }

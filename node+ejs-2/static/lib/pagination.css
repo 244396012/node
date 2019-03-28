@@ -1,0 +1,64 @@
+.pagination{
+    width: 100%;
+    font-size: 12px;
+    font-family: "Microsoft yahei", Verdana, Geneva, sans-serif;
+    text-align: right;
+}
+.pagination a{
+    display: inline-block;
+    padding: 3px 0;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: #333;
+}
+.Ch_paging_prev,.Ch_paging_next{
+    width: 30px;
+    margin-right: 5px;
+}
+.Ch_paging_btn>a{
+    width: 30px;
+    margin-right: 5px;
+}
+.Ch_paging_prev:hover,
+.Ch_paging_next:hover,
+.Ch_paging_btn a:hover{
+    background-color: #ccc;
+    color: #333;
+    border-color: #ccc;
+}
+.Ch_paging_prev:active,
+.Ch_paging_next:active,
+.Ch_paging_btn a:active{
+    opacity: .8;
+}
+.Ch_paging_btn>a.Ch_Paging_choose{
+    background-color: #41cca6;
+    color: #FFF;
+    border-color: #41cca6;
+}
+.Ch_paging_view_number select{
+    margin: 0 12px;
+    padding: 3px 0px;
+    outline: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    vertical-align: baseline;
+}
+.Ch_paging_jump input{
+    width: 50px;
+    margin-bottom: 3px;
+    padding: 4px 0;
+    outline: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    text-align: center;
+    vertical-align: baseline;
+}
+.Ch_paging_jump input:focus{
+    border-color: #41cca6;
+}
+.Ch_paging_count_number{
+    margin-right: 10px;
+}

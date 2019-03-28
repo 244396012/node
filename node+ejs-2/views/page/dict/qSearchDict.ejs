@@ -1,0 +1,42 @@
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/css/dict.css">
+<div class="dict-bg dict-quick-search">
+    <div class="content-fasten">
+        <p class="dict-tt dict-en">--</p>
+        <p class="dict-tt dict-zh">--</p>
+    </div>
+</div>
+<div class="dict-page dict-quick-search">
+    <div class="content-fasten clearFloat">
+        <div class="content-list">
+            <div class="searchBox">
+                <div class="search-box">
+                    <select data-am-selected="{btnWidth: '120px', maxHeight: '180px', btnSize: 'sm', btnStyle: 'secondary'}">
+                    </select>
+                    <input id="searchTxt" class="search-text" type="text" autocomplete="off">
+                    <button id="searchBtn" class="am-btn am-btn-default search-btn">搜索</button>
+                </div>
+            </div>
+            <div class="dict-hot">- 热搜推荐 -</div>
+            <div class="hot-list">
+
+            </div>
+        </div>
+        <div class="content-ad">
+
+        </div>
+    </div>
+</div>
+<script rel="server">
+    const dictTitle = {
+        en: __tool__.queryParam('en'),
+        zh: __tool__.queryParam('wd')
+    }
+
+    document.title = '专业词典-' + dictTitle.zh;
+    $('.dict-en').text(dictTitle.en.toUpperCase());
+    $('.dict-zh').text(dictTitle.zh);
+
+    __searchDict__.getDictBg();
+    __searchDict__.getHotWord();
+</script>

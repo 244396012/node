@@ -1,0 +1,234 @@
+<style>body{ overflow: hidden; }</style>
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/static/lib/jquery.mCustomScrollbar.css">
+<div class="index-bg">
+    <div class="content-fasten">
+        <div class="searchBox center">
+            <div class="logo">
+                <img src="/static/image/logo-lg.png" alt="LOGO">
+                <p>专业的多语知识服务平台！</p>
+            </div>
+            <div class="search-box">
+                <select data-am-selected="{btnWidth: '120px', maxHeight: '180px', btnSize: 'sm', btnStyle: 'secondary'}">
+                </select>
+                <input id="searchTxt" class="search-text" type="text" autocomplete="off">
+                <button id="searchBtn" class="am-btn am-btn-default search-btn">搜索</button>
+            </div>
+            <div class="list"></div>
+        </div>
+        <div class="mouse"></div>
+    </div>
+</div>
+<div class="index-page">
+    <div class="index-cnt scroller">
+        <div class="fixed-search hide">
+            <div class="content-fasten clearFloat">
+                <img src="/static/image/logo.png" alt="LOGO">
+            </div>
+        </div>
+        <div class="content-fasten clearFloat">
+            <h3>资讯推荐</h3>
+            <div class="content-list">
+                <div class="item-box">
+
+                </div>
+            </div>
+            <div class="content-ad">
+
+            </div>
+        </div>
+        <% include shared/footer.ejs %>
+    </div>
+</div>
+<script src="/static/lib/jquery.wheel.min.js"></script>
+<script src="/static/lib/jquery.mCustomScrollbar.js"></script>
+<script rel="server">
+    $('.wrapper>.footer').remove();
+    $(document).ready(function () {
+        let scrollTimer = null;
+        const indexFn = new IndexFn();
+        indexFn.set(0);
+        indexFn.getDict();
+        indexFn.getArticle();
+
+        $(".scroller").mCustomScrollbar({
+            mouseWheelPixels: 50,
+            scrollInertia: 0,
+            callbacks: {
+                //监听滚动，显示返回顶部按钮
+                onScroll: function () {
+                    const offTop = $('.mCSB_container').offset().top;
+                    const goTop = $('.goTop');
+                    if(Math.abs(offTop) >= 400 && goTop.length < 1){
+                        $('body').append(`
+                             <div class="goTop" onclick="$('.scroller').mCustomScrollbar('scrollTo','top')"></div>
+                        `);
+                    }else if(Math.abs(offTop) < 400){
+                        goTop.remove();
+                    }
+                },
+                onTotalScroll: function () { //滚动到底部
+                    clearTimeout(scrollTimer);
+                    scrollTimer = setTimeout(function () {
+                        if($('body').attr('data-load') === '-1'){
+                            $.fail('暂无更多数据');
+                            return false;
+                        }
+                        if($('.loading').length < 1){
+                            $('.content-list').append(`<div class="loading"><i></i><i></i><i></i></div>`);
+                            let { page } = indexFn.get();
+                            page ++;
+                            indexFn.set(page);
+                            setTimeout(function () {
+                                indexFn.getArticle();
+                            }, 1000);
+                        }
+                    }, 500);
+                }
+            }
+        });
+    });
+
+    IndexFn.prototype = {
+        //api接口
+        domain: __api__.dict,
+        //设置参数
+        set: function (page = 0,size = 12,total = 0) {
+            const zxCnt = $('.content-list');
+            zxCnt.attr('data-page', page);
+            zxCnt.attr('data-size', size);
+            zxCnt.attr('data-total', total);
+        },
+        //获取参数
+        get: function () {
+            const zxCnt = $('.content-list');
+            return {
+                page: zxCnt.attr('data-page'),
+                size: zxCnt.attr('data-size'),
+                total: zxCnt.attr('data-total')
+            }
+        }
+    }
+    function IndexFn() {
+        //获取词典列表
+        this.getDict = function () {
+            const domain = this.domain;
+            $.ajax({
+                type: 'GET',
+                url: domain + '/dic/listAll',
+                dataType: 'json',
+                success: function (res) {
+                    let itemStr = '';
+                    if(res.message === 'success'){
+                        let { data } = res;
+                        data.length > 20 && (data = data.slice(0,20))
+                        data.forEach(item => {
+                            itemStr += `<a class="item"
+                                           href="/dict/qsearch?wd=${encodeURIComponent(item.dicName)}&en=${item.dicNameEn}&id=${item.id}">
+                                           ${item.dicName}
+                                        </a>`
+                        });
+                        $('.index-bg .list').html(itemStr);
+                    }
+                }
+            })
+        }
+        //获取资讯列表
+        this.getArticle = function () {
+            const box = $('.item-box');
+            const _this = this;
+            const domain = this.domain;
+            const page = this.get().page;
+            const pageSize = this.get().size;
+            $.ajax({
+                type: 'GET',
+                url: domain + '/article/list',
+                dataType: 'json',
+                data: {
+                    page: page,
+                    pageSize: pageSize
+                },
+                success: function (res) {
+                    if(res.message === 'success'){
+                        let itemStr = '';
+                        const { data } = res;
+                        if(data.content.length < 1){
+                            $.fail('暂无更多数据');
+                            $('body').attr('data-load','-1');
+                        }else{
+                            data.content.forEach(item => {
+                                itemStr +=  `
+                                <div class="item">
+                                    <a class="target" href="/dict/detail?id=${item.id}">
+                                        <div class="shadow"><i></i></div>
+                                        <div class="img" style="background-image: url(${item.imageUrl})"></div>
+                                        <p class="title">${item.title.length > 28 ? item.title.slice(0,27)+'…' : item.title}</p>
+                                    </a>
+                                </div>`
+                            });
+                            _this.set(page, pageSize, data.totalElements);
+                            +_this.get().total === 0 ? box.html('暂无数据') : box.append(itemStr);
+                        }
+                        $('.loading').remove();
+
+                    }else{
+                        box.html('暂无数据');
+                    }
+                }
+            })
+        }
+    }
+</script>
+<script rel="fn">
+    const indexBgDiv = $('.index-bg');
+    const searchDiv = $('.searchBox');
+    const fixedDiv = $('.fixed-search');
+
+    indexBgDiv.css({
+        height: window.innerHeight
+    });
+    if($(window).scrollTop() > 0){
+        fixedDiv.removeClass('hide');
+        searchDiv.removeClass('center').addClass('fixed-box');
+        $('.index-bg').css({
+            marginTop: -window.innerHeight + 'px'
+        });
+    }
+
+    $('.scroller').height(window.innerHeight);
+
+    //向下滑动，首屏滑动
+    $(window).on('mousewheel', function (event, delta) {
+        let timer = null;
+        clearTimeout(timer);
+        if(delta < 0 ){
+            timer = setTimeout(function () {
+                fixedDiv.removeClass('hide').css({
+                    position: 'fixed'
+                });
+                searchDiv.removeClass('center').addClass('fixed-box');
+            },300);
+            $('.index-bg').stop().animate({
+                marginTop: -window.innerHeight + 'px'
+            },500);
+        }else if(delta > 0 && $(this).scrollTop() === 0){
+            timer = setTimeout(function () {
+                fixedDiv.addClass('hide').css({
+                    position: 'absolute'
+                });
+                searchDiv.removeClass('fixed-box').addClass('center');
+            },300);
+            $('.index-bg').stop().animate({
+                marginTop: '0px'
+            },500,function () {
+                fixedDiv.addClass('hide');
+            });
+        }
+    });
+    //改变窗口，reset高度
+    $(window).on('resize',function () {
+        indexBgDiv.css({
+            height: window.innerHeight
+        })
+    });
+</script>

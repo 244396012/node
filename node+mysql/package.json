@@ -1,0 +1,26 @@
+{
+  "name": "node_project",
+  "version": "1.0.0",
+  "description": "node练习",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "file-stream-rotator": "^0.2.0",
+    "morgan": "^1.9.0",
+    "mysql": "^2.15.0",
+    "serve-favicon": "^2.4.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "zy",
+  "license": "ISC",
+  "bin": {
+    "node_project": "db.js"
+  }
+}

@@ -1,0 +1,148 @@
+<link rel="stylesheet" href="/css/tb_mark.css">
+<link rel="stylesheet" href="/static/lib/jquery.mCustomScrollbar.css">
+<link rel="stylesheet" href="/static/lib/jquery.mCustomScrollbar.extra_grey.css">
+<div class="tb-page">
+    <div class="content-fasten">
+        <div class="tb-result">
+            <div class="tb-essay-box">
+                <button id="language" class="am-btn am-btn-default">--</button>
+                <div class="tb-essay essay-scroller scroller">
+                    <div class="tb-essay-inner">
+
+                    </div>
+                </div>
+            </div>
+            <div class="tb-word-box">
+                <button class="am-btn am-btn-default">提取结果</button>
+                <div class="tb-word-fixed">
+                    <table class="am-table am-table-bordered am-table-centered tb-word-pos">
+                        <tbody id="activeWord">
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tb-word word-scroller scroller">
+                    <div class="tb-word-inner">
+                        <table id="tbWord" class="am-table am-table-bordered am-table-centered">
+                            <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>提取词</th>
+                                <th>译文</th>
+                                <th>领域</th>
+                            </tr>
+                            </thead>
+                           <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tb-btn tb-result-btn">
+            <button class="am-btn am-btn-default" onclick="location.href='/tb'"><i class="tb-icon"></i>重新输入</button>
+            <button class="am-btn am-btn-default" onclick="location.href='/tb/export'"><i class="tb-icon"></i>导出结果</button>
+        </div>
+    </div>
+</div>
+<script src="/static/lib/jquery.mCustomScrollbar.js"></script>
+<script>
+    $('header.header').addClass('header-bg');
+    $(function () {
+
+        $(".essay-scroller").mCustomScrollbar({
+            mouseWheelPixels: 50,
+            scrollInertia: 0
+        });
+
+        $(".word-scroller").mCustomScrollbar({
+            mouseWheelPixels: 50,
+            scrollInertia: 0
+        });
+
+        if(!__tool__.queryParam('lan')){
+            location.href = '/tb';
+        }
+
+        $('#language').html(__tool__.queryParam('lan'));
+
+        //加载标记内容
+        (function () {
+            const localData = JSON.parse(localStorage.getItem("yyq_zzs_client_local_term"));
+            let cntStr = '', resStr = '';
+            let newArr = [], uniqueArr = [];
+            localData.forEach(item => {
+                let tempStr = item.content;
+                item.esResultList.forEach(item1 => {
+                    const reg = new RegExp(item1.searchKey, 'g');
+                    tempStr = tempStr.replace(reg,'<i>'+ item1.searchKey +'</i>');
+                    item1.resultList.forEach(item2 => {
+                        //数据去重
+                        if(!newArr.includes(item2.target)){
+                            newArr.push(item2.target);
+                            item2.searchKey = item1.searchKey;
+                            item2.showDesc = item1.showDesc;
+                            uniqueArr.push(item2);
+                        }
+                    });
+                });
+                cntStr += tempStr.replace(/[.\n]/ig,'</br>');
+            });
+            newArr = [];
+            //合并数据
+            const newUniqueArr = [];
+            uniqueArr.forEach(item => {
+                if(!newArr.includes(item.source)){
+                    const obj = {};
+                    obj.searchKey = item.searchKey;
+                    obj.showDesc = item.showDesc;
+                    obj.source = item.source;
+                    obj.list = [];
+                    obj.list.push(item);
+                    newUniqueArr.push(obj);
+                    newArr.push(item.source);
+                }else{
+                    newUniqueArr.forEach(item1 => {
+                        item.source === item1.source
+                        && item1.list.push(item);
+                    })
+                }
+            });
+            //加载dom
+            newUniqueArr.forEach((item, index) => {
+                item.list.forEach((item1, index1) => {
+                    let source = item.showDesc === 'sourceDesc' ? item1.source : item1.target,
+                        target = item.showDesc === 'sourceDesc' ? item1.target : item1.source;
+                    resStr += `<tr data-tg="${source}">
+                                ${index1 === 0 ? `<td rowspan="${item.list.length}">${index + 1}</td>` : ''}
+                                ${index1 === 0 ? `<td rowspan="${item.list.length}">${source}</td>` : ''}
+                                <td>${target}</td>
+                                <td>${item1.subDomain}</td>
+                            </tr>`;
+                });
+            });
+            $('.tb-essay-inner').html(cntStr);
+            $('#tbWord>tbody').html(resStr);
+            localStorage.setItem('yyq_zzs_client_local_term_unique', JSON.stringify(uniqueArr));
+        })();
+
+        //查看‘标记术语’详情
+        $('.tb-essay-inner').on({
+            'mouseover': function (e) {
+                if(e.target.nodeName === 'I'){
+                    const trs = $('#tbWord>tbody>tr');
+                    const txt = e.target.innerText;
+                    trs.toArray().forEach(item => {
+                        const tg = item.dataset.tg;
+                        if(tg === txt){
+                            const box = document.getElementById('activeWord');
+                            box.appendChild(item.cloneNode(true));
+                        }
+                    });
+                }
+            },
+            'mouseout': function () {
+                $('#activeWord').empty();
+            }
+        })
+    });
+</script>
