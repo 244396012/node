@@ -1,0 +1,75 @@
+<div class="account">
+    <div class="am-g">
+        <div class="am-u-sm-6 sy-lg-out">
+            <div class="sy-lg extra"></div>
+        </div>
+        <div class="am-u-sm-6">
+            <form class="am-form am-form-horizontal sy-account-wd">
+                <div class="am-form-group">
+                    <div class="am-u-sm-12 sy-center">
+                        <h3 class="sy-font-xlg">注 册</h3>
+                        <p class="sy-font-md" style="color: #999;margin: -.5rem 0 .5rem 0">一个拿单拿到手软的语言众包平台</p>
+                    </div>
+                </div>
+                <div class="am-form-group">
+                    <div class="am-u-sm-12">
+                        <input type="tel" id="telPhone" class="sy-input" placeholder="手机号" required>
+                    </div>
+                </div>
+                <div class="am-form-group">
+                    <div class="am-u-sm-12 sy-font-md">
+                        <div id="slide_box">
+                            <div id="slide_xbox">
+                                <div id="slideBtn">
+                                    <i class="am-icon-angle-double-right"></i>
+                                </div>
+                            </div>
+                            请按住滑块&nbsp;&nbsp;拖动到最右边
+                        </div>
+                    </div>
+                </div>
+                <div class="am-form-group">
+                    <div class="am-u-sm-7" style="padding-right: 0;">
+                        <input id="telCode" type="text" class="form-control sy-input sy-radius-left" placeholder="短信验证码" required>
+                    </div>
+                    <div class="am-u-sm-5" style="padding-left: 0;">
+                        <button id="telValidateBtn_Account" class="am-btn am-btn-default sy-btn sy-btn-default sy-font-md sy-radius-right">获取验证码</button>
+                    </div>
+                </div>
+                <div class="am-form-group">
+                    <div class="am-u-sm-12">
+                        <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                        <input id="password" type="password" class="sy-input" placeholder="密码" required autocomplete="off">
+                        <p class="tips">*请输入6位以上的密码</p>
+                    </div>
+                </div>
+                <div class="am-form-group">
+                    <div class="am-u-sm-12">
+                        <input id="applyCode" type="text" class="sy-input" placeholder="邀请码">
+                    </div>
+                </div>
+                <div class="am-form-group extra sy-font-sm">
+                    <div class="am-u-sm-12">
+                        点击注册按钮即表示您同意并遵守<a href="/account/agreement.html" class="sy-link" target="_blank">《服务条款》</a>
+                    </div>
+                </div>
+                <div class="am-form-group">
+                    <div class="am-u-sm-12">
+                        <button type="button" id="regBtn_Account" class="btn btn-default sy-btn sy-btn-default">注 册</button>
+                    </div>
+                    <div class="am-u-sm-12 sy-font-sm sy-right" style="margin-top: 1.2rem">
+                        已有帐号？<a class="sy-link" href="/login">立即登录</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(function (){
+        bundle.dragSlide();
+        //填充邀请码
+        var YQM = bundle.getQueryString('YQM');
+        YQM && $('#applyCode').val(YQM);
+    });
+</script>

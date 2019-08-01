@@ -1,0 +1,50 @@
+<div class="content">
+    <div class="about_page about help">
+        <aside class="about_aside">
+            <div class="tabItem tab-item active" id="help_about">关于啄语系统</div>
+            <div class="tabItem tab-item" id="help_account">注册/登录</div>
+        </aside>
+        <div class="about_cnt">
+            <div class="cntItem cnt-item help_about">
+                <h5 class="sy-baseColor">关于啄语系统</h5>
+                <div class="am-panel-group" id="help_about_accordion">
+                    <div class="am-panel am-panel-default">
+                        <div class="am-panel-hd">
+                            <h4 class="am-panel-title" data-am-collapse="{parent: '#help_about_accordion', target: '#help_about_1'}">啄语系统是什么？</h4>
+                        </div>
+                        <div id="help_about_1" class="am-panel-collapse am-collapse am-in">
+                            <div class="am-panel-bd">
+                                <p>1.这是内容1111111111</p>
+                                <p>2.这是内容2222222222</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="am-panel am-panel-default">
+                        <div class="am-panel-hd">
+                            <h4 class="am-panel-title" data-am-collapse="{parent: '#help_about_accordion', target: '#help_about_2'}">我们需要什么样的译员？</h4>
+                        </div>
+                        <div id="help_about_2" class="am-panel-collapse am-collapse">
+                            <div class="am-panel-bd">
+                                ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cntItem cnt-item help_account sy-hidden">
+                <h5>【定义及解释1】</h5>
+                <p>这是内容这是内容这是内容这是内容这是内容这是内容</p>
+                <h5>【定义及解释2】</h5>
+                <p>这是内容这是内容这是内容这是内容这是内容这是内容</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('.tabItem').on('click', function (){
+        var _this = this,
+            _target = _this.id;
+        $(_this).addClass('active').siblings().removeClass('active');
+        $('.'+ _target).removeClass('sy-hidden').siblings().addClass('sy-hidden');
+    });
+</script>

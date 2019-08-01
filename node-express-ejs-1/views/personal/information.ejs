@@ -1,0 +1,174 @@
+<div class="personal information">
+    <div class="am-g sy-personal-hd">
+        <div class="am-u-lg-6 sy-center sy-bold">基本信息</div>
+        <div class="am-u-lg-6 sy-center sy-person-title">
+            <span class="edit"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-3 extra sy-right" style="height: 128px">
+            <img id="headerIcon" src="/static/image/personal-default-head.png" alt="头像">
+            <div id="upload" class="sy-hidden"></div>
+            <div class="upload-btn sy-center" onclick="$('a.uploadify-button').click()">
+                <i class="sy-personal-icon sy-personal-icon-head"></i>
+            </div>
+        </div>
+        <div class="am-u-lg-9 extra">
+            <div class="sy-personal-cnt">
+                <!--未编辑时，添加class: sy-disabled-->
+                <form class="sy-personal-form sy-personal-base">
+                    <div class="item">
+                        <div><i class="required">*</i>昵称：</div>
+                        <div><input id="nickName" type="text" required prop="昵称" placeholder="快给自己想一个拉风的名字吧！>_<">
+                            <p class="tips">* 昵称可由中文、字母和数字组合，长度4-20位，确认后不能修改</p>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div>姓名：</div>
+                        <div><input id="realName" type="text" placeholder="请输入真实姓名"></div>
+                    </div>
+                    <div class="item">
+                        <div>性别：</div>
+                        <div><select id="sex">
+                                <option value=""></option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select></div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>国籍：</div>
+                        <div>
+                            <select id="nationality" required data-am-selected="{searchBox: 1}">
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>母语：</div>
+                        <div><select id="motherTogue" required class="languageOption"></select></div>
+                    </div>
+                    <div class="item">
+                        <div>出生日期：</div>
+                        <div>
+                            <input id="birthday" type="text" class="am-form-field birthDay" placeholder="请选择出生日期"/>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>翻译年限：</div>
+                        <div><select id="translateYear" required prop="翻译年限">
+                                <option value=""></option>
+                                <option value="1年以内">1年以内</option>
+                                <option value="1-3年">1-3年</option>
+                                <option value="3-5年">3-5年</option>
+                                <option value="5年-10年">5年-10年</option>
+                                <option value="10年以上">10年以上</option>
+                            </select></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="am-g sy-personal-hd">
+        <div class="am-u-lg-6 sy-center sy-bold">联系方式</div>
+        <div class="am-u-lg-6 sy-center sy-person-title">
+            <span class="edit"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-3 extra sy-right"></div>
+        <div class="am-u-lg-9 extra">
+            <div class="sy-personal-cnt">
+                <form class="sy-personal-form sy-personal-base"><!--未编辑时，添加class: sy-disabled-->
+                    <div class="item">
+                        <div>手机：</div>
+                        <div><input id="telephone" type="tel" disabled></div>
+                    </div>
+                    <div class="item">
+                        <div>邮箱：</div>
+                        <div><input id="email" type="email" placeholder="请输入邮箱地址"></div>
+                    </div>
+                    <div class="item">
+                        <div>QQ：</div>
+                        <div><input id="qq" type="text" placeholder="请输入QQ号码"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="am-g" style="margin: 2rem 0">
+        <div class="am-u-lg-3 extra sy-right"></div>
+        <div class="am-u-lg-9 extra">
+            <button id="addInfoBtn_Information" class="btn btn-default sy-btn sy-btn-green sy-btn-md" style="margin-left: 120px;font-size: 14px;">提交</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/static/lib/laydate.min.js"></script>
+<script src="/static/lib/Huploadify.js"></script>
+<script>
+$(function() {
+    laydate.render({ elem: '.birthDay' });
+    //获取基本信息
+    __api__.getPageInformation();
+
+    //上传头像
+    setTimeout(function () {
+        $('#upload').Huploadify({
+            auto: true,
+            multi: false,
+            fileTypeExts: '*.jpg;*.png;*.jpeg;*.gif',
+            fileObjName: 'multipartFile',
+            formData: {
+                userId: localStorage.getItem('sy_rm_client_ud')
+            },
+            token: 'bearer '+localStorage.getItem('sy_rm_client_access_token'),
+            fileSizeLimit: 1024,
+            uploader: __api__.baseRMUrl + '/userExtension/uploadHeaderImg',
+            onUploadStart: function () {
+                $.loading('正在上传');
+            },
+            onUploadComplete: function(file, res){
+                var resJson = JSON.parse(res);
+                if(resJson.message === 'success'){
+                    $('#sy-loading').remove();
+                    if(resJson.data){
+                        $('#headerIcon').attr('src', resJson.data);
+                        $('#headIcon_Header').attr('src', resJson.data);
+                        $('.headIcon_AsideU').attr('src', resJson.data);
+                    }
+                }
+            },
+            onUploadError: function(file, res){
+                var resJson = JSON.parse(res);
+                $('#sy-loading').remove();
+                $.error(resJson.message);
+            }
+        });
+    }, 1500);
+
+    //获取语言对
+    __api__.getResponse({
+        url: '/language/listAll'
+    }).then(res => {
+        var optionStr = '';
+        if(res.message === 'success'){
+            res.data.forEach(item => {
+                optionStr += `<option value="${item.chineseName}">${item.chineseName}</option>`
+            });
+            $('.languageOption').html(optionStr).val('中文 - 中国');
+        }else{
+            console.log(res.message);
+        }
+    });
+
+    //编辑个人信息
+    $('span.edit').on('click', function () {
+        var _this = this,
+            targetDiv = $(_this).parents('.am-g').next('.am-g').find('form');
+        $('#addInfoBtn_Information').show();
+        targetDiv.removeClass('sy-disabled');
+        targetDiv.find('p.tips').show();
+        targetDiv.find('.am-selected button').removeAttr('disabled');
+        targetDiv.find('input,select').not('#telephone,#nickName').removeAttr('disabled');
+    });
+});
+</script>

@@ -1,0 +1,47 @@
+<style>html,body{background: #FCFCFC}</style>
+<div class="article_page information information_detail industry_detail">
+    <div class="content">
+        <div class="detail_cnt">
+            <h3 class="articleTitle title sy-center">--</h3>
+            <div class="title am-g">
+                <div class="am-u-md-1 sy-center">
+                    <img class="articleUserPicture" src="/static/image/index-default-head.png" alt="">
+                </div>
+                <div class="am-u-md-11">
+                    <h5 class="articleUserName">--</h5>
+                    <div class="am-g">
+                        <div class="am-u-sm-6">发布时间：<span class="articleCreateTime">--</span></div>
+                        <div class="am-u-sm-2 sy-right">
+                            <i class="sy-icon icon-eye"></i>0
+                        </div>
+                        <div class="am-u-sm-2 sy-right">
+                            <i class="sy-icon icon-thumbs"></i>0
+                        </div>
+                        <div class="am-u-sm-2 sy-right">
+                            <i class="sy-icon icon-commenting"></i>0
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="articleContent detail">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    var previewData = JSON.parse(sessionStorage.getItem('previewArticle'));
+    if(!previewData) {
+        location.href = "/personalArticle/create";
+    }else{
+        $('.articleTitle').html(previewData.title);
+        $('.articleUserPicture').attr("src",previewData.picture);
+        $('.articleUserName').html(previewData.author);
+        $('.articleCreateTime').html(previewData.createTime);
+        $('.articleContent').html(previewData.content);
+    }
+
+}, false);
+</script>

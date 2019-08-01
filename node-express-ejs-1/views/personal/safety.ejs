@@ -1,0 +1,163 @@
+<div class="personal safety">
+    <div class="am-g sy-font-md nav-filter setFilter">
+        <label data-sy-type="update-pwd" class="active">修改密码</label>
+        <label data-sy-type="balance-pwd">结算密码</label>
+        <label data-sy-type="binding">绑定设置</label>
+    </div>
+    <div class="set-page setPage">
+        <div class="am-u-lg-12 update-pwd">
+            <div class="sy-personal-cnt">
+                <div class="add-form">
+                    <form class="sy-personal-form sy-personal-base">
+                        <div class="item">
+                            <div>输入原密码：</div>
+                            <div>
+                                <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                                <input id="prePwd" type="password" required placeholder="请输入原密码">
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div>输入新密码：</div>
+                            <div>
+                                <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                                <input id="newPwd" type="password" required placeholder="请输入新密码"/></div>
+                        </div>
+                        <div class="item">
+                            <div>确认新密码：</div>
+                            <div>
+                                <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                                <input id="conNewPwd" type="password" required placeholder="请确认新密码"/></div>
+                        </div>
+                        <div class="item">
+                            <div></div>
+                            <div>
+                                <button id="updatePwdBtn_Safety" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="am-u-lg-12 balance-pwd sy-hidden">
+            <div class="sy-personal-cnt">
+                <div class="add-form">
+                    <form class="sy-personal-form sy-personal-base">
+                        <div class="item code">
+                            <div>登录手机号：</div>
+                            <div>
+                                <input id="telPhone" type="tel" required disabled placeholder="请输入手机号">
+                                <button id="validateBtn_Safety" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh safety">获取验证码</button>
+                                <button id="updateTelBtn" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh sy-hidden">修改结算密码</button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div>输入验证码：</div>
+                            <div><input id="telCode" type="text" required placeholder="请输入验证码"/></div>
+                        </div>
+                        <div class="item">
+                            <div>设置结算密码：</div>
+                            <div>
+                                <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                                <input id="settlePwd" type="password" required placeholder="请输入结算密码"/></div>
+                        </div>
+                        <div class="item">
+                            <div>确认结算密码：</div>
+                            <div>
+                                <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                                <input id="settleRePwd" type="password" required placeholder="请确认结算密码"/></div>
+                        </div>
+                        <div class="item">
+                            <div></div>
+                            <div>
+                                <button id="settlePwdBtn_Safety" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="am-u-lg-12 binding sy-hidden">
+            <div class="sy-personal-cnt">
+                <div class="add-form">
+                    <h3 style="font-size: 15px;">邮箱绑定</h3>
+                    <form class="sy-personal-form sy-personal-base">
+                        <div class="item code updateCode sy-hidden">
+                            <div>邮箱地址：</div>
+                            <div>
+                                <input id="updateEmail" type="email" disabled>
+                                <button id="updateEmailBtn" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">重新绑定</button>
+                            </div>
+                        </div>
+                        <div class="item code">
+                            <div>邮箱地址：</div>
+                            <div>
+                                <input id="email" type="email" required placeholder="请输入邮箱地址">
+                                <button id="emailCodeBtn_Safety" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">获取验证码</button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div>输入验证码：</div>
+                            <div><input id="emailCode" type="text" required placeholder="请确认验证码"/></div>
+                        </div>
+                        <div class="item">
+                            <div></div>
+                            <div>
+                                <button id="bindingEmailBtn_Safety" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                    <h3 style="margin-top: 4.5rem;font-size: 15px;">微信绑定</h3>
+                    <div class="wx">
+                        <img src="/static/image/gongzhonghao.jpg" alt="微信公众号">
+                        <p>请用微信扫码上方二维码绑定</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //tab切换窗口
+    $('.setFilter').on('click', function (e) {
+        if(e.target.nodeName === 'LABEL'){
+            var _this = $(e.target),
+                type = _this.attr('data-sy-type');
+            _this.addClass('active').siblings().removeClass('active');
+            $('.setPage').find('.'+type).removeClass('sy-hidden').siblings().addClass('sy-hidden');
+        }
+    });
+    //修改结算密码、邮箱绑定
+    $('#updateTelBtn').click(function () {
+        $(this).parents('.item').nextAll('.item').removeClass('sy-hidden');
+        $(this).prev().removeClass('sy-hidden');
+        $(this).addClass('sy-hidden');
+    });
+    $('#updateEmailBtn').click(function () {
+        var elDiv = $('.updateCode');
+        elDiv.addClass('sy-hidden');
+        elDiv.nextAll('.item').removeClass('sy-hidden');
+    });
+    //获取初始信息
+    __api__.getResponse({
+        url: '/userExtension/findResumeByUserId',
+        data: {
+            userId: localStorage.getItem('sy_rm_client_ud')
+        }
+    }).then(res => {
+        if(res.message === 'success'){
+            $('#telPhone').val(res.data.telephone);
+            if(+res.data.userExtension.bindEmail === 1){
+                var elDiv = $('.updateCode');
+                $('#updateEmail').val(res.data.email);
+                elDiv.removeClass('sy-hidden');
+                elDiv.nextAll('.item').addClass('sy-hidden');
+            }
+            if(res.data.userExtension.settlePassword){
+                var telBtn = $('#updateTelBtn');
+                telBtn.removeClass('sy-hidden');
+                telBtn.prev().addClass('sy-hidden');
+                telBtn.parents('.item').nextAll('.item').addClass('sy-hidden');
+            }
+        }
+    });
+</script>

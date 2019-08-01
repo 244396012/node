@@ -1,0 +1,86 @@
+<div class="personal skill">
+    <div class="am-g">
+        <div class="am-u-lg-9 sy-bold sy-font-lg">您还未做任何的语言选择，请选择您最擅长的语言，开始接单接到手软之旅~</div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-12 sy-font-md" style="margin: 1.2rem 0;">最多只能选择2项外语语种</div>
+        <div class="am-u-lg-12" style="position: relative;">
+            <ul class="sy-font-md language-list languageList"></ul>
+            <span class="sy-font-md sy-center sy-hidden more" data-sy-more="false" title="展开"><i class="am-icon-angle-down"></i></span>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-12 language-cnt languageCnt">
+            <div class="bg"></div>
+        </div>
+    </div>
+</div>
+<script>
+    //获取语言
+    __api__.getResponse({
+        url: '/language/listAll'
+    }).then(res => {
+        var optionStr = '';
+        if(res.message === 'success'){
+            res.data.forEach((item, index) => {
+                if(item.englishName !== 'zh-CN'){
+                    if(index < 7){
+                        optionStr += `<li data-value="${item.englishName}">${item.chineseName}</li>`;
+                    }else{
+                        optionStr += `<li class="sy-more sy-hidden" data-value="${item.englishName}">${item.chineseName}</li>`;
+                    }
+                }
+            });
+            $('.languageList').html(optionStr);
+            $('span.more').removeClass('sy-hidden');
+            //获取擅长语言
+            __api__.getPageSkill();
+        }
+    });
+    //选择语种
+    $('ul.languageList').on('click', function (e) {
+        var target = $(this);
+        if(e.target.nodeName === 'LI'){
+           var _this = $(e.target);
+           if(_this.hasClass('active')) return;
+           if(target.find('li.active').length < 2){
+               const targetCode = _this.attr('data-value'),
+                   targetName = _this.html();
+               $.loading('数据获取中');
+               __api__.getResponse({
+                   type: 'post',
+                   url: '/exam/customer/createAdepetLanguage',
+                   data: {
+                       originLanguageCode: 'zh-CN',
+                       originLanguageName: '中文 - 中国',
+                       secondLuanguageCode: targetCode,
+                       secondLuanguageName: targetName
+                   }
+               }).then(res => {
+                   if(res.message === 'success'){
+                       _this.addClass('active');
+                       __api__.getPageSkill();
+                   }else{
+                       $.error(res.message);
+                   }
+               });
+           }else {
+               $.warning('最多选择2项语种');
+               return false;
+           }
+       }
+    });
+    //展开、收缩语种
+    $('span.more').on('click', function () {
+        var _this = $(this);
+        var target = $('ul.languageList'),
+            isHide = _this.attr('data-sy-more');
+        if(isHide === 'false'){
+            target.find('li.sy-more').removeClass('sy-hidden');
+            _this.attr({'data-sy-more': 'true', 'title': '收起'}).html('<i class="am-icon-angle-up">');
+        }else{
+            target.find('li.sy-more').addClass('sy-hidden');
+            _this.attr({'data-sy-more': 'false', 'title': '展开'}).html('<i class="am-icon-angle-down">');
+        }
+    });
+</script>

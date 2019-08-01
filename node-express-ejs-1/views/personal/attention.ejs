@@ -1,0 +1,65 @@
+<div class="personal attention">
+    <div class="am-g">
+        <div class="am-u-lg-6">
+            <div>RM系统广播通知</div>
+            <div class="set set-rm">
+                <i class="toggle rm-toggle"></i>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 短信提醒
+                </label>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 微信提醒
+                </label>
+            </div>
+        </div>
+        <div class="am-u-lg-6">
+            <div>推送给我的订单</div>
+            <div class="set set-rm">
+                <i class="toggle order-toggle"></i>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 短信提醒
+                </label>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 微信提醒
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-6">
+            <div>评价反馈通知</div>
+            <div class="set set-rm">
+                <i class="toggle asses-toggle"></i>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 短信提醒
+                </label>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 微信提醒
+                </label>
+            </div>
+        </div>
+        <div class="am-u-lg-6">
+            <div>其他系统通知</div>
+            <div class="set set-rm">
+                <i class="toggle other-toggle"></i>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 短信提醒
+                </label>
+                <label class="am-checkbox am-success">
+                    <input type="checkbox" value="" data-am-ucheck> 微信提醒
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="am-g" style="margin: 4rem 0;">
+        <button type="button" class="sy-btn sy-btn-green sy-btn-md extra">保存</button>
+    </div>
+</div>
+<script>
+    $('.attention').on('click', function (e) {
+       if(e.target.nodeName === 'I' && e.target.classList.contains('toggle')){
+           var _this = $(e.target);
+           _this.toggleClass('on');
+       }
+    });
+</script>

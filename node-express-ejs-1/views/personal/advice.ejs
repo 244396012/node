@@ -1,0 +1,231 @@
+<style>
+    div.uploadBts{display: none}
+    i.iconfont.icon-shanchu{color: #999!important;}
+    div.fileUploadContent .box{border: none; padding-left: 84px}
+</style>
+<div class="personal advice">
+    <div class="am-g">
+        <div class="am-u-lg-6 sy-bold sy-font-lg">意见反馈</div>
+        <div class="am-u-lg-6 sy-right">
+            <button id="writePage" type="button" class="sy-btn sy-btn-sm sy-btn-green sy-font-md ">我的意见反馈</button>
+            <button id="listPage" type="button" class="sy-btn sy-btn-sm sy-btn-green sy-font-md sy-hidden">填写意见反馈</button>
+        </div>
+    </div>
+    <div class="writePage">
+        <div class="item">
+            <span>* 反馈类型：</span>
+            <label class="am-radio am-success">
+                <input type="radio" name="advice" value="平台Bug" data-am-ucheck> 平台Bug
+            </label>
+            <label class="am-radio am-success">
+                <input type="radio" name="advice" value="体验优化" data-am-ucheck> 体验优化
+            </label>
+            <label class="am-radio am-success">
+                <input type="radio" name="advice" value="投诉与建议" data-am-ucheck> 投诉与建议
+            </label>
+            <label class="am-radio am-success">
+                <input type="radio" name="advice" value="其他" data-am-ucheck> 其他
+            </label>
+        </div>
+        <div class="item">
+            <span>* 反馈说明：</span>
+            <textarea class="adviceTextarea" placeholder="万水千山总是情，留点意见行不行..."></textarea>
+            <span class="writeFont">0/300</span>
+        </div>
+        <div class="item" style="margin-top: 35px">
+            <span>&nbsp; 相关附件：</span>
+            <input type="text" placeholder="请上传相关附件，最多只能上传三张图片">
+            <button type="button" class="sy-btn sy-btn-sm sy-btn-green upload-btn"
+                    onclick="$('div.selectFileBt').click()">+ 上传附件</button>
+            <div id="fileUploadContent" class="fileUploadContent"></div>
+
+        </div>
+        <div class="item sy-mg-t-50">
+            <span></span>
+            <button type="button" class="sy-btn sy-btn-md sy-btn-green sendAdviceBtn">提 交</button>
+        </div>
+    </div>
+    <div class="listPage sy-hidden">
+        <div class="contentList">
+
+        </div>
+        <div class="sy-center sy-mg-t-50">
+            <button type="button"
+                    data-page="0"
+                    class="sy-btn sy-btn-sm sy-btn-green sy-hidden loadMoreBtn">加载更多</button>
+        </div>
+        <button class="am-btn am-btn-primary sy-hidden imgModalBtn"
+                data-am-modal="{target: '#imgModal'}">Detail Img Modal</button>
+        <div class="am-modal am-modal-no-btn" tabindex="-1" id="imgModal">
+            <img class="detailImg" src="/" alt="">
+        </div>
+    </div>
+</div>
+<script src="/static/lib/fileUpload/js/fileUpload.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    function getEl (name){
+        return document.getElementsByClassName(name)[0];
+    }
+
+    //提交意见
+        $('.sendAdviceBtn').click(function () {
+            var type = $('input[name=advice]:checked').val(),
+                content = $('.adviceTextarea').val();
+            if(!type || content.trim() === ''){
+                $.warning('请填写相关内容');
+                return null;
+            }
+            $('.fileUploadBtn').click();
+        });
+
+//上传图片附加
+        $("#fileUploadContent").initUpload({
+            'method': 'post',
+            'fileName': 'multipartFile',
+            "uploadUrl":__api__.baseRMUrl+ "/feedback/saveFeedBack",//上传文件信息地址
+            "fileType":['png','jpg','jpeg','gif'],//文件类型限制，默认不限制
+            "isHiddenUploadBt":false,//是否隐藏上传按钮
+            "isHiddenCleanBt":true,//是否隐藏清除按钮
+            "isAutoClean":true,//是否上传完成后自动清除
+            "maxFileNumber":3,//文件个数限制，为整数
+            "ismultiple":true,//是否允许多选
+            "autoCommit":false,//是否自动上传
+            "beforeUpload":function (opt) {//在上传前执行的函数
+                var type = $('input[name=advice]:checked').val(),
+                    content = $('.adviceTextarea').val().replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                getEl('sendAdviceBtn').setAttribute('disabled', true);
+                getEl('sendAdviceBtn').innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
+                opt.formData = {
+                    type: type,
+                    content: content
+                }
+            },
+            "onUpload":function (opt, data) {//在上传后执行的函数
+                if(data.message === 'success'){
+                    $.success('提交成功');
+                    setTimeout(function () {
+                        $('input[name=advice]').removeAttr('checked');
+                        $('.adviceTextarea').val('');
+                        $('#writePage').click();
+                        __api__.getAdviceList();
+                    }, 1000);
+                }else{
+                    $.error(data.message);
+                }
+                getEl('sendAdviceBtn').removeAttribute('disabled');
+                getEl('sendAdviceBtn').innerHTML = '提 交';
+            }
+        });
+
+//加载“我的反馈”列表
+        __api__.getAdviceList();
+
+        $(".loadMoreBtn").click(function () {
+            var page = this.dataset.page;
+            this.setAttribute('disabled', true);
+            this.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
+            __api__.getAdviceList(page);
+        });
+
+//切换页面
+        $('#writePage,#listPage').on('click', function () {
+            var _this = this,
+                page = _this.id;
+            $(_this).addClass('sy-hidden').siblings().removeClass('sy-hidden');
+            $('.'+page).addClass('sy-hidden').siblings().removeClass('sy-hidden');
+        });
+//显示“反馈列表”大图
+        $('.listPage')[0].addEventListener('click', function (e) {
+            var event = e || window.event,
+                target = event.target || event.srcElement;
+            if(target.nodeName === 'IMG'){
+                var src = target.getAttribute('src'),
+                    tarImg = $('.detailImg')[0];
+                tarImg.setAttribute('src', src);
+                $('.imgModalBtn').click();
+            }
+        }, false);
+
+        var textArea = getEl('adviceTextarea');
+//文本域高度自适应
+        (function (elem, extra, maxHeight) {
+            extra = extra || 0;
+            var isFirefox = !!document.getBoxObjectFor || 'mozInnerScreenX' in window,
+                isOpera = !!window.opera && !!window.opera.toString().indexOf('Opera'),
+                addEvent = function (type, callback) {
+                    elem.addEventListener ?
+                        elem.addEventListener(type, callback, false) :
+                        elem.attachEvent('on' + type, callback);
+                },
+                getStyle = elem.currentStyle ? function (name) {
+                    var val = elem.currentStyle[name];
+
+                    if (name === 'height' && val.search(/px/i) !== 1) {
+                        var rect = elem.getBoundingClientRect();
+                        return rect.bottom - rect.top -
+                            parseFloat(getStyle('paddingTop')) -
+                            parseFloat(getStyle('paddingBottom')) + 'px';
+                    };
+
+                    return val;
+                } : function (name) {
+                    return getComputedStyle(elem, null)[name];
+                },
+                minHeight = parseFloat(getStyle('height'));
+
+            elem.style.resize = 'none';
+
+            var change = function () {
+                var scrollTop, height,
+                    padding = 0,
+                    style = elem.style;
+
+                if (elem._length === elem.value.length) return;
+                elem._length = elem.value.length;
+
+                if (!isFirefox && !isOpera) {
+                    padding = parseInt(getStyle('paddingTop')) + parseInt(getStyle('paddingBottom'));
+                };
+                scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+
+                elem.style.height = minHeight + 'px';
+                if (elem.scrollHeight > minHeight) {
+                    if (maxHeight && elem.scrollHeight > maxHeight) {
+                        height = maxHeight - padding;
+                        style.overflowY = 'auto';
+                    } else {
+                        height = elem.scrollHeight - padding;
+                        style.overflowY = 'hidden';
+                    };
+                    style.height = height + extra + 'px';
+                    scrollTop += parseInt(style.height) - elem.currHeight;
+                    document.body.scrollTop = scrollTop;
+                    document.documentElement.scrollTop = scrollTop;
+                    elem.currHeight = parseInt(style.height);
+                };
+            };
+
+            addEvent('propertychange', change);
+            addEvent('input', change);
+            addEvent('focus', change);
+            change();
+        })(textArea);
+//文本域长度限制
+        textArea.addEventListener('input', bundle.throttleFn(function () {
+            var _this = this,
+                font = $('.writeFont'),
+                val = _this.value,
+                len = _this.value.length;
+            if(len >= 300){
+                $.warning('内容长度超过限制');
+                _this.value = val.slice(0, 300);
+                font.html(`${_this.value.length}/300`);
+                return null;
+            }
+            font.html(`${len}/300`);
+        }, 500), false);
+
+    }, false);
+</script>

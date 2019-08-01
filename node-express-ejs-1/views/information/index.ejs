@@ -1,0 +1,23 @@
+<div class="article_page information speaker">
+    <div class="main-bg"></div>
+    <div class="content">
+       <div class="cnt goodArticleCnt">
+
+           <div class="sy-mg-t-30 sy-center more">
+               <button class="sy-btn sy-hidden loadMoreBtn_Speaker" type="button">加载更多</button>
+               <input class="loadMorePageNo_Speaker" type="hidden" value="0">
+           </div>
+       </div>
+    </div>
+</div>
+<script>
+(function () {
+
+    __api__.getGoodArticle();
+
+    $('.loadMoreBtn_Speaker')[0].addEventListener('click', function () {
+        __api__.getGoodArticle();
+    }, false);
+
+}());
+</script>

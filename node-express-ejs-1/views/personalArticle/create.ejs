@@ -1,0 +1,92 @@
+<style>html,body{background: #FCFCFC}</style>
+<div class="article_page information information_detail industry_detail create_article">
+    <div class="content">
+        <div class="detail_cnt">
+            <div class="create-form">
+                <div class="form-item">
+                    <label class="form-item-title">标题：</label>
+                    <input class="form-item-input createArticle_Title controlArticleTitleLength" type="text" placeholder="请输入文章标题">
+                    <span class="fontTotal">0/50</span>
+                </div>
+                <div class="form-item">
+                    <label class="form-item-title">标签：</label>
+                    <select class="form-item-select createArticle_Label">
+                        <option value="">请选择文章标签</option>
+                        <option value="翻译交流">翻译交流</option>
+                        <option value="心得体会">心得体会</option>
+                        <option value="生活日常">生活日常</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label class="form-item-title">封面：</label>
+                    <input class="form-item-input extra createArticle_CoverImg"
+                           type="text"
+                           disabled
+                           style="background: #fff"
+                           placeholder="请上传封面图，此处展示的是封面图名称">
+                    <button type="button"
+                            class="sy-btn sy-btn-green sy-btn-md"
+                            onclick="$('a.uploadify-button').click()">上传封面图</button>
+                    <p class="tip">* 图片格式仅支持JPG、PNG两种格式，大小不超过3M</p>
+                    <div id="upload" class="sy-hidden"></div>
+                    <input type="hidden" class="createArticle_CoverUrl">
+                </div>
+                <div id="editor" class="createArticle_Editor">
+
+                </div>
+                <div class="btns sy-mg-t-50 sy-center sy-font-md">
+                    <button type="button" class="sy-btn sy-btn-default sy-btn-md createArticle_DraftBtn">保存草稿</button>
+                    <button type="button" class="sy-btn sy-btn-default sy-btn-md createArticle_PreviewBtn">预览文章</button>
+                    <button type="button" class="sy-btn sy-btn-green sy-btn-md confirm createArticle_SendBtn">提交审核</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/lib/Huploadify.js"></script>
+<script src="/static/lib/wangEditor.min.js"></script>
+<script src="/static/lib/wangEditorConfig.js"></script>
+<script>
+$(function (){
+    //上传封面图
+    setTimeout(function () {
+        $('#upload').Huploadify({
+            auto: true,
+            multi: false,
+            fileTypeExts: '*.jpg;*.png;',
+            fileObjName: 'multipartFile',
+            token: 'bearer '+localStorage.getItem('sy_rm_client_access_token'),
+            fileSizeLimit: 1024,
+            uploader: __api__.baseRMUrl + '/interpreterArticle/uploadCover',
+            onUploadStart: function () {
+                $.loading('正在上传');
+            },
+            onUploadComplete: function(file, res){
+                var resJson = JSON.parse(res);
+                if(resJson.message === 'success'){
+                    $('#sy-loading').remove();
+                    $('.createArticle_CoverImg').val(file.name);
+                    $('.createArticle_CoverUrl').val(resJson.data);
+                }
+            },
+            onUploadError: function(file, res){
+                var resJson = JSON.parse(res);
+                $('#sy-loading').remove();
+                $.error(resJson.message);
+            }
+        });
+    }, 1500);
+
+
+    var previewBtn = document.getElementsByClassName('createArticle_PreviewBtn')[0],
+        draftBtn = document.getElementsByClassName('createArticle_DraftBtn')[0],
+        sendBtn = document.getElementsByClassName('createArticle_SendBtn')[0];
+
+    //预览文章
+    previewBtn.addEventListener('click', __api__.previewArticle, false);
+    //保存草稿
+    draftBtn.addEventListener('click', __api__.releaseArticle, false);
+    //确认发布
+    sendBtn.addEventListener('click', __api__.releaseArticle, false);
+});
+</script>

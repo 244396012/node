@@ -1,0 +1,53 @@
+<div class="personal application">
+    <div class="am-g sy-font-xlg sy-bold tip">
+        <div>邀请其他译员加入平台，通过任一语言基础选择测试后，您即可获取30积分，通过不同等级测试题测试，最多可获取200积分！</div>
+    </div>
+    <div class="am-g sy-font-md code">
+        <h3 class="sy-font-lg">邀请码</h3>
+        <span class="sy-bold">我的邀请码</span>
+        <span class="myCode">--</span>
+        <span>将此邀请码告知他人注册时使用！</span>
+    </div>
+    <div class="am-g sy-font-md link">
+        <h3 class="sy-font-lg">邀请链接</h3>
+        <input type="text" class="sy-font-md myLink">
+        <button id="copyBtn" type="button" class="sy-btn sy-btn-green sy-btn-sh sy-font-md">复制链接</button>
+        <span>请将此链接发送给小伙伴吧！</span>
+    </div>
+    <h3 class="sy-font-lg">我的邀请</h3>
+    <div class="am-g user-table">
+        <table class="am-table am-table-striped am-table-centered am-table-hover sy-font-md">
+            <thead>
+            <tr>
+                <td>注册时间</td>
+                <td>用户昵称</td>
+                <td>用户姓名</td>
+                <td>用户帐号</td>
+                <td>是否完善简历</td>
+                <td>是否通过测试</td>
+                <td>完成订单数</td>
+            </tr>
+            </thead>
+            <tbody class="application">
+                <tr class="empty">
+                    <td colspan="7">暂无邀请</td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="pagination" class="pagination"></div>
+    </div>
+</div>
+<script type="text/javascript" src="/static/lib/pagination.js"></script>
+<script>
+    //获取邀请码
+    __api__.getApplicationCode();
+    //获取邀请列表
+    __api__.getApplication();
+    //复制链接
+    $('#copyBtn').click(function () {
+        $('.myLink').select();
+        document.execCommand('copy');
+        $.success('已复制，快去发送给小伙伴吧');
+        return false;
+    });
+</script>

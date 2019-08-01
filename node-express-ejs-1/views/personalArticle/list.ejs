@@ -1,0 +1,83 @@
+<div class="article_page article personalArticle">
+    <div class="content">
+        <%- include('../shared/article-u') %>
+    </div>
+    <div class="content">
+        <aside class="article_aside">
+            <h3>我的主页</h3>
+            <a class="myHomePage" href="/personalArticle/">介绍</a>
+            <a class="myHomeArticle active" href="/personalArticle/list">文章</a>
+        </aside>
+        <div class="article_cnt">
+            <div class="am-g nav-filter">
+                <label data-status="" class="active">全部文章(<span class="all">0</span>)</label>
+                <label data-status="3">已发布(<span class="done">0</span>)</label>
+                <label data-status="0">草稿箱(<span class="draft">0</span>)</label>
+                <label data-status="1">待审核(<span class="wait">0</span>)</label>
+                <a class="add" href="/personalArticle/create"><span>+ </span>添加文章</a>
+            </div>
+            <div class="cnt personalArticleList">
+
+            </div>
+            <div class="sy-mg-t-30 sy-mg-b-30 sy-center">
+                <input class="article_PageNo" type="hidden" value="0">
+                <button class="sy-btn sy-hidden article_LoadMoreBtn" type="button">加载更多</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //初始化列表
+    __api__.getUserListArticle();
+
+document.addEventListener('DOMContentLoaded', function(){
+    //加载更多
+    var loadMore = document.getElementsByClassName('article_LoadMoreBtn')[0];
+    loadMore.addEventListener('click', function () {
+        var cur = $('.nav-filter>label.active');
+        this.setAttribute('disabled', true);
+        this.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
+        __api__.getUserListArticle(cur.attr('data-status'));
+    }, false);
+
+    //筛选文章状态
+    var filter = document.getElementsByClassName('nav-filter')[0],
+        pageno = document.getElementsByClassName('article_PageNo')[0],
+        container = document.getElementsByClassName('personalArticleList')[0];
+    filter.addEventListener('click', function (e) {
+        var event = e || window.event,
+            tarEl = event.target;
+        if(tarEl.nodeName === 'LABEL' && tarEl.className !== 'active'
+            || tarEl.nodeName === 'SPAN' && tarEl.parentNode.className !== 'active'){
+            tarEl.nodeName === 'SPAN' && (tarEl = tarEl.parentNode);
+            var labelEl = this.children,
+                status = tarEl.getAttribute('data-status');
+            for(var i = 0, len = labelEl.length; i<len; i++){
+                var el = labelEl[i];
+                if(el.nodeName === 'LABEL'){
+                    el.className = '';
+                }
+            }
+            tarEl.className = 'active';
+            pageno.value = 0;
+            container.innerHTML = '';
+            __api__.getUserListArticle(status);
+        }
+    }, false);
+
+    //文章状态条目
+    __api__.getResponse({
+        type: 'post',
+        url: '/interpreterArticle/getArticleCount'
+    }).then(res => {
+        if(res.message === 'success'){
+            var data = res.data;
+            filter.getElementsByClassName('all')[0].innerHTML = data['all'];
+            filter.getElementsByClassName('done')[0].innerHTML = data['3'];
+            filter.getElementsByClassName('draft')[0].innerHTML = data['0'];
+            filter.getElementsByClassName('wait')[0].innerHTML = data['1'];
+        }
+    });
+
+}, false);
+</script>

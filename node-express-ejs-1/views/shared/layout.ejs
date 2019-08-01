@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache">
+    <meta name="renderer" content="webkit">
+    <meta name="pinterest" content="nopin">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="zhaoyong">
+    <meta rel="me" href="mailto:244396012@163.com">
+    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="">
+    <meta name="description" content="数译科技,资源管理系统">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/static/lib/amazeui.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+<% if(mark === 'index'){ %>
+    <link rel="stylesheet" href="/css/index.css">
+<% } else if(mark === 'about') { %>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/about.css">
+<% } else if(mark === 'account') { %>
+    <link rel="stylesheet" href="/css/account.css">
+<% } else if(mark === 'personal') { %>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/user.css">
+<% } else if(mark === 'article' || mark === 'information'){ %>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/article.css">
+<% } else if(mark === 'activity'){ %>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/activity.css">
+<% } %>
+</head>
+<body class="sy-font-fm">
+    <div class="wrapper">
+    <% include header.ejs %>
+    <section id="content">
+    <% if(mark === 'account') { %>
+        <!-- 登录、注册 -->
+        <div class="content">
+            <%- body %>
+        </div>
+
+    <% } else if(mark === 'personal') { %>
+        <!-- 个人中心 -->
+        <div class="content">
+            <% include aside-u.ejs %>
+            <section id="contentList">
+                <%- body %>
+            </section>
+        </div>
+    <% } else { %>
+        <!-- 其他 -->
+        <%- body %>
+    <% } %>
+    </section>
+    <% if(mark === 'index' || mark === 'activity' || mark === 'information') {%>
+        <% include footer.ejs %>
+    <% } else { %>
+        <% include footer-u.ejs %>
+    <% } %>
+    </div>
+</body>
+<script type="text/javascript" src="/static/lib/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="/static/lib/amazeui.min.js"></script>
+<script type="text/javascript" src="/js/bundle.js"></script>
+<script type="text/javascript" src="/js/webservice.js"></script>
+<% if(mark === 'personal') { %>
+<!-- 每日签到 -->
+<script async type="text/javascript" src="/static/lib/signOn.js"></script>
+<% } %>
+<script>
+    $(function (){
+
+        //去工作台，跳转到PM项目系统
+        var plat = document.getElementById('workPlat_Header');
+        if(plat){
+            plat.onclick = function (e) {
+                e.preventDefault();
+                location.href = 'http://192.168.0.6:3010?tk='+localStorage.getItem('sy_rm_client_access_token');
+            }
+        }
+
+        //header、aside导航添加“active”
+        var path = location.pathname,
+            hrefs = $('.nav_AsideU a, .nav_Header>a');
+        hrefs.toArray().forEach(function(item) {
+            var href = $(item).attr('href');
+            if(path === href){
+                $(item).hasClass('nav-item')
+                    ? $(item).addClass('active')
+                    : $(item).parent().addClass('active');
+            }else if(path.indexOf('/activity/') > -1){
+                $('a[href="/activity/"]').addClass('active');
+            }else if(path.indexOf('/about/') > -1){
+                $('a[href="/about/"]').addClass('active');
+            }else if(path.indexOf('/personal/skill/test/') > -1){
+                $('a[href="/personal/skill"]').parent().addClass('active')
+            }
+        });
+
+        //设置“暂不接稿”
+        var orderBtn = document.querySelector('.nav-order');
+        orderBtn && orderBtn.addEventListener('click', function () {
+            var _this = this,
+                status = _this.classList.contains('off') ? 0:1;
+            __api__.getResponse({
+                url: '/userExtension/openCloseReceipt',
+                data: {
+                    receiptStatus: status
+                }
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('设置成功');
+                    if(_this.classList.contains('off')){
+                        _this.classList.add('on');
+                        _this.classList.remove('off');
+                    }else{
+                        _this.classList.add('off');
+                        _this.classList.remove('on');
+                    }
+                }else{
+                    $.error(res.message);
+                }
+            });
+        }, false);
+
+        //“个人中心”、“关于我们”下拉框
+        var navEntry = $('.nav_about_Header')[0],
+            navDropDown = $('.nav_dropDown_Header')[0],
+            userEntry = $('#personalEntry_Header')[0],
+            userDropDown = $('.dropDown_Header')[0],
+            timer = null;
+        navEntry.onmousemove = userEntry.onmousemove = function (){
+            var _this = this;
+            clearTimeout(timer);
+            timer = window.setTimeout(function (){
+                _this.id === 'personalEntry_Header'
+                    ? userDropDown.classList.add('transition')
+                    : navDropDown.classList.add('transition');
+            },100);
+        }
+        navEntry.onmouseleave = userEntry.onmouseleave = function (){
+            var _this = this;
+            timer = window.setTimeout(function (){
+                _this.id === 'personalEntry_Header'
+                    ? userDropDown.classList.remove('transition')
+                    : navDropDown.classList.remove('transition');
+            },300);
+        }
+        navDropDown.onmouseleave = userDropDown.onmouseleave = function (){
+            var _this = this;
+            timer = window.setTimeout(function (){
+                _this.classList.remove('transition');
+            },300);
+        }
+        navDropDown.onmousemove = userDropDown.onmousemove = function (){
+            clearTimeout(timer);
+            this.classList.add('transition');
+        }
+    });
+</script>
+<%- script %>
+</html>

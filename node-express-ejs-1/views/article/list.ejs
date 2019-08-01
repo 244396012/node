@@ -1,0 +1,52 @@
+<div class="article_page article articleArticle">
+    <div class="content">
+        <div class="main-bg">
+            <div class="head">
+                <img class="imgUrl" src="<%= data.base.picturePath?data.base.picturePath:'/static/image/personal-default-head.png'%>" alt="">
+                <strong class="name"><%= data.base.nickName?data.base.nickName:'XXX'%></strong>
+            </div>
+            <div class="info">
+                <div class="column-2 lan-pair lanPair">
+                    <% for (var i = 0; i < data.lanPair.length; i++){ %>
+                    <div class="lan">
+                        <span><%= data.lanPair[i].sourceLanguageName.split('-')[0] %>- <%= data.lanPair[i].targetLanguageName.split('-')[0] %></span>
+                        <span class="lv"><%= data.lanPair[i].levelName %></span>
+                    </div>
+                    <% } %>
+                    <% for (var j = 0; j < 4-data.lanPair.length; j++){ %>
+                    <div class="lan">&nbsp;</div>
+                    <% } %>
+                </div>
+                <div class="column-3 am-g">
+                    <div class="am-u-sm-4 score">当前积分：<%= data.base.currentPointSummary>=0?data.base.currentPointSummary:'--'%>分</div>
+                    <div class="am-u-sm-4 year">翻译年限：<%= data.base.translateYear?data.base.translateYear:'--年'%></div>
+                    <div class="am-u-sm-4 value">译侠值：<%= data.base.yxTotalScore?data.base.yxTotalScore:'--'%></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <aside class="article_aside">
+            <h3><%= data.base.nickName?data.base.nickName+'的主页':'XXX的主页' %></h3>
+            <a href="/article/?uid=<%= data.base.id %>">介绍</a>
+            <a href="/article/list?uid=<%= data.base.id %>" class="active">文章</a>
+        </aside>
+        <div class="article_cnt">
+            <div class="cnt notUserArticleCnt">
+
+            </div>
+            <div class="sy-mg-t-30 sy-center more">
+                <button class="sy-btn loadMoreBtn_Not sy-hidden" type="button">加载更多</button>
+                <input class="pageNo_Not" type="hidden" value="0">
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    __api__.userNotListArticle();
+
+    $('.loadMoreBtn_Not')[0].addEventListener('click', function () {
+        __api__.userNotListArticle();
+    }, false);
+</script>

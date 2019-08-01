@@ -1,0 +1,136 @@
+@import "setUp";
+
+#content{
+  min-height: 822px;
+}
+//关于我们
+.about_page{
+  overflow: auto;
+  padding: 20px 0;
+}
+
+.about_aside,
+.about_cnt{
+  float: left;
+  border: 1px solid #EEEEEE;
+}
+.about_aside{
+  width: 200px;
+  min-height: 360px;
+  padding: 40px 0;
+  text-align: center;
+  &>.tab-item{
+    margin-bottom: 26px;
+    font-size: 16px;
+    &:hover{
+      cursor: pointer;
+      color: $baseColor;
+    }
+    &:last-child{
+      margin-bottom: 0;
+    }
+    &.active{
+      color: $baseColor;
+      font-weight: bold;
+    }
+  }
+}
+
+.about_cnt{
+  width: 980px;
+  padding: 40px;
+  margin-left: 20px;
+}
+
+.about.clause{
+  .about_cnt{
+    &>.cnt-item{
+      &>h5,
+      &>p{
+        margin-top: 0;
+        font-size: 14px;
+      }
+      &>h5{
+        margin-bottom: 20px;
+      }
+      &>p{
+        margin-bottom: 40px;
+      }
+      &>pre{
+        padding: 0;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border: none;
+        color: #333;
+        font-size: 14px;
+        font-weight: 400;
+        font-family: inherit;
+        background-color: #fff;
+      }
+    }
+
+  }
+}
+.about.help{
+  .cnt-item{
+    &>h5{
+      margin-bottom: 26px;
+    }
+  }
+  .about_aside{
+    padding-left: 40px;
+    padding-right: 40px;
+    text-align: left;
+  }
+  .about_cnt{
+    .am-panel-default{
+      margin: 0 20px;
+      padding-bottom: 22px;
+      border: none;
+    }
+    .am-panel{
+      box-shadow: none;
+      border-bottom: 1px solid #eee;
+    }
+    .am-panel-group .am-panel-hd+.am-panel-collapse .am-panel-bd{
+      padding-top: 24px;
+      padding-bottom: 0;
+      border-top: none;
+      font-size: 14px;
+      text-indent: 20px;
+      &>p{
+        margin-top: 0;
+        margin-bottom: 14px;
+        &:last-child{
+          margin-bottom: 0;
+        }
+      }
+    }
+    .am-panel-hd{
+      padding: 0;
+      background: #fff;
+    }
+    .am-panel-group .am-panel+.am-panel{
+      margin-top: 30px;
+    }
+    .am-panel-title{
+      position: relative;
+      font-weight: 400;
+      &.am-collapsed:after{
+        content: '\f107';
+      }
+      &:after{
+        position: absolute;
+        right: 0;
+        top: 2px;
+        content: '\f106';
+        display: inline-block;
+        font: normal normal normal 1.6rem/1 FontAwesome,sans-serif;
+        font-size: 20px;
+        color: #B1B1B1;
+      }
+    }
+
+
+  }
+}

@@ -1,0 +1,192 @@
+<div class="personal identification">
+    <!--身份认证-->
+    <div class="identify-item identify">
+        <div class="am-g identify-title">
+            <div class="am-u-lg-9">
+                <span class="sy-bold">身份认证&nbsp;</span>
+                <span class="sy-font-sm identy-no">还未认证，请先认证</span>
+                <span class="sy-font-sm identy-yes">已认证</span>
+            </div>
+            <div class="am-u-lg-3 sy-right"><i class="toggle am-icon-angle-down"></i></div>
+        </div>
+        <div class="am-g identify-cnt">
+            <div class="am-u-lg-12">
+                <div class="sy-personal-cnt">
+                    <div class="add-form">
+                        <form class="sy-personal-form sy-personal-base">
+                            <div class="item">
+                                <div><i class="required">*</i>真实姓名：</div>
+                                <div><input class="realName" type="text" required placeholder="请输入真实姓名"></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>证件类型：</div>
+                                <div><select class="certificateType" required>
+                                        <option value="身份证">身份证</option>
+                                    </select></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>证件号码：</div>
+                                <div><input class="identifyId" type="text" required placeholder="请输入证件号码"/></div>
+                            </div>
+                        </form>
+                        <div class="sy-btns sy-font-md">
+                            <button id="certificateBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">提交认证</button>
+                            <span><i class="sy-info-icon"></i> 提交认证后不可修改</span>
+                        </div>
+                    </div>
+                    <div class="show-info"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--结算认证-->
+    <div id="setDefaultPayWay_Identification" class="identify-item pay">
+        <div class="am-g identify-title">
+            <div class="am-u-lg-9">
+                <span class="sy-bold">结算方式&nbsp;</span>
+                <span class="sy-font-sm identy-no">还未认证，请先认证</span>
+                <span class="sy-font-sm identy-yes">已认证</span>
+            </div>
+            <div class="am-u-lg-3 sy-right"><i class="toggle am-icon-angle-down"></i></div>
+        </div>
+        <div class="am-g identify-cnt">
+            <div class="am-u-lg-12">
+                <div class="sy-personal-cnt">
+                    <h3>
+                        银行卡结算
+                        <label class="am-radio am-success">
+                            <input type="radio" name="payWay" value="银行卡" data-am-ucheck> 设为默认结算方式
+                        </label>
+                    </h3>
+                    <div class="add-form bankForm">
+                        <form class="sy-personal-form sy-personal-base">
+                            <div class="item">
+                                <div><i class="required">*</i>真实姓名：</div>
+                                <div><input class="realName" type="text" required disabled placeholder="未加载真实姓名"></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>证件号码：</div>
+                                <div><input class="identifyId" type="text" required disabled placeholder="未加载证件号码"/></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>银行卡号：</div>
+                                <div><input class="bankNo" type="text" required placeholder="请输入银行卡号"/></div>
+                                <div class="tip"><i class="required">*</i>银行开户账户须与姓名、身份证号对应</div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>开户银行：</div>
+                                <div><input class="bankDeposit" type="text" required placeholder="请输入开户银行"/></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>开户支行：</div>
+                                <div><input class="bankBranch" type="text" required placeholder="请输入开户支行"/></div>
+                            </div>
+                        </form>
+                        <div class="sy-btns sy-font-md">
+                            <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
+                            <button id="setBankBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                        </div>
+                    </div>
+                    <div class="show-info bankPay"></div>
+                    <h3>
+                        支付宝结算
+                        <label class="am-radio am-success">
+                            <input type="radio" name="payWay" value="支付宝" data-am-ucheck> 设为默认结算方式
+                        </label>
+                    </h3>
+                    <div class="add-form alipayForm">
+                        <form class="sy-personal-form sy-personal-base">
+                            <div class="item">
+                                <div><i class="required">*</i>真实姓名：</div>
+                                <div><input class="realName" type="text" required disabled placeholder="未加载真实姓名"></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>证件号码：</div>
+                                <div><input class="identifyId" type="text" required disabled placeholder="未加载证件号码"></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>支付宝账号：</div>
+                                <div><input class="alipayCode" type="text" required placeholder="请输入支付宝账号"/></div>
+                                <div class="tip"><i class="required">*</i>支付宝账号须与姓名对应</div>
+                            </div>
+                        </form>
+                        <div class="sy-btns sy-font-md">
+                            <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
+                            <button id="aliPayBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                        </div>
+                    </div>
+                    <div class="show-info aliPay"></div>
+                    <h3>
+                        Paypal结算
+                        <label class="am-radio am-success">
+                            <input type="radio" name="payWay" value="Paypal" data-am-ucheck> 设为默认结算方式
+                        </label>
+                    </h3>
+                    <div class="add-form PaypalForm">
+                        <form class="sy-personal-form sy-personal-base">
+                            <div class="item">
+                                <div><i class="required">*</i>真实姓名：</div>
+                                <div><input class="realName" type="text" required disabled placeholder="未加载真实姓名"></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>证件号码：</div>
+                                <div><input class="identifyId" type="text" required disabled placeholder="未加载证件号码"></div>
+                            </div>
+                            <div class="item">
+                                <div><i class="required">*</i>Paypal账号：</div>
+                                <div><input class="PaypalCode" type="text" required placeholder="请输入Paypal账号"/></div>
+                            </div>
+                        </form>
+                        <div class="sy-btns sy-font-md">
+                            <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
+                            <button id="PaypalBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                        </div>
+                    </div>
+                    <div class="show-info Paypal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    __api__.getPageIdentification();
+    //显示身份证号码
+    $('div.identify').on('click',function (e) {
+       if(e.target.id === 'showCertification') {
+           e.target.innerText = e.target.innerText === '隐藏信息' ? '查看完整信息' : '隐藏信息';
+           $('.certificateNum').each(function () {
+               $(this).hasClass('sy-hidden')
+                ? $(this).removeClass('sy-hidden')
+                : $(this).addClass('sy-hidden');
+           });
+       }
+    });
+    //取消保存
+    $('button[data-sy-cancel]').on('click', function () {
+        var _this = $(this),
+            formEl = _this.parents('.add-form'),
+            targerEl = formEl.find('input,select,textarea');
+        _this.next().removeAttr('data-u-id');
+        targerEl.each(function () {
+            if(!$(this).attr('disabled')){
+                $(this).val('');
+            }
+        });
+        if(formEl.next('.show-info').children().length > 0){
+            formEl.addClass('sy-hidden');
+        }
+    });
+    //收缩、展示内容
+    $('i.toggle').on('click', function () {
+        var _this = $(this),
+            outDiv = _this.parents('.identify-item'),
+            targetDiv = outDiv.find('.identify-cnt');
+        if(_this.hasClass('am-icon-angle-down')){
+            targetDiv.addClass('sy-hidden');
+            _this.addClass('am-icon-angle-up').removeClass('am-icon-angle-down');
+        }else{
+            targetDiv.removeClass('sy-hidden');
+            _this.addClass('am-icon-angle-down').removeClass('am-icon-angle-up');
+        }
+    });
+</script>

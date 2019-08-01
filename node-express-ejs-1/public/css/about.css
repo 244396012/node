@@ -1,0 +1,108 @@
+#content {
+  min-height: 822px; }
+
+.about_page {
+  overflow: auto;
+  padding: 20px 0; }
+
+.about_aside,
+.about_cnt {
+  float: left;
+  border: 1px solid #EEEEEE; }
+
+.about_aside {
+  width: 200px;
+  min-height: 360px;
+  padding: 40px 0;
+  text-align: center; }
+  .about_aside > .tab-item {
+    margin-bottom: 26px;
+    font-size: 16px; }
+    .about_aside > .tab-item:hover {
+      cursor: pointer;
+      color: #41CCA6; }
+    .about_aside > .tab-item:last-child {
+      margin-bottom: 0; }
+    .about_aside > .tab-item.active {
+      color: #41CCA6;
+      font-weight: bold; }
+
+.about_cnt {
+  width: 980px;
+  padding: 40px;
+  margin-left: 20px; }
+
+.about.clause .about_cnt > .cnt-item > h5,
+.about.clause .about_cnt > .cnt-item > p {
+  margin-top: 0;
+  font-size: 14px; }
+
+.about.clause .about_cnt > .cnt-item > h5 {
+  margin-bottom: 20px; }
+
+.about.clause .about_cnt > .cnt-item > p {
+  margin-bottom: 40px; }
+
+.about.clause .about_cnt > .cnt-item > pre {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border: none;
+  color: #333;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: inherit;
+  background-color: #fff; }
+
+.about.help .cnt-item > h5 {
+  margin-bottom: 26px; }
+
+.about.help .about_aside {
+  padding-left: 40px;
+  padding-right: 40px;
+  text-align: left; }
+
+.about.help .about_cnt .am-panel-default {
+  margin: 0 20px;
+  padding-bottom: 22px;
+  border: none; }
+
+.about.help .about_cnt .am-panel {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border-bottom: 1px solid #eee; }
+
+.about.help .about_cnt .am-panel-group .am-panel-hd + .am-panel-collapse .am-panel-bd {
+  padding-top: 24px;
+  padding-bottom: 0;
+  border-top: none;
+  font-size: 14px;
+  text-indent: 20px; }
+  .about.help .about_cnt .am-panel-group .am-panel-hd + .am-panel-collapse .am-panel-bd > p {
+    margin-top: 0;
+    margin-bottom: 14px; }
+    .about.help .about_cnt .am-panel-group .am-panel-hd + .am-panel-collapse .am-panel-bd > p:last-child {
+      margin-bottom: 0; }
+
+.about.help .about_cnt .am-panel-hd {
+  padding: 0;
+  background: #fff; }
+
+.about.help .about_cnt .am-panel-group .am-panel + .am-panel {
+  margin-top: 30px; }
+
+.about.help .about_cnt .am-panel-title {
+  position: relative;
+  font-weight: 400; }
+  .about.help .about_cnt .am-panel-title.am-collapsed:after {
+    content: '\F107'; }
+  .about.help .about_cnt .am-panel-title:after {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    content: '\F106';
+    display: inline-block;
+    font: normal normal normal 1.6rem/1 FontAwesome,sans-serif;
+    font-size: 20px;
+    color: #B1B1B1; }

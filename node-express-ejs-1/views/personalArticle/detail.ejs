@@ -1,0 +1,77 @@
+<style>html,body{background: #FCFCFC}</style>
+<div class="article_pageDetail article_page information information_detail industry_detail">
+    <div class="content">
+        <% if(data.message === 'success') {%>
+        <div class="detail_cnt">
+            <h3 class="detailTitle_Info title sy-center"><%= data.data.articleTitle %></h3>
+            <div class="title am-g">
+                <div class="am-u-md-1 sy-center">
+                    <img src="/static/image/index-default-head.png" alt="">
+                </div>
+                <div class="am-u-md-11">
+                    <h5><%= data.data.publishUser %>
+                        <a href="javascript:;"><span class="delete"><i class="am-icon-trash-o"></i>删除</span></a>
+                        <a class="editTarget" href="/personalArticle/edit"><span class="edit"><i class="icon-edit"></i>编辑</span></a>
+                    </h5>
+                    <div class="am-g">
+                        <% if (data.data.status === 0 || data.data.status === 2) {%>
+                            <div class="am-u-sm-6">最近保存时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                        <% } else if (data.data.status === 1) {%>
+                            <div class="am-u-sm-6">提交审核时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                            <div class="am-u-sm-6 sy-right tip">文章正在审核中，请耐心等待</div>
+                        <% } else if (data.data.status === 2) { %>
+                            <div class="am-u-sm-6 sy-right tip"><%= data.data.reviewDesc %></div>
+                        <% } else if (data.data.status === 3) {%>
+                            <div class="am-u-sm-6">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                            <div class="am-u-sm-2 sy-right"><i class="sy-icon icon-eye"></i><%= data.data.viewCount %></div>
+                            <div class="am-u-sm-2 sy-right"><i class="sy-icon icon-thumbs"></i><%= data.data.likeNumber %></div>
+                            <div class="am-u-sm-2 sy-right"><i class="sy-icon icon-commenting"></i><%= data.data.commentsNumber %></div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="detailContent_Info detail">
+                <%- data.data.contentHtml %>
+            </div>
+        </div>
+        <% } else { %>
+            <p style="line-height: 200px;text-align: center;color: #999"><%= JSON.stringify(data) %></p>
+        <% } %>
+    </div>
+</div>
+<script>
+$(function (){
+
+    $('.editTarget').click(function (e) {
+        e.preventDefault();
+        var search = location.search;
+        location.href = '/personalArticle/edit'+search;
+    });
+
+//删除文章
+    $('.delete').click(function () {
+        $.confirm();
+        $('#sy-confirm').modal({
+            closeViaDimmer: false,
+            onConfirm: function (e) {
+                var aid = bundle.getQueryString('aid');
+                __api__.getResponse({
+                    type: 'delete',
+                    url: '/interpreterArticle/deleteInterpreterArtile?id='+ aid
+                }).then(res => {
+                    if(res.message === 'success'){
+                        $.success('文章已删除');
+                        setTimeout(function () {
+                            location.href = '/personalArticle/list';
+                        }, 1000);
+                    }else{
+                        $.error(res.message);
+                    }
+                })
+            },
+            onCancel: function (e) { }
+        });
+    });
+
+});
+</script>

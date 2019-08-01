@@ -1,0 +1,46 @@
+<div class="personal message">
+    <div class="am-g sy-bold">消息通知</div>
+    <div class="am-g nav-filter mgFilter">
+        <!-- 有新消息时，添加class=will即可 -->
+        <label data-type="1" class="active">订单消息</label>
+        <label data-type="0">其他消息</label>
+    </div>
+    <div class="am-g message-list">
+        <table class="mgList">
+            <tbody>
+                <tr class="empty">
+                    <td colspan="2">暂无消息</td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="pagination" class="pagination"></div>
+    </div>
+</div>
+<script type="text/javascript" src="/static/lib/pagination.js"></script>
+<script type="text/javascript" src="/static/lib/sockjs.min.js"></script>
+<script type="text/javascript" src="/static/lib/stomp.min.js"></script>
+<script type="text/javascript" src="/static/lib/socket.js"></script>
+<script>
+    //connect();
+
+    var getMessage = __api__.getPageMessage();
+
+//切换消息类型
+    $('.mgFilter').on('click', function (e) {
+        if(e.target.nodeName === 'LABEL'){
+            var tarEl = $(e.target),
+                type = tarEl.attr('data-type');
+            tarEl.addClass('active').siblings().removeClass('active');
+            getMessage.set({
+                xhr : {
+                    data : {
+                        status: type,
+                        pageNo: 0,
+                        pageSize: getMessage.o.limit
+                    }
+                }
+            }, true);
+        }
+    });
+
+</script>

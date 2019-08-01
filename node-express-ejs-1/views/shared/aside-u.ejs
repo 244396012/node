@@ -1,0 +1,60 @@
+<aside id="menuList">
+    <div class="sy-personal sy-user-info sy-font-sm">
+        <div class="sy-personal-info">
+            <img class="sy-personal-head headIcon_AsideU" src="/static/image/personal-default-head.png" alt="头像">
+            <div class="sy-personal-name">
+                <h3 class="sy-font-lg nickName_AsideU">XXX</h3>
+                <span class="sy-font-md account_AsideU">XXX</span>
+            </div>
+        </div>
+        <div class="sy-personal-item sy-font-md">
+            <span class="name">我的译侠值</span>
+            <span class="score">0</span>
+            <span class="sy-info-icon more-icon" title="如何获取更多译侠值？"></span>
+        </div>
+        <div class="sy-personal-item sy-font-md">
+            <span class="name">我的积分</span>
+            <span class="score">0</span>
+            <span class="sy-info-icon more-icon" title="如何获取更多积分？"></span>
+        </div>
+        <div class="sy-personal-item sy-invite">
+            <a id="showSignOn" class="sy-font-md" href="javascript:;">签到领积分哦～～</a>
+        </div>
+    </div>
+    <ul class="nav_AsideU sy-personal sy-user-menu sy-center">
+    <!--li 添加class：active-->
+        <li class="sy-user-title">个人中心</li>
+        <li><a href="/personal/">信息概览</a></li>
+        <li><a href="/personal/information">基本信息</a></li>
+        <li><a href="/personal/resume">我的简历</a></li>
+        <li><a href="/personal/identification">认证中心</a></li>
+        <li><a href="/personal/skill">技能测试</a></li>
+        <li><a href="/personalArticle/" class="myHomePage">我的主页</a></li>
+        <li class="sy-user-title">我的账户</li>
+        <li><a href="/personal/balance">结算中心</a></li>
+        <li><a href="/personal/safety">安全设置</a></li>
+        <li><a href="/personal/appraise" class="myAppraise">我的评价</a></li>
+        <!--<li><a href="/personal/attention">提醒设置</a></li>-->
+        <li><a href="/personal/message">消息通知</a></li>
+        <li class="sy-user-title">其他设置</li>
+        <li><a href="/personal/advice">意见反馈</a></li>
+    </ul>
+    <ul class="sy-personal sy-user-menu sy-center">
+        <li><a class="application" href="/personal/application">邀请注册 领红包！</a></li>
+    </ul>
+</aside>
+<script>
+    (function () {
+        //滑动时，固定左侧“个人中心”导航栏
+        var aside = document.querySelector('#menuList'),
+            scroll = 0,
+            asideOffTop = 0;
+        window.onscroll = function () {
+            scroll = document.documentElement.scrollTop || document.body.scrollTop;
+            asideOffTop = aside.offsetTop;
+            scroll > asideOffTop
+                ? aside.classList.add('aside-u-fixed')
+                : aside.classList.remove('aside-u-fixed');
+        }
+    }());
+</script>

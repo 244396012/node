@@ -1,0 +1,105 @@
+<div class="personal index">
+    <div class="am-g">
+        <div class="left-info">
+            <div class="title">我的信息</div>
+            <div class="cnt">
+                <div>
+                    信息完整度
+                    <div class="sy-progress">
+                        <div class="sy-scroll-progress"></div>
+                    </div>
+                    <span class="sy-progress-txt">0%</span>
+                </div>
+                <div class="identify">
+                    认证情况 <!--通过认证后，添加class：complete即可-->
+                    <div class="skill_identify">
+                        <span class="sy-info-icon"></span>技能认证未通过
+                    </div>
+                    <div class="card_identify">
+                        <span class="sy-info-icon"></span>身份认证未通过
+                    </div>
+                    <div class="finance_identify">
+                        <span class="sy-info-icon"></span>财务信息未认证
+                        <a href="/personal/identification">前往认证 >></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right-short">
+            <div class="title">订单概览</div>
+            <div class="cnt sy-center">
+                <div class="order-item doing">
+                    <a href=""><i></i>
+                        <span id="orderStatus_doing">0</span>进行中
+                    </a>
+                </div>
+                <div class="order-item waiting">
+                    <a href=""><i></i>
+                        <span id="orderStatus_waiting">0</span>待确认
+                    </a>
+                </div>
+                <div class="order-item done">
+                    <a href=""><i></i>
+                        <span id="orderStatus_done">0</span>已完成
+                    </a>
+                </div>
+                <div class="order-item font">
+                    <i></i><span id="orderStatus_font">0</span>翻译字数
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="left-info">
+            <div class="title">账户信息<a class="sy-float-r" href="/personal/balance">查看</a></div>
+            <div class="cnt">
+                <div class="account-item">
+                    <span>账户余额</span>
+                    <strong class="amountMoney" data-num="0">--</strong>
+                    <i class="sy-float-r toggleAccount eye-icon on"></i>
+                </div>
+                <div class="account-item">
+                    <span>可提现</span>
+                    <strong class="drawMoney" data-num="0">--</strong>
+                    <i class="sy-float-r toggleAccount eye-icon on"></i>
+                </div>
+            </div>
+        </div>
+        <div class="right-short">
+            <div class="title">消息通知<a class="sy-float-r" href="/personal/message">查看</a></div>
+            <div class="cnt messageCnt">
+                <p class="empty sy-left">暂无消息</p>
+            </div>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="language">
+            <div class="title">我的语言</div>
+            <div class="cnt languageCnt">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+
+        //获取用户所有信息
+        __api__.getUserAllInfo();
+
+        //展示/隐藏余额
+        $('.toggleAccount').on('click', function() {
+            var _this = this,
+                _strong = $(_this).prev('strong'),
+                money = _strong.attr('data-num');
+            if($(_this).hasClass('on')){
+                $(_this).removeClass('on');
+                _strong.html('').addClass('empty');
+            }else{
+                $(_this).addClass('on');
+                _strong.html(money).removeClass('empty');
+            }
+        });
+
+    }());
+</script>

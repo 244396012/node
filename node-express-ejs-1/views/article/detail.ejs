@@ -1,0 +1,61 @@
+<style>html,body{background: #FCFCFC}</style>
+<div class="article_pageDetail article_page information information_detail speaker_detail">
+    <div class="content">
+        <aside class="detail_aside sy-center">
+            <% if(userBase.message === 'success'){ %>
+            <img src="<%= userBase.data.picturePath?userBase.data.picturePath:'/static/image/personal-default-head.png' %>" alt="">
+            <h5 class="name"><%= userBase.data.nickName %></h5>
+            <div class="lan-pair">
+                <% for (var i = 0; i < userBase.data.userExtendList.length; i++){ %>
+                <div class="lan">
+                    <span><%= userBase.data.userExtendList[i].sourceLanguageName.split('-')[0] %>- <%= userBase.data.userExtendList[i].targetLanguageName.split('-')[0] %></span>
+                    <span class="lv"><%= userBase.data.userExtendList[i].levelName %></span>
+                </div>
+                <% } %>
+            </div>
+            <div class="year">翻译年限：<%= userBase.data.userExtension.translateYear %></div>
+            <div class="score">当前积分：<%= userBase.data.currentPointSummary %>分</div>
+            <a class="sy-btn sy-btn-green sy-btn-md" href="/article/?uid=<%= userBase.data.id %>">查看TA的主页</a>
+            <% } else { %>
+            <p style="line-height: 200px;text-align: center;color: #999"><%= userBase.error %></p>
+            <% } %>
+        </aside>
+        <% if(detail.message === 'success'){ %>
+        <div class="detail_cnt">
+            <h3 class="detailTitle_Info title sy-center"><%= detail.data.articleTitle %></h3>
+            <div class="title am-g">
+                <div class="am-u-sm-6">发布时间：<%= detail.data.publishTime?detail.data.publishTime:'--' %></div>
+                <div class="am-u-sm-2 sy-right">
+                    <i class="sy-icon icon-eye"></i><%= detail.data.viewCount %>
+                </div>
+                <div class="am-u-sm-2 sy-right">
+                    <i class="sy-icon icon-thumbs"></i><%= detail.data.likeNumber %>
+                </div>
+                <div class="am-u-sm-2 sy-right">
+                    <i class="sy-icon icon-commenting"></i><%= detail.data.commentsNumber %>
+                </div>
+            </div>
+            <div class="detailContent_Info detail"><%- detail.data.contentHtml %></div>
+            <div class="comment">
+                <p class="sy-bold">评论</p>
+                <textarea placeholder="欢迎留言评论哦~"></textarea>
+                <div class="sy-right">
+                    <button type="button" class="sy-btn sy-btn-green sy-btn-md AddCommentBtn">发布</button>
+                </div>
+                <div class="commentList comment-list">
+
+                </div>
+                <div class="sy-mg-t-30 sy-center more">
+                    <button class="sy-btn sy-hidden loadMoreCommentBtn" type="button">加载更多</button>
+                    <input class="commentPageNo" type="hidden" value="1">
+                </div>
+            </div>
+        </div>
+        <% } else { %>
+        <p style="line-height: 200px;text-align: center;color: #999"><%= JSON.stringify(detail) %></p>
+        <% } %>
+    </div>
+</div>
+<script>
+    __api__.getCommentsList();
+</script>

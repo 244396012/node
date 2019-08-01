@@ -1,0 +1,65 @@
+<div class="personal testing">
+    <!--翻译题-->
+    <div class="am-g positionEl">翻译题测试
+        <span class="sy-font-sm label greenbg shortLan">--</span>
+    </div>
+<!--翻译前选择-->
+    <div class="before-trans">
+        <div class="am-g sy-font-md" style="margin-bottom: 60px">
+            您已通过 <span class="target">--</span> 选择题测试，您现在可以参加 <span class="target">--</span> 翻译题测试，
+            请在开始翻译题测试前设置测试题语言对和擅长的行业领域。
+        </div>
+        <div class="am-g sy-font-md">
+            语言对：&nbsp;&nbsp;&nbsp;&nbsp;
+            <select required class="origin"></select>
+            <i class="am-icon-long-arrow-right"></i>
+            <select required class="target"></select>
+        </div>
+        <p class="sy-font-sm"><i class="sy-orange">*</i> 选择该语言对下擅长的行业领域（最多5项）</p>
+        <div class="sy-font-md area-list">
+            <div>行业领域：</div>
+            <div class="areaList"></div>
+        </div>
+        <button id="startTransBtn_Testing" type="button" class="sy-btn sy-btn-green sy-btn-md sy-font-md">开始测试</button>
+    </div>
+<!--测试结果展示-->
+    <!--<div class="am-g sy-center result no-pass">-->
+        <!--<div class="bg"></div>-->
+        <!--<div class="tip">-->
+            <!--<p>很遗憾，你的翻译测试未通过。</p>-->
+            <!--<p class="sy-orange">请3个月之后再来试试吧！</p>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="am-g sy-center sy-font-md result pass">-->
+        <!--<div class="bg"></div>-->
+        <!--<div class="tip">-->
+        <!--确认过眼神，你是我的译中人！</br>-->
+        <!--恭喜你通过测试，你现在可以开始接单了！</br>-->
+        <!--点击下方【译员指南】，分分钟接单到手软！-->
+        <!--</div>-->
+        <!--<a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">译员指南</a>-->
+    <!--</div>-->
+</div>
+<script>
+    //获取基本信息
+    __api__.getPageSkillTransTestBase();
+
+    //选择领域
+    (function () {
+        $('.areaList').on('click', function (e) {
+            var _this = $(this);
+            if(e.target.nodeName === 'INPUT' && e.target.type === 'checkbox'){
+                if(_this.find('input:checked').length > 5){
+                    $.error('行业领域最多选择5项');
+                    return false;
+                }
+            }
+        });
+    })();
+
+    //刷新页面时弹出提醒
+    window.onbeforeunload = function (event) {
+        event.returnValue = "确定离开当前页面吗？"
+    }
+
+</script>
