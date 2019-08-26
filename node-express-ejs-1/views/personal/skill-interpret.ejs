@@ -1,0 +1,77 @@
+<% include skill_nav.ejs %>
+<div class="personal skill">
+    <div class="resource">
+        <!--信息展示-->
+        <div class="show-info sy-hidden">
+            <div class="am-u-lg-12">
+            <span class="editLabel edit sy-float-r">
+                <i class="sy-personal-icon sy-personal-icon-edit"></i>编辑
+            </span>
+            </div>
+            <div class="am-u-lg-12 labels">
+                <div>外派经验：</div>
+                <div>
+                    <span>后端获取</span>
+                </div>
+            </div>
+            <div class="am-u-lg-12 labels">
+                <div>外派特长：</div>
+                <div>
+                    <span>后端获取</span>
+                </div>
+            </div>
+            <div class="am-u-lg-12 labels">
+                <div style="vertical-align: top">语种信息：</div>
+                <div>
+                    <table class="am-table am-table-striped am-table-hover sy-center sy-font-md">
+                        <thead>
+                        <tr><th>擅长语言</th><th>一级领域</th><th>二级领域</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--提交、修改信息表单-->
+        <form class="add-form" action="#">
+            <div class="am-u-lg-12">外派经验(单选)：</div>
+            <div class="am-u-lg-12 labels single" prop="外派经验"> <!--选中添加class=‘selected’-->
+                <span>1年以下</span>
+                <span>1~2年</span>
+                <span>2~3年</span>
+                <span>3~4年</span>
+                <span>4~5年</span>
+                <span>5年以上</span>
+            </div>
+            <div class="am-u-lg-12">外派特长(可多项)：</div>
+            <div class="am-u-lg-12 labels multiple" prop="外派特长">
+                <span>普通翻译（内勤、后勤、采购等）</span>
+                <span>技术翻译（商务、文档等）</span>
+                <span>首席术翻译（项目经理助理、翻译管理）</span>
+            </div>
+            <div class="am-u-lg-12">语种信息(二级领域可多选)：</div>
+            <div class="am-u-lg-12 labels select" prop="语种信息">
+                <div class="label-item">
+                    <select class="language">
+                        <option value="">请选择擅长语言</option>
+                    </select>
+                    <select class="field-1">
+                        <option value="">请选择一级领域</option>
+                    </select>
+                    <select class="field-2" multiple data-am-selected="{maxHeight: 200}"></select>
+                    <button type="button" class="sy-btn sy-btn-sm sy-btn-green addLanPair">添加语种</button>
+                </div>
+                <table class="am-table am-table-striped am-table-hover sy-center sy-font-md">
+                    <thead>
+                    <tr><th>擅长语言</th><th>一级领域</th><th>二级领域</th><th>操作</th></tr>
+                    </thead>
+                    <tbody class="lanTarget"></tbody>
+                </table>
+            </div>
+            <div class="am-u-lg-12 sy-btns sy-font-md">
+                <button class="btn btn-default sy-btn sy-btn-default sy-btn-md cancelBtn">取 消</button>
+                <button class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn">提 交</button>
+            </div>
+        </form>
+    </div>
+</div>

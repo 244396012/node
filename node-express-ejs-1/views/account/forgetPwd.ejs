@@ -13,7 +13,7 @@
             <form id="step-1" class="am-form am-form-horizontal sy-account-wd">
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <input id="telPhone" type="tel" class="sy-input" placeholder="手机号" required >
+                        <input id="accountPut" type="tel" class="sy-input" placeholder="手机号/邮箱" required >
                     </div>
                 </div>
                 <div class="am-form-group">
@@ -30,15 +30,17 @@
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-7" style="padding-right: 0;">
-                        <input id="telCode" type="text" class="form-control sy-input sy-radius-left" placeholder="短信验证码" required>
+                        <input id="accountCode" type="text" class="form-control sy-input sy-radius-left" placeholder="验证码" required>
                     </div>
                     <div class="am-u-sm-5" style="padding-left: 0;">
-                        <button id="telValidateBtn_Account" class="am-btn am-btn-default sy-btn sy-btn-default sy-font-md sy-radius-right">获取验证码</button>
+                        <button data-type="2"
+                                type="button"
+                                class="am-btn am-btn-default sy-btn sy-btn-default sy-font-md sy-radius-right validateCodeBtn_acc">获取验证码</button>
                     </div>
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <button type="button" id="nextBtn_Account" class="btn btn-default sy-btn sy-btn-default">下一步</button>
+                        <button type="button" class="btn btn-default sy-btn sy-btn-default forgetPwdStepBtn_1_acc">下一步</button>
                     </div>
                 </div>
             </form>
@@ -46,20 +48,20 @@
             <form id="step-2" class="am-form am-form-horizontal sy-account-wd sy-hidden">
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                        <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
                         <input id="password" type="password" class="sy-input" placeholder="设置密码" required >
                         <p class="tips">*请输入6位以上的密码</p>
                     </div>
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                        <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
                         <input id="rePassword" type="password" class="sy-input" placeholder="确认密码" required >
                     </div>
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <button id="updateBtn_Account" type="button" class="btn btn-default sy-btn sy-btn-default">提 交</button>
+                        <button type="button" class="btn btn-default sy-btn sy-btn-default forgetPwdStepBtn_2_acc">提 交</button>
                     </div>
                 </div>
             </form>
@@ -100,7 +102,7 @@
     </div>
 </div>
 <script>
-    $(function (){
-        bundle.dragSlide();
-    });
+    (function () {
+        __bundle__.dragSlide();
+    }())
 </script>

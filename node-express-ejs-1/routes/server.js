@@ -50,4 +50,3 @@ exports.getNoTokenMessage = function (config) {
     });
 };
 
-

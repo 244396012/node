@@ -213,7 +213,7 @@
             change();
         })(textArea);
 //文本域长度限制
-        textArea.addEventListener('input', bundle.throttleFn(function () {
+        textArea.addEventListener('input', __bundle__.throttleFn(function () {
             var _this = this,
                 font = $('.writeFont'),
                 val = _this.value,

@@ -3,6 +3,7 @@ import api_config from '../../api_config';
 export const baseUrl = api_config.baseURL;
 export const loginUrl = api_config.loginURL;
 export const baseRMUrl = api_config.baseRMURL;
+export const basePMUrl = api_config.basePMURL;
 
 /*
 *
@@ -18,6 +19,7 @@ $.ajaxSetup({
     },
     timeout: 10000,
     beforeSend: function (xhr, request) {
+        /*
         const filterUrl = [
             '/oauth/token',
             '/customer/resetPassword',
@@ -28,6 +30,7 @@ $.ajaxSetup({
             '/commentAndLog/getCommentAndReply',
             '/officialArticle/listOfficialArticle'
         ];
+        */
         const reqUrl = request.url;
         if(reqUrl.includes('/oauth/token') ||
             reqUrl.includes('/customer/resetPassword') ||
@@ -39,30 +42,37 @@ $.ajaxSetup({
             reqUrl.includes('/commentAndLog/getCommentAndReply') ||
             reqUrl.includes('/officialArticle/listOfficialArticle')
         ){
-
+            //do something
         }else {
             const token = localStorage.getItem('sy_rm_client_access_token');
             xhr.setRequestHeader('Authorization','bearer '+token);
         }
     },
-    error: function (xhr) {
+    error: function (res) {
         const path = location.pathname + location.search;
-        //用户登录信息已过期，做相应处理
-        if(xhr.status === 401){
+        //用户登录信息已过期/未登录，做相应处理
+        if(res.status === 401){
+            $('.my-loading').remove();
             //清除storage本地数据
             localStorage.removeItem('sy_rm_client_ud');
             localStorage.removeItem('sy_rm_client_access_token');
             localStorage.removeItem('sy_rm_client_choice_test');
             localStorage.removeItem('sy_rm_client_choice_test_no');
             /*
-            * 根据uri做判断，若uri中包括 ‘personal’和‘personalArticle’
-            * 即在非“个人中心”、“个人主页”，则不跳转留在当前页面
+            * 根据uri做判断，若uri中包括 ‘personal’和‘personalArticle’、‘order’
+            * 即在非“个人中心”、“个人主页”、“订单中心”，则不跳转留在当前页面
             * 否则提示用户，跳转到登录页面
             */
-            if(!(path.includes('/personal/') || path.includes('/personalArticle/'))){
+            if(!(path.includes('/personal/') || path.includes('/personalArticle/') || path.includes('/order/'))){
                 return false;
             }
-            $.error('登录信息已过期，请重新登录');
+            if(res.responseJSON.error_description === 'null'){
+                $.error('未登录，请先登录');
+            }else if(res.responseJSON.error_description !== 'null'){
+                $.error('登录信息已过期，请重新登录');
+            }else {
+                $.error('"未登录"或"登录信息已过期"，请重新登录');
+            }
             window.setTimeout(() => {
                 location.href = '/login?redirect='+ encodeURIComponent(path);
             }, 1000);
@@ -81,11 +91,15 @@ $.ajaxSetup({
         },
         dataType: 'json',
         error: function (res) {
-            const afterLogin = ['/personal/', '/personalArticle/'];
-            if(res.responseJSON.error === 'invalid_token' || res.responseJSON.error === 'unauthorized'){
-                if(location.pathname.includes('/personal/') ||
-                    location.pathname.includes('/personalArticle/')){
-                    location.href = '/login?redirect='+ encodeURIComponent(path);
+            // 未登录/登录信息过期时，访问afterLogin数组里面的路径，直接跳转到登录页面
+            // const afterLogin = ['/personal/', '/personalArticle/', '/order/'];
+            if(res.status === 401){
+                if(location.pathname.includes('/personal/')
+                    || location.pathname.includes('/personalArticle/')
+                    || location.pathname.includes('/order/')){
+                    window.setTimeout(() => {
+                        location.href = '/login?redirect='+ encodeURIComponent(path);
+                    }, 1000);
                     return false;
                 }
                 $('div.hasLogin').remove();
@@ -96,6 +110,7 @@ $.ajaxSetup({
             if(res === 0){
                 const hasLogin = $('div.hasLogin'),
                     noLogin = $('div.noLogin');
+                //登录后，不能跳转到登录注册
                 if(location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgetPwd'){
                     hasLogin.remove();
                     noLogin.removeClass('sy-hidden');
@@ -131,30 +146,34 @@ $.ajaxSetup({
                 dataType: 'json',
                 success: function (res){
                     if(res.message ==='success'){
+                        const { data } = res;
                         const receiptBtn = $('#receiptOrder_Header');
-                        if(res.data.userExtension){
-                            +res.data.userExtension.receipt
+                        if(data.userExtension){
+                            +data.userExtension.receipt
                                 ? receiptBtn.removeClass('on').addClass('off')
                                 : receiptBtn.removeClass('off').addClass('on')
                             ;
                         }
-                        $('.account_AsideU').html(res.data.account).attr('title', res.data.account);
-                        $('.nickName_AsideU').html(res.data.nickName).attr('title', res.data.nickName);
-                        if(res.data.picturePath){
-                            $('.headIcon_AsideU').attr('src', res.data.picturePath);
-                            $('#headIcon_Header').attr('src', res.data.picturePath);
+                        $('.account_AsideU').html(data.account).attr('title', data.account);
+                        $('.nickName_AsideU').html(data.nickName).attr('title', data.nickName);
+                        $('.yxz_AsideU').html(data.yxTotalScore ? data.yxTotalScore : '0');
+                        $('.score_AsideU').html(data.currentPointSummary);
+                        if(data.picturePath){
+                            $('.headIcon_AsideU').attr('src', data.picturePath);
+                            $('#headIcon_Header').attr('src', data.picturePath);
                         }
                         const baseStr = {
-                            account: res.data.account,
-                            nickName:res.data.nickName,
-                            phone:res.data.telephone,
-                            picture: res.data.picturePath
+                            account: data.account,
+                            nickName:data.nickName,
+                            phone:data.telephone,
+                            picture: data.picturePath,
+                            isTeam: data.userExtension.wheatherTeam
                         };
                         $('body').append(`<div id="loginUserBase" class="sy-hidden">${JSON.stringify(baseStr)}</div>`);
 
                         //注册全局，“身份认证、技能认证”是否通过
-                        const resIdentity = res.data.userExtension.certificatePassed;
-                        const resSkill = res.data.cuLevelList;
+                        const resIdentity = data.userExtension.certificatePassed;
+                        const resSkill = data.cuLevelList;
                         __api__.isAuth =  __api__.judgeAuth({
                             identity: resIdentity,
                             skill: resSkill
@@ -162,7 +181,7 @@ $.ajaxSetup({
                         //阻止默认跳转，添加userCode参数
                         $('a.myAppraise').click((e) => {
                             e.preventDefault();
-                            location.href = '/personal/appraise?uc=' + res.data.userCode;
+                            location.href = '/personal/appraise?uc=' + data.userCode;
                         });
 
                     }

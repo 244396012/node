@@ -40,7 +40,11 @@ body,.wrapper{
       }
     }
     &>.nav-logo{
+      position: relative;
+      display: inline-block;
       width: 200px;
+      height: 70px;
+      line-height: 70px;
       margin-left: 0;
     }
   }
@@ -135,7 +139,7 @@ body,.wrapper{
     width: 90px;
     padding: 10px 0 6px;
     background-color: #fff;
-    box-shadow: 0 0 5px 2px #eee;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
     .transparent{
       height: 10px;
     }
@@ -170,8 +174,8 @@ body,.wrapper{
       visibility: visible;
       top: 80px;
       opacity: 1;
-      transition: all .3s linear;
-      transition-delay: .2s;
+      transition: all .15s linear;
+      //transition-delay: .2s;
     }
   }
 }
@@ -413,7 +417,9 @@ input[type=radio]{vertical-align: text-top}
 .am-ucheck-radio:checked+.am-ucheck-icons,
 .am-ucheck-checkbox:checked+.am-ucheck-icons,
 .am-radio.am-success .am-ucheck-radio:checked+.am-ucheck-icons,
-.am-checkbox.am-success .am-ucheck-checkbox:checked+.am-ucheck-icons {color: $baseColor}
+.am-checkbox.am-success .am-ucheck-checkbox:checked+.am-ucheck-icons {
+  color: $baseColor;
+}
 
 .am-modal-btn.sy-btn{
   display: inline-block!important;
@@ -431,12 +437,7 @@ input[type=radio]{vertical-align: text-top}
 .am-modal-btn+.am-modal-btn{
   margin-left: 20px;
 }
-p.tips{
-  font-size: 12px;
-  &.orange{
-    color: #f1562a;
-  }
-}
+
 .my-tip{
   position:fixed;
   z-index:10001;
@@ -449,7 +450,7 @@ p.tips{
   border-radius: 4px;
   font-size: 15px;
   border: 1px solid #ddd;
-  box-shadow:3px 4px 10px 1px #aaa;
+  box-shadow: 2px 2px 5px 1px rgba(0,0,0,.15);
   &.my-success{
     background: #F0F9EB;
     border-color: #caf9c1;
@@ -467,8 +468,8 @@ p.tips{
   }
   &.my-loading{
     color:#fff;
-    border-color: #1182ac;
-    background: #1592ac;
+    border-color: $baseColor;
+    background: $baseColor;
   }
 }
 .sy-icon-eye{
@@ -484,4 +485,10 @@ p.empty{
   color: #999;
   font-size: 14px;
   text-align: center;
+}
+p.tips{
+  font-size: 12px;
+  &.orange{
+    color: #f1562a;
+  }
 }

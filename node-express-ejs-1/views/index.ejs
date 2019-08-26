@@ -1,4 +1,5 @@
 <div class="index">
+    <!-- 顶部轮播 -->
     <div class="am-slider am-slider-default" data-am-flexslider style="height: 400px">
         <ul class="am-slides" style="height: 400px">
             <li style="background-image: url('/static/image/banner/home_banner-1.png')">
@@ -31,6 +32,7 @@
                 <p>自由译者加入啄语</p>
             </div>
         </div>
+<!-- 啄语平台简介 -->
         <div class="introduce sy-center">
             <h3>为什么选择啄语平台</h3>
             <div class="introduce-container">
@@ -77,6 +79,7 @@
                 </div>
             </div>
         </div>
+    <!-- 订单轮播展示 -->
         <div class="order">
             <div class="am-g">
                 <div class="am-u-md-8">
@@ -117,6 +120,7 @@
                 </div>
             </div>
         </div>
+    <!-- 接单流程 -->
         <div class="step">
             <h3 class="sy-center">接单流程</h3>
             <div class="step-bg"></div>
@@ -143,6 +147,7 @@
             </div>
         </div>
     </div>
+<!-- 明星译员 -->
     <div class="star">
         <div class="content">
             <h3 class="sy-center">明星译员</h3>
@@ -173,7 +178,7 @@
     </div>
 <!-- 首页板块： 译员风采、行业资讯 -->
     <div class="content">
-        <div class="saying">
+        <div class="indexSaying saying sy-hidden">
             <h3 class="sy-center">啄语者说</h3>
             <div>
                 <div class="bg">
@@ -188,18 +193,19 @@
                 </div>
             </div>
         </div>
-        <div class="information">
+        <div class="indexInfo information sy-hidden">
             <h3 class="sy-center">行业资讯</h3>
             <div>
                 <div class="bg"></div>
                 <div class="cnt industryArticleCnt">
                     <div class="more">
-                        <a href="/information/industryList">查看更多>></a>
+                        <a href="/information/industry">查看更多>></a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+<!-- 底部Logo -->
     <div class="bottom-bg">
         <div class="content sy-center">
             <h3>语言雕“琢”者&nbsp;&nbsp;&nbsp;&nbsp;从啄语开始</h3>
@@ -208,6 +214,7 @@
                href="/register">成为译员</a>
         </div>
     </div>
+<!-- 右侧导航栏 -->
     <aside class="rightAside">
         <ul>
             <li class="follow">
@@ -241,51 +248,50 @@
 </div>
 <script src="/static/lib/scroll.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function (){
-        //设置index首页“我要接单”、“我要发表”按钮权限跳转
-        $('#releaseBtn_Index,#getOrderBtn_Index').on('click', function(e){
-            //未登录
-            if(!__api__.isAuth) return;
 
-            e.preventDefault();
-            const id = this.id;
-            //未通过身份验证
-            if(!__api__.isAuth.isPassIdentity){
-                if(id === 'releaseBtn_Index'){
-                    $.warning('你当前还不能发表文章，快去完善信息吧');
-                }else if(id === 'getOrderBtn_Index'){
-                    $.warning('你当前还不能接单，快去完善信息吧');
-                }
-                setTimeout(() => {
-                    location.href = '/personal/identification';
-                }, 1000);
-                return null;
-            }
-            //已通过身份验证，未通过技能验证
-            if(!__api__.isAuth.isPassSkill){
-                if(id === 'releaseBtn_Index'){
-                    $.warning('你当前还不能发表文章，快去完善信息吧');
-                }else if(id === 'getOrderBtn_Index'){
-                    $.warning('你当前还不能接单，快去完善信息吧');
-                }
-                setTimeout(() => {
-                    location.href = '/personal/skill';
-                }, 1000);
-                return null;
-            }
-            //已通过验证
+    //文章精选、行业资讯
+    __api__.getIndexGoodArticle();
+
+    //设置index首页“我要接单”、“我要发表”按钮权限跳转
+    $('#releaseBtn_Index,#getOrderBtn_Index').on('click', function(e){
+        //未登录
+        if(!__api__.isAuth) return;
+
+        e.preventDefault();
+        var id = this.id;
+        //未通过身份验证
+        if(!__api__.isAuth.isPassIdentity){
             if(id === 'releaseBtn_Index'){
-                location.href = '/personalArticle/create'; //发布文章
+                $.warning('你当前还不能发表文章，快去完善信息吧');
             }else if(id === 'getOrderBtn_Index'){
-                location.href = ''; //接单
+                $.warning('你当前还不能接单，快去完善信息吧');
             }
-        });
+            setTimeout(() => {
+                location.href = '/personal/identification';
+            }, 1000);
+            return null;
+        }
+        //已通过身份验证，未通过技能验证
+        if(!__api__.isAuth.isPassSkill){
+            if(id === 'releaseBtn_Index'){
+                $.warning('你当前还不能发表文章，快去完善信息吧');
+            }else if(id === 'getOrderBtn_Index'){
+                $.warning('你当前还不能接单，快去完善信息吧');
+            }
+            setTimeout(() => {
+                location.href = '/personal/skill';
+            }, 1000);
+            return null;
+        }
+        //已通过验证
+        if(id === 'releaseBtn_Index'){
+            location.href = '/personalArticle/create'; //发布文章
+        }else if(id === 'getOrderBtn_Index'){
+            location.href = '/order/'; //接单
+        }
+    });
 
-        //文章精选、行业资讯
-        __api__.getIndexGoodArticle();
-
-    }, false);
-//返回顶部
+    //返回顶部
     window.onscroll = function () {
         var goTop = $('li.back'),
             myScrollTop = document.documentElement.scrollTop || document.body.scrollTop;

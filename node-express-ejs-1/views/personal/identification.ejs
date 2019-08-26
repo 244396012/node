@@ -30,7 +30,7 @@
                             </div>
                         </form>
                         <div class="sy-btns sy-font-md">
-                            <button id="certificateBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">提交认证</button>
+                            <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh certificateBtn">提交认证</button>
                             <span><i class="sy-info-icon"></i> 提交认证后不可修改</span>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
         </div>
     </div>
     <!--结算认证-->
-    <div id="setDefaultPayWay_Identification" class="identify-item pay">
+    <div  class="setDefaultPayWay identify-item pay">
         <div class="am-g identify-title">
             <div class="am-u-lg-9">
                 <span class="sy-bold">结算方式&nbsp;</span>
@@ -84,7 +84,7 @@
                         </form>
                         <div class="sy-btns sy-font-md">
                             <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
-                            <button id="setBankBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                            <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh setBankPayBtn">保存</button>
                         </div>
                     </div>
                     <div class="show-info bankPay"></div>
@@ -112,7 +112,7 @@
                         </form>
                         <div class="sy-btns sy-font-md">
                             <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
-                            <button id="aliPayBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                            <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh setAliPayBtn">保存</button>
                         </div>
                     </div>
                     <div class="show-info aliPay"></div>
@@ -139,7 +139,7 @@
                         </form>
                         <div class="sy-btns sy-font-md">
                             <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
-                            <button id="PaypalBtn_Identification" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                            <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh setPayPalBtn">保存</button>
                         </div>
                     </div>
                     <div class="show-info Paypal"></div>
@@ -149,44 +149,48 @@
     </div>
 </div>
 <script>
-    __api__.getPageIdentification();
-    //显示身份证号码
-    $('div.identify').on('click',function (e) {
-       if(e.target.id === 'showCertification') {
-           e.target.innerText = e.target.innerText === '隐藏信息' ? '查看完整信息' : '隐藏信息';
-           $('.certificateNum').each(function () {
-               $(this).hasClass('sy-hidden')
-                ? $(this).removeClass('sy-hidden')
-                : $(this).addClass('sy-hidden');
-           });
-       }
-    });
-    //取消保存
-    $('button[data-sy-cancel]').on('click', function () {
-        var _this = $(this),
-            formEl = _this.parents('.add-form'),
-            targerEl = formEl.find('input,select,textarea');
-        _this.next().removeAttr('data-u-id');
-        targerEl.each(function () {
-            if(!$(this).attr('disabled')){
-                $(this).val('');
+    (function () {
+
+        __api__.getPageIdentification();
+
+        $('div.identification').on('click',function (e) {
+            var target = e.target;
+            // 显示/隐藏身份证号码
+            if($(target).hasClass('showIDCard')) {
+                var txt = target.innerText;
+                target.innerText = txt === '隐藏信息' ? '查看完整信息' : '隐藏信息';
+                $('div.certificateNum').each(function () {
+                    $(this).hasClass('sy-hidden')
+                        ? $(this).removeClass('sy-hidden')
+                        : $(this).addClass('sy-hidden');
+                });
+            // 收缩、展示内容
+            }else if($(target).hasClass('toggle')){
+                var $this = $(target),
+                    outDiv = $this.parents('.identify-item'),
+                    targetDiv = outDiv.find('.identify-cnt');
+                if($this.hasClass('am-icon-angle-down')){
+                    targetDiv.addClass('sy-hidden');
+                    $this.addClass('am-icon-angle-up').removeClass('am-icon-angle-down');
+                }else{
+                    targetDiv.removeClass('sy-hidden');
+                    $this.addClass('am-icon-angle-down').removeClass('am-icon-angle-up');
+                }
+            // 取消保存
+            }else if($(target).attr('data-sy-cancel') === ''){
+                var $this = $(target),
+                    formEl = $this.parents('.add-form'),
+                    targerEl = formEl.find('input,select,textarea');
+                $this.next().removeAttr('data-u-id');
+                targerEl.each(function () {
+                    if(!$(this).attr('disabled')){
+                        $(this).val('');
+                    }
+                });
+                if(formEl.next('.show-info').children().length > 0){
+                    formEl.addClass('sy-hidden');
+                }
             }
         });
-        if(formEl.next('.show-info').children().length > 0){
-            formEl.addClass('sy-hidden');
-        }
-    });
-    //收缩、展示内容
-    $('i.toggle').on('click', function () {
-        var _this = $(this),
-            outDiv = _this.parents('.identify-item'),
-            targetDiv = outDiv.find('.identify-cnt');
-        if(_this.hasClass('am-icon-angle-down')){
-            targetDiv.addClass('sy-hidden');
-            _this.addClass('am-icon-angle-up').removeClass('am-icon-angle-down');
-        }else{
-            targetDiv.removeClass('sy-hidden');
-            _this.addClass('am-icon-angle-down').removeClass('am-icon-angle-up');
-        }
-    });
+    })();
 </script>

@@ -10,7 +10,7 @@
         <div class="am-g">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form">
+                    <div class="add-form sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
                                 <div><i class="required">*</i>毕业院校：</div>
@@ -55,28 +55,92 @@
     <div class="resume-item skill">
         <div class="am-g sy-personal-hd">
             <div class="am-u-lg-6 sy-bold">技能证书（选填）</div>
-            <div class="am-u-lg-6 sy-right sy-resume-title">
-                <span class="add skill"><i>+</i>添加</span>
-            </div>
+            <div id="uploadCertificate" class="sy-hidden"></div>
         </div>
         <div class="am-g">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form">
+                    <div class="add-form add-form-笔译证书 sy-hidden">
                        <form class="sy-personal-form sy-personal-base">
                            <div class="item">
-                               <div><i class="required">*</i>证书名称：</div>
+                               <div>笔译证书：</div>
                                <div>
-                                   <select id="userCertificateType" style="width: 260px;margin-right: 5px;"></select>
-                                   <button id="skillBtn" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
-                                           style="margin-right: 0;vertical-align: -1.5px;"
-                                           onclick="$('a.uploadify-button').click()">上传证书</button>
-                                   <div id="upload" class="sy-hidden"></div>
+                                   <select class="languageList languageList_b">
+                                       <option value="">请选择语种</option>
+                                   </select>
+                                   <select class="certificateList">
+                                       <option value="">请选择证书名称</option>
+                                   </select>
+                                   <button type="button"
+                                           class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_b"
+                                           onclick="beforeUpload(this, '笔译证书')">上传证书</button>
                                </div>
                            </div>
                        </form>
                     </div>
-                    <div class="show-info skill-info"></div>
+                    <div class="show-info skill-info sy-hidden">
+                        <div class="am-g">
+                            <div class="am-u-lg-6">笔译证书</div>
+                            <div class="am-u-lg-6 sy-right sy-resume-title">
+                                <span class="add project"><i>+</i>添加</span>
+                            </div>
+                        </div>
+                        <div class="items"></div>
+                    </div>
+                    <div class="add-form add-form-口译证书 sy-hidden">
+                        <form class="sy-personal-form sy-personal-base">
+                            <div class="item">
+                                <div>口译证书：</div>
+                                <div>
+                                    <select class="languageList languageList_k">
+                                        <option value="">请选择语种</option>
+                                    </select>
+                                    <select class="certificateList">
+                                        <option value="">请选择证书名称</option>
+                                    </select>
+                                    <button type="button"
+                                            class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_k"
+                                            onclick="beforeUpload(this, '口译证书')">上传证书</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="show-info skill-info sy-hidden">
+                        <div class="am-g">
+                            <div class="am-u-lg-6">口译证书</div>
+                            <div class="am-u-lg-6 sy-right sy-resume-title">
+                                <span class="add"><i>+</i>添加</span>
+                            </div>
+                        </div>
+                        <div class="items"></div>
+                    </div>
+                    <div class="add-form add-form-培训证书 sy-hidden">
+                        <form class="sy-personal-form sy-personal-base">
+                            <div class="item">
+                                <div>培训证书：</div>
+                                <div>
+                                    <select class="languageList languageList_p">
+                                        <option value="">请选择语种</option>
+                                    </select>
+                                    <select class="certificateList">
+                                        <option value="">请选择证书名称</option>
+                                    </select>
+                                    <button type="button"
+                                            class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_p"
+                                            onclick="beforeUpload(this, '培训证书')">上传证书</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="show-info skill-info sy-hidden">
+                        <div class="am-g">
+                            <div class="am-u-lg-6">培训证书</div>
+                            <div class="am-u-lg-6 sy-right sy-resume-title">
+                                <span class="add"><i>+</i>添加</span>
+                            </div>
+                        </div>
+                        <div class="items"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,7 +156,7 @@
         <div class="am-g">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form">
+                    <div class="add-form sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
                                 <div><i class="required">*</i>企业名称：</div>
@@ -135,7 +199,7 @@
         <div class="am-g">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form">
+                    <div class="add-form sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
 							<div class="item">
                                 <div><i class="required">*</i>项目名称：</div>
@@ -176,13 +240,13 @@
         <div class="am-g sy-personal-hd">
             <div class="am-u-lg-6 sy-bold">个性标签及擅长领域（选填）</div>
             <div class="am-u-lg-6 sy-right sy-resume-title">
-                <span class="edit sy-hidden"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
+                <span class="editLabel edit sy-hidden"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
             </div>
         </div>
         <div class="am-g">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form">
+                    <div class="add-form sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="max-wd">
                                 <span>个性标签让订单推送更加精准</span>
@@ -204,7 +268,7 @@
                                 <div><dl class="label expert"></dl></div>
                             </div>
                         </form>
-                        <div class="sy-btns sy-font-md" style="padding-left: 80px;">
+                        <div class="sy-btns sy-font-md" style="padding-left: 70px;">
                             <button data-sy-reset type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
                             <button id="addLabelBtn_Resume" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
                         </div>
@@ -218,175 +282,141 @@
 <script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script src="/static/lib/Huploadify.js"></script>
 <script>
-    laydate.render({ elem: '.graduateTime', type: 'month' });
-    laydate.render({ elem: '.workStartTime', type: 'month' });
-    laydate.render({ elem: '.workEndTime', type: 'month' });
-    laydate.render({ elem: '.projectStartTime', type: 'month' });
-    laydate.render({ elem: '.projectEndTime', type: 'month' });
-    //获取简历信息
-    __api__.getPageResume();
-    __api__.getWorkedCompany();
-    //上传学历
-    setTimeout(function (){
-        $('#upload').Huploadify({
-            auto: true,
-            multi: false,
-            fileTypeExts: '*.jpg;*.png;*.jpeg;*.gif',
-            fileObjName:'multipartFile',
-            formData: {
-                id: '',
-                userId: localStorage.getItem('sy_rm_client_ud'),
-                userCertificateType: $('#userCertificateType').val()
-            },
-            token: 'Bearer '+localStorage.getItem('sy_rm_client_access_token'),
-            fileSizeLimit: 1024,
-            uploader: __api__.baseRMUrl + '/userExtension/addSkillInfo',
-            onUploadStart: function () {
-                this.formData.userCertificateType = $('#userCertificateType').val();
-                $.loading('正在上传');
-            },
-            onUploadComplete: function(file, res){
-                const resJson = JSON.parse(res);
-                if(resJson.message === 'success'){
-                    __api__.getPageResume();
-                    $('#sy-loading').remove();
-                    $('div.skill').find('.add-form').addClass('sy-hidden');
+    $(function () {
+
+        laydate.render({ elem: '.graduateTime', type: 'month' });
+        laydate.render({ elem: '.workStartTime', type: 'month' });
+        laydate.render({ elem: '.workEndTime', type: 'month' });
+        laydate.render({ elem: '.projectStartTime', type: 'month' });
+        laydate.render({ elem: '.projectEndTime', type: 'month' });
+
+        //获取简历信息
+        __api__.getPageResume();
+        //初始化领域、公司
+        __api__.initResumePageBase();
+
+        //选择语种，切换证书
+        $('.languageList').change(function () {
+            var selectedIdx = this.selectedIndex,
+                selectedOpt = this.options[selectedIdx],
+                selectedVal = selectedOpt.value;
+            var elStr = '',
+                targetEl = this.nextElementSibling;
+            var parentEl = $(this.parentNode),
+                btnEl = parentEl.find('button');
+            $(targetEl).removeClass('sy-hidden');
+            parentEl.find('input').remove();
+            if(selectedVal && selectedVal !== '其他'){
+                var certificateList = selectedOpt.getAttribute('data').split('、');
+                for(var i = 0, len = certificateList.length; i<len; i++){
+                    var item = certificateList[i];
+                    elStr += "<option value='"+ item +"'>"+ item +"</option>";
                 }
-            },
-            onUploadError: function(file, res){
-                const resJson = JSON.parse(res);
-                $('#sy-loading').remove();
-                $.error(resJson.message);
-            }
-        });
-    }, 1500);
-    //获取证书名称
-    __api__.getResponse({
-        url: '/userExtension/listAllSkillType'
-    }).then(res => {
-        if(res.message === 'success'){
-            let cerStr = '';
-            res.data.forEach(item => {
-                cerStr += `<option value="${item.skillType}">${item.skillType}</option>`;
-            });
-            $('#userCertificateType').html(cerStr);
-        }
-    });
-    //获取所有领域
-    __api__.getResponse({
-        url: '/domain/listAll'
-    }).then(res => {
-        if(res.message === 'success'){
-            let str = '';
-            res.data.forEach(item => {
-               str += `<dd class="area">${item.fullSpecialtyName}</dd>`;
-            });
-            $('dl.expert').html(str);
-        }
-    });
-    //添加信息
-    $('span.add').on('click', function () {
-        var _this = $(this),
-            outDiv = _this.parents('.resume-item'),
-            formDiv = outDiv.find('.add-form');
-        formDiv.removeClass('sy-hidden');
-    });
-    //取消保存
-    $('button[data-sy-cancel]').on('click', function () {
-        var _this = $(this),
-            outDiv = _this.parents('.add-form'),
-            targerEl = outDiv.find('input,select,textarea');
-        _this.next().removeAttr('data-u-id');
-        outDiv.addClass('sy-hidden');
-        targerEl.each(function () {
-            if(!$(this).hasClass('extra')){
-                $(this).val('');
-            }
-            if(this.nodeName === 'TEXTAREA'){
-                $(this).next().html(`<span>0</span>/300`);
-            }
-        });
-    });
-    //添加个性标签
-    $('.addBtn').click(function () {
-        var labelName = $('.addLabelPut').val();
-        if($.trim(labelName) === ''){
-            $.warning('请输入标签');
-            return;
-        }
-        $('.doself').append(`<dd class="self">${labelName}<i class="am-icon-close"></i></dd>`);
-        $(this).prev().val('');
-    });
-    //删除个性标签
-    $('.doself').on('click', function (e) {
-        if(e.target.nodeName === 'I'){
-            var el = e.target.parentNode;
-            $(el).remove();
-        }
-    });
-    //选择擅长领域
-    $('.expert,.individual').on('click', function (e) {
-        if(e.target.nodeName === 'DD'){
-            var dds = $(this).find('dd.selected');
-            var _this = $(e.target);
-            if($(e.target.parentNode).hasClass('expert')){
-                if(dds.length < 5 || _this.hasClass('selected')){
-                    _this.toggleClass('selected');
-                }else{
-                    $.warning('擅长领域最多选择5项');
-                }
+            }else if(selectedVal === '其他'){
+                $(targetEl).addClass('sy-hidden');
+                btnEl.before(`
+                   <input type="text" class="languagePut" placeholder="请输入语言">
+                   <input type="text" class="certificatePut" placeholder="请输入证书名称">`);
             }else{
-                _this.toggleClass('selected');
+                elStr = '<option value="">请选择证书名称</option>';
             }
-        }
-    });
-    //编辑个性标签和领域
-    $('span.edit').on('click', function () {
-        var parentDiv = $(this).parents('.resume-item'),
-            tarForm = parentDiv.find('.add-form'),
-            tarInfo = parentDiv.find('.show-info');
-        var individualData = tarInfo.find('.individual').html().split(','),
-            areaData = tarInfo.find('.expert').html().split(',');
-        var labelIndividual = tarForm.find('.individual'),
-            labelArea = tarForm.find('.expert');
-        labelIndividual.eq(0).find('dd').each(function () {
-            var _this = this;
-            individualData.forEach(function(item,index) {
-                item === $(_this).text() && $(_this).addClass('selected') && individualData.splice(index, 1);
-            });
-        })
-        var selfStr = '';
-        individualData.forEach(function (item) {
-            selfStr += `<dd class="selected">${item}<i class="am-icon-close"></i></dd>`
+            targetEl.innerHTML = elStr;
         });
-        labelIndividual.eq(1).html(selfStr);
-        for(let i = 0; i<areaData.length; i++){
-            for(let j =0; j<labelArea.find('dd').length; j++){
-                var el = $(labelArea.find('dd')[j]);
-                if(areaData[i] === el.text()){
-                    el.addClass('selected');
-                    break;
+
+    //添加“click”事件委托
+        $('div.resume-item').on('click', function (e) {
+            var event = e || window.event,
+                target = event.target || event.srcElement;
+        //添加信息
+            if($(target).hasClass('add')){
+                var outDiv = $(target).parents('.resume-item'),
+                    formDiv = outDiv.find('.add-form');
+                formDiv.removeClass('sy-hidden');
+        //取消保存
+            }else if(target.nodeName === 'BUTTON' && $(target).attr('data-sy-cancel') === ''){
+                var outDiv = $(target).parents('.add-form'),
+                    targerEl = outDiv.find('input,select,textarea');
+                $(target).next().removeAttr('data-u-id');
+                outDiv.addClass('sy-hidden');
+                targerEl.each(function () {
+                    if(!$(this).hasClass('extra')){
+                        $(this).val('');
+                    }
+                    if(this.nodeName === 'TEXTAREA'){
+                        $(this).next().html(`<span>0</span>/300`);
+                    }
+                });
+        //取消标签
+            }else if(target.nodeName === 'BUTTON' && $(target).attr('data-sy-reset') === ''){
+                var parentForm = $(target).parents('.add-form');
+                $('dl.label').find('dd').removeClass('selected');
+                parentForm.addClass('sy-hidden');
+                parentForm.next().removeClass('sy-hidden');
+        //添加个性标签
+            }else if($(target).hasClass('addBtn')){
+                var labelName = $('.addLabelPut').val();
+                if(labelName.trim() === ''){
+                    $.warning('请输入标签');
+                    return;
+                }
+                $('.doself').append(`<dd class="self">${labelName}<i class="am-icon-close"></i></dd>`);
+                $(target).prev().val('');
+        //删除个性标签
+            }else if($(target).hasClass('am-icon-close')){
+                var el = target.parentNode;
+                $(el).remove();
+        //选择擅长领域
+            }else if(target.nodeName === 'DD'){
+                var dds = $(target).parent('dl').find('dd.selected');
+                if($(target.parentNode).hasClass('expert')){
+                    if(dds.length < 5 || $(target).hasClass('selected')){
+                        $(target).toggleClass('selected');
+                    }else{
+                        $.warning('擅长领域最多选择5项');
+                    }
+                }else{
+                    $(target).toggleClass('selected');
                 }
             }
-        }
-        tarForm.removeClass('sy-hidden');
-        tarInfo.addClass('sy-hidden');
-    });
-    //取消标签
-    $('button[data-sy-reset]').click(function () {
-        var _this = this,
-            parentForm = $(_this).parents('.add-form');
-        $('dl.label').find('dd').removeClass('selected');
-        parentForm.addClass('sy-hidden');
-        parentForm.next().removeClass('sy-hidden');
-    });
-    //判断textarea内容是否超过限制长度
-    var putTimer = null;
-    $('textarea').on('input', function () {
-        var _this = this;
-        clearTimeout(putTimer);
-        putTimer = setTimeout(function () {
-            var len = $(_this).val().length;
+        });
+
+        //编辑个性标签和领域
+        $('span.editLabel').on('click', function () {
+            var parentDiv = $(this).parents('.resume-item'),
+                tarForm = parentDiv.find('.add-form'),
+                tarInfo = parentDiv.find('.show-info');
+            var individualData = tarInfo.find('.individual').html().split(','),
+                areaData = tarInfo.find('.expert').html().split(',');
+            var labelIndividual = tarForm.find('.individual'),
+                labelArea = tarForm.find('.expert');
+            labelIndividual.eq(0).find('dd').each(function () {
+                var _this = this;
+                individualData.forEach(function(item,index) {
+                    item === $(_this).text() && $(_this).addClass('selected') && individualData.splice(index, 1);
+                });
+            })
+            var selfStr = '';
+            individualData.forEach(function (item) {
+                selfStr += `<dd class="selected">${item}<i class="am-icon-close"></i></dd>`
+            });
+            labelIndividual.eq(1).html(selfStr);
+            for(let i = 0; i<areaData.length; i++){
+                for(let j =0; j<labelArea.find('dd').length; j++){
+                    var el = $(labelArea.find('dd')[j]);
+                    if(areaData[i] === el.text()){
+                        el.addClass('selected');
+                        break;
+                    }
+                }
+            }
+            tarForm.removeClass('sy-hidden');
+            tarInfo.addClass('sy-hidden');
+        });
+
+        //判断textarea内容是否超过限制长度
+        $('textarea').on('input', __bundle__.throttleFn(function () {
+            var _this = this,
+                len = $(_this).val().length;
             if(len > 300 ){
                 $.warning('内容长度超过限制');
                 $(_this).attr('data-len-pass', 1);
@@ -395,6 +425,22 @@
             }
             $(_this).removeAttr('data-len-pass');
             $(_this).next().html(`<span>${len}</span>/300`);
-        }, 500);
+        }, 500));
     });
+
+    //点击上传按钮前，先判断空值，再初始化证书类型
+    function beforeUpload(_this, type) {
+        var formEl = $(_this).parents('form'),
+            requiredEl = formEl.find('select,input');
+        for(var i = 0, len = requiredEl.length; i<len; i++){
+            var el = requiredEl[i];
+            if(el.value.trim() === '' && !$(el).hasClass('sy-hidden')){
+                $.warning('请填写语种、证书名称');
+                return false;
+            }
+        }
+        $('.resume-item.skill').attr({'type': type});
+        $('a.uploadify-button').click();
+    }
+
 </script>

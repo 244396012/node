@@ -6,26 +6,26 @@ const routes = express.Router();
  *
  * */
 //登陆
-routes.get('/login', function (req, res, next) {
+routes.get('/login', function (req, res) {
    res.render('account/login', {
        mark: 'account',
-       title: '用户登录',
+       title: '啄语 | 用户登录',
        layout: 'shared/layout'
    });
 });
 //注册
-routes.get('/register', function (req,res,next) {
+routes.get('/register', function (req, res) {
    res.render('account/register', {
        mark: 'account',
-       title: '用户注册',
+       title: '啄语 | 用户注册',
        layout: 'shared/layout'
    });
 });
 //忘记密码
-routes.get('/forgetPwd', function (req, res, next) {
+routes.get('/forgetPwd', function (req, res) {
    res.render('account/forgetPwd', {
        mark: 'account',
-       title: '忘记密码',
+       title: '啄语 | 忘记密码',
        layout: 'shared/layout'
    });
 });
@@ -38,34 +38,34 @@ routes.get('/forgetPwd', function (req, res, next) {
 * */
 
 //首页
-routes.get('/',function (req, res, next) {
+routes.get('/',function (req, res) {
     res.render('index', {
         mark: 'index',
-        title: '首页',
+        title: '啄语 | 首页',
         layout: 'shared/layout'
     });
 });
 //关于我们
-routes.get('/about/', function (req, res, next){
+routes.get('/about/', function (req, res){
     res.render('about/index', {
         mark: 'about',
-        title: '关于我们',
+        title: '啄语 | 关于我们',
         layout: 'shared/layout'
     });
 });
 //帮助中心
-routes.get('/about/help', function (req, res, next){
+routes.get('/about/help', function (req, res){
     res.render('about/help', {
         mark: 'about',
-        title: '帮助中心',
+        title: '啄语 | 帮助中心',
         layout: 'shared/layout'
     });
 });
 //服务条款
-routes.get('/about/clause', function (req, res, next){
+routes.get('/about/clause', function (req, res){
     res.render('about/clause', {
         mark: 'about',
-        title: '服务条款',
+        title: '啄语 | 服务条款',
         layout: 'shared/layout'
     });
 });

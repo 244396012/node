@@ -105,10 +105,7 @@ module.exports = [
                     exclude: path.resolve(__dirname,"./node_modules"),
                     //打包包括的文件
                     include: path.resolve(__dirname, "./src/js"),
-                    loader: "babel-loader",
-                    query: {
-                        "presets": ['es2015']
-                    }
+                    loader: "babel-loader"
                 }
             ]
         }

@@ -1,8 +1,3 @@
-import { loginUrl, baseUrl } from "./interceptor";
-import { getResponse } from "./asyncAjax";
-import {countDown, getQueryString} from "./utils";
-import './modal';
-
 /*
 *
 * module：views -> account （登录模块）
@@ -12,40 +7,58 @@ import './modal';
 *
 * */
 
+import { loginUrl, baseUrl } from "./interceptor";
+import { getResponse } from "./asyncAjax";
+import {countDown, getQueryString} from "./utils";
+import './modal';
+
 (function (window, document, $, undefined) {
+
     'use strict';
 
-//获取手机验证码
-    $('#telValidateBtn_Account').on('click', function () {
-        const _this = this;
+// 获取DOM元素
+    function getEl(str) {
+        return document.getElementsByClassName(str).item(0);
+    }
+
+// 获取手机验/邮箱证码
+    const validateCode_acc = function (_this) {
         const isSlide = $('#slideBtn').attr('data-pass'),
-            sMobile = $('#telPhone').val();
-        if(!(/^1[1-9][0-9]{9}$/.test(sMobile))){
-            $.warning('请输入正确的手机号');
+            account = $('#accountPut').val(),
+            codeType = _this.getAttribute('data-type'); //类型：注册 1，忘记密码 2
+        if(account.trim() === ''){
+            $.warning('请输入手机号/邮箱');
+            return false;
+        }
+        //手机号、邮箱验证
+        if(!(/^1[1-9][0-9]{9}$/.test(account) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(account))){
+            $.warning('请输入正确的手机号/邮箱');
             return false;
         }
         if(!isSlide){
             $.warning('请先拖动滑块进行安全验证');
             return false;
         }
+        //倒计时120s
         countDown(_this);
         getResponse({
             baseUrl: loginUrl,
             url: '/customer/sendCode',
             data: {
-                telephone: sMobile
+                validateCodeType: codeType,
+                telephone: account
             }
         }).then(res => {
             res.message === 'success'
                 ? $.success('验证码发送成功')
                 : $.error(res.message);
         })
-    });
-//注册
-    $('#regBtn_Account').on('click', function () {
-        const _this = this;
+    };
+// 个人用户注册
+    const register_acc = function (_this) {
         const isSlide = $('#slideBtn').attr('data-pass'),
             requiredEles = $('input[required]');
+        //空值验证
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
             if(el.value.trim() === ''){
@@ -58,12 +71,13 @@ import './modal';
             $.warning('请先拖动滑块进行安全验证');
             return false;
         }
-        const mobile = $('#telPhone').val(),
-            yzCode = $('#telCode').val(),
+        const account = $('#accountPut').val(),
+            yzCode = $('#accountCode').val(),
             password = $('#password').val(),
             applyCode = $('#applyCode').val();
-        if(!(/^1[1-9][0-9]{9}$/.test(mobile))){
-            $.warning('请输入正确的手机号');
+        //手机号、邮箱验证
+        if(!(/^1[1-9][0-9]{9}$/.test(account) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(account))){
+            $.warning('请输入正确的手机号/邮箱');
             return false;
         }
         if(password.length < 6 || password.length > 20){
@@ -77,15 +91,15 @@ import './modal';
             baseUrl: loginUrl,
             url: '/customer/customerRegister',
             data: {
-                telephone: mobile,
+                userName: account,
                 password: password,
                 invitationCode: applyCode,
                 validateCode: yzCode
             }
         }).then(res => {
-            if(res.code === '200' && res.message === 'success'){
+            if(res.message === 'success'){
                 $.success('注册成功');
-                window.setTimeout(() => {
+                setTimeout(() => {
                     location.href = '/login';
                 },1500);
             }else{
@@ -94,11 +108,11 @@ import './modal';
             $(_this).removeAttr('disabled');
             $(_this).html('注 册');
         })
-    });
-//登录
-    $('#loginBtn_Account').on('click', function () {
-        const _this = this;
+    };
+// 个人/团队用户登录
+    const login_acc = function (_this) {
         const requiredEles = $('input[required]');
+        //空值验证
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
             if(el.value.trim() === ''){
@@ -121,6 +135,7 @@ import './modal';
                 password: $('#password').val()
             }
         }).then(res => {
+            res.access_token && $.success('登录成功');
             return new Promise(resolve => {
                 resolve(res);
             })
@@ -128,13 +143,18 @@ import './modal';
             err.responseJSON.error === "invalid_grant"
                 ? $.error('用户名和密码不匹配')
                 : $.error(err.responseJSON.error);
+        }).finally(() => {
             $(_this).removeAttr('disabled');
             $(_this).html('登 录');
-        }).then(res => {
-            //登录获取token成功
-            if(res.access_token){
-                $.success('登录成功');
-                localStorage.setItem('sy_rm_client_access_token', res.access_token);
+        }).then(resLog => {
+            //登录成功，本地存储token
+            if(resLog.access_token){
+                //设置1天过期的cookie
+                let date = new Date(),
+                    moreDate = date.getTime() + 24*60*60*1000;
+                localStorage.setItem('sy_rm_client_access_token', resLog.access_token);
+                document.cookie = "sy_rm_client_tk="+ resLog.access_token + ";expires=" + new Date(moreDate);
+                //登录成功后，再获取userId
                 getResponse({
                     baseUrl: baseUrl,
                     url: '/auth/current',
@@ -144,7 +164,8 @@ import './modal';
                 }).then(res => {
                     if(res.name){
                         localStorage.setItem('sy_rm_client_ud',res.principal.user.id);
-                        window.setTimeout(() => {
+                        document.cookie = "sy_rm_client_ud="+ res.principal.user.id + ";expires=" + new Date(moreDate);
+                        setTimeout(() => {
                             //若存在重定向，则登录成功后跳转
                             if(getQueryString('redirect')){
                                 location.href = decodeURIComponent(getQueryString('redirect'));
@@ -154,17 +175,25 @@ import './modal';
                         }, 500);
                     }
                 });
-                $(_this).removeAttr('disabled');
-                $(_this).html('登 录');
             }
         });
+    };
+
+    $('.validateCodeBtn_acc').click(function () {
+        validateCode_acc(this);
     });
+    $('.registerBtn_acc').click(function () {
+        register_acc(this);
+    });
+    $('.loginBtn_acc').click(function () {
+        login_acc(this);
+    });
+
 /*
 * 忘记密码
 * */
-//1、获取验证码
-    $('#nextBtn_Account').on('click', function () {
-        const _this = this;
+// 1、第一步，获取验证码
+    const forgetPwdStep_1 = function (_this) {
         const requiredEles = $('input[required]');
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
@@ -175,14 +204,15 @@ import './modal';
             }
         }
         const isSlide = $('#slideBtn').attr('data-pass'),
-            mobile = $('#telPhone').val(),
-            code = $('#telCode').val();
-        if(!isSlide){
-            $.warning('请先拖动滑块进行安全验证');
+            account = $('#accountPut').val(),
+            code = $('#accountCode').val();
+        //手机号、邮箱验证
+        if(!(/^1[1-9][0-9]{9}$/.test(account) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(account))){
+            $.warning('请输入正确的手机号/邮箱');
             return false;
         }
-        if(!(/^1[1-9][0-9]{9}$/.test(mobile))){
-            $.warning('请输入正确的手机号');
+        if(!isSlide){
+            $.warning('请先拖动滑块进行安全验证');
             return false;
         }
         $(_this).attr('disabled','disabled');
@@ -192,11 +222,11 @@ import './modal';
             baseUrl: loginUrl,
             url: '/customer/resetPassword',
             data: {
-                tel: mobile,
+                tel: account,
                 verifyCode: code
             }
         }).then(res => {
-            if(res.code === '200' && res.message === 'success'){
+            if(res.message === 'success'){
                 const currentForm = $(_this).parents('.am-form'),
                     index = currentForm.next('form').index();
                 $('div.sy-sp').eq(index-1).addClass('sy-forget-active');
@@ -207,10 +237,9 @@ import './modal';
             $(_this).removeAttr('disabled');
             $(_this).html('下一步');
         });
-    });
-//2、重置密码
-    $('#updateBtn_Account').on('click', function () {
-        const _this = this;
+    };
+// 2、第二步，重置密码
+    const forgetPwdStep_2 = function (_this) {
         const requiredEles = $('input[required]');
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
@@ -222,12 +251,13 @@ import './modal';
         }
         const password = $('#password').val(),
             rePassword = $('#rePassword').val();
+        //密码长度限制、相同验证
         if(password.length < 6 || password.length > 20 || rePassword.length < 6 || rePassword.length > 20){
             $.warning('请输入长度为6-20的密码');
             return false;
         }
         if(password !== rePassword){
-            $.warning('两次输入的密码不相同');
+            $.warning('两次输入的密码不一致');
             return false;
         }
         $(_this).attr('disabled','disabled');
@@ -252,13 +282,13 @@ import './modal';
             $(_this).removeAttr('disabled');
             $(_this).html('提 交');
         });
+    };
 
+    $('.forgetPwdStepBtn_1_acc').click(function () {
+        forgetPwdStep_1(this);
     });
-//Enter键：登录、注册
-    $(document).keyup(function (event) {
-        if(event.keyCode === 13){
-            $('#regBtn_Account').click();
-            $('#loginBtn_Account').click();
-        }
-    })
+    $('.forgetPwdStepBtn_2_acc').click(function () {
+        forgetPwdStep_2(this);
+    });
+
 })(window, document, jQuery);

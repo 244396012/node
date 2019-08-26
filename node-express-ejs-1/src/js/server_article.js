@@ -1,8 +1,3 @@
-import { getResponse } from "./asyncAjax";
-import { getQueryString, throttleFn } from "./utils";
-import { baseRMUrl } from "./interceptor";
-import './modal';
-
 /*
 * module：views -> article、personalArticle （文章管理模块）
 * export：articleServer
@@ -10,6 +5,11 @@ import './modal';
 * date: 2019/07/17
 *
 * */
+
+import { getResponse } from "./asyncAjax";
+import { getQueryString, throttleFn } from "./utils";
+import { baseRMUrl } from "./interceptor";
+import './modal';
 
 const articleServer = (function (global, document, $, undefined){
 
@@ -70,7 +70,8 @@ const articleServer = (function (global, document, $, undefined){
                     if(res.code === '200'){
                         $.success('发布成功');
                         $('.commentList').empty();
-                        $('.commentPageNo').val(0);
+                        $('.commentPageNo').val(1);
+                        textArea[0].value = '';
                         getCommentsList();
                     }else{
                         $.error(res.message);
@@ -238,7 +239,8 @@ const articleServer = (function (global, document, $, undefined){
     }
 //首页 “文章精选、行业资讯”
     function getIndexGoodArticle(page = 0, size = 2){
-        //精选
+
+        //文章精选
         getResponse({
             url: '/interpreterArticle/interpreterArticleListSelect',
             data: {
@@ -274,6 +276,7 @@ const articleServer = (function (global, document, $, undefined){
                                 </div>
                              </div>`;
                 });
+                res.data.content.length > 0 && $('.indexSaying').removeClass('sy-hidden');
                 $('div.goodArticleCnt>.more').before(mesStr);
             }
         });
@@ -310,6 +313,7 @@ const articleServer = (function (global, document, $, undefined){
                                 </div>
                              </div>`;
                 });
+                res.data.content.length > 0 && $('.indexInfo').removeClass('sy-hidden');
                 $('div.industryArticleCnt>.more').before(mesStr);
             }
         })
@@ -373,7 +377,7 @@ const articleServer = (function (global, document, $, undefined){
             moreBtn.removeAttr('disabled').html('加载更多');
         });
     }
-//行业资讯列表 - '/information/industryList'
+//行业资讯列表 - '/information/industry'
     function getIndustryArticle(size = 10){
         let moreBtn = $(".loadMoreBtn_Industry"),
             pageEl = $('.loadMorePageNo_Industry'),
@@ -396,14 +400,14 @@ const articleServer = (function (global, document, $, undefined){
                                     </a>
                                     <p>${item.partContent}</p>
                                     <div class="am-g">
-                                        <div class="am-u-sm-6">${item.publishTime?item.publishTime:''}</div>
-                                        <div class="am-u-sm-2 sy-center">
+                                        <div class="am-u-sm-6" style="width: 70%">${item.publishTime?item.publishTime:''}</div>
+                                        <div class="am-u-sm-2 sy-center" style="width: 10%">
                                             <i class="sy-icon icon-eye"></i>${item.viewCount}
                                         </div>
-                                        <div class="am-u-sm-2 sy-center">
+                                        <div class="am-u-sm-2 sy-center" style="width: 10%">
                                             <i class="sy-icon icon-thumbs"></i>${item.likeCount}
                                         </div>
-                                        <div class="am-u-sm-2 sy-center">
+                                        <div class="am-u-sm-2 sy-center" style="width: 10%">
                                             <i class="sy-icon icon-commenting"></i>${item.commentsCount}
                                         </div>
                                     </div>
@@ -470,7 +474,7 @@ const articleServer = (function (global, document, $, undefined){
             label: label.value,
             coverUrl: coverUrl.value,
             content: editor.innerHTML,
-            createTime: bundle.formatTime(new Date()),
+            createTime: __bundle__.formatTime(new Date()),
             author: user.nickName,
             picture: user.picture
         };
@@ -507,7 +511,7 @@ const articleServer = (function (global, document, $, undefined){
             articleTitle: title.value,
             label: label.value,
             coverId: coverUrl.value,
-            content: editor.innerHTML,
+            content: editor.innerHTML.replace(/</g, '&lt;').replace(/>/g,'&gt;'),
             partContent: partTxt.slice(0, 100),
             status: status
         };
@@ -623,7 +627,6 @@ const articleServer = (function (global, document, $, undefined){
             }
         }).then(res => {
             if(res.message === 'success'){
-                pageNo += 1;
                 let bodyStr = "", listArr = [];
                 res.data.content.forEach(item => {
                     listArr.push(`<div class="item">
@@ -649,18 +652,18 @@ const articleServer = (function (global, document, $, undefined){
                                     </div>
                                   </div>`);
                 });
-                if(res.data.content.length > 0){
+                pageNo += 1;
+                pageEl.val(pageNo);
+                if(res.data.content.length > 0) {
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
-                }else if(res.data.totalElements !== 0 && res.data.content.length === 0){
-                    $.warning('暂无更多文章');
-                    moreBtn.addClass('sy-hidden');
-                    return null;
                 }else if(res.data.totalElements === 0){
                     bodyStr = `<p class="empty">暂无文章</p>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                pageEl.val(pageNo);
+                if(res.data.totalPages === pageNo){
+                    moreBtn.addClass('sy-hidden');
+                }
                 $('.notUserArticleCnt').append(bodyStr);
             }
             moreBtn.removeAttr('disabled').html('加载更多');

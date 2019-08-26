@@ -12,10 +12,34 @@ html,body{
     }
   }
 }
-#menuList,#contentList{
+
+
+.personal.index{
+  min-height: 716px;
+}
+.personal.information,
+.personal.advice,
+.personal.balance,
+.personal.message,
+.personal.safety,
+.personal.attention{
+  min-height: 746px;
+}
+.personal.skill{
+  min-height: 676px;
+}
+.personal.resume{
+  min-height: 734px;
+}
+.personal.application{
+  min-height: 736px;
+}
+
+#userMenuAside,#mainSection{
   margin: 10px 0;
 }
-#menuList{
+
+#userMenuAside{
   float: left;
   width: 200px;
   margin-right: 20px;
@@ -121,6 +145,7 @@ html,body{
       display: block;
       font-size: 14px;
       color: #333;
+      &.active,
       &:hover{
         color: #41cca6;
       }
@@ -130,14 +155,14 @@ html,body{
       font-weight: 700;
       font-size: 16px;
     }
-    li.active a{color: #41cca6}
     .application{
       color: #FF8459;
       font-size: 16px;
     }
   }
 }
-#contentList{
+
+#mainSection{
   float: right;
   width: 980px;
   padding: 20px;
@@ -186,7 +211,7 @@ html,body{
           border: 1px solid #A0A0A0;
           border-radius: 4px 0 0 4px;
           &:focus{
-            border-color: $baseColorDeep;
+            border-color: $baseColor;
           }
         }
         button{
@@ -195,8 +220,8 @@ html,body{
           text-align: center;
           color: #fff;
           border-radius: 0 4px 4px 0;
-          border: 1px solid $baseColorDeep;
-          background: $baseColorDeep;
+          border: 1px solid $baseColor;
+          background: $baseColor;
           &:hover{
             opacity: .8;
           }
@@ -207,9 +232,14 @@ html,body{
         background: #dedede;
       }
       &.selected{
-        background: $baseColorDeep!important;
-        border-color: $baseColorDeep!important;
+        background: $baseColor!important;
+        border-color: $baseColor!important;
         color: #fff!important;
+      }
+    }
+    &.individual{
+      dd{
+        border-radius: 16px;
       }
     }
     &.doself{
@@ -222,25 +252,6 @@ html,body{
           right: 8px;
         }
       }
-    }
-  }
-  form.sy-disabled{
-    button{
-      background: #FCFCFC!important;
-      border: none!important;
-      color: #333;
-      opacity: 1;
-    }
-    .am-selected-icon{
-      display: none;
-    }
-    input,select{
-      border: none!important;
-      outline: none!important;
-      background: none!important;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
     }
   }
   form.sy-personal-form{
@@ -383,7 +394,7 @@ html,body{
       }
       &:hover{
         outline: 1px solid $baseColor;
-        box-shadow: 2px 2px 10px 0px #A3CCA4;
+        box-shadow: 1px 1px 8px -2px $baseColor;
         .operation{
           display: block;
         }
@@ -411,9 +422,10 @@ html,body{
         p{
           margin: 0;
           margin-top: 4px;
+          line-height: 1.4;
           font-size: 14px;
           text-align: center;
-          color: #999;
+          color: #333;
         }
         img{
           width: 100%;
@@ -425,7 +437,7 @@ html,body{
           position: absolute;
           width: 120px;
           padding: 1px 0;
-          bottom: 27px;
+          top: 65px;
           background: rgba(0,0,0,.2);
           color: #fff;
           font-size: 14px;
@@ -445,8 +457,13 @@ html,body{
         line-height: 34px;
         text-align: center;
         border-radius: 4px;
-        background: $baseColorDeep;
+        background: $baseColor;
         color: #fff;
+      }
+      &.labelWrapper{
+        span{
+          border-radius: 18px;
+        }
       }
     }
   }
@@ -520,17 +537,7 @@ html,body{
       color: #999;
     }
   }
-  .personal.index{
-    min-height: 716px;
-  }
-  .personal.advice,
-  .personal.balance,
-  .personal.message,
-  .personal.safety,
-  .personal.attention,
-  .personal.skill{
-    min-height: 746px;
-  }
+
   //信息概览
   .personal.index{
     margin-top: 10px;
@@ -713,6 +720,13 @@ html,body{
         &:last-child{
           margin-bottom: 0;
         }
+        &>div{
+          display: inline-block;
+          max-width: 400px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
     }
     .language{
@@ -821,16 +835,8 @@ html,body{
       width: 128px;
       height: 128px;
     }
-    .sy-person-title{
-      color: #2FC9D0;
-      font-size: 14px;
-      .edit{
-        user-select: none;
-        cursor: pointer;
-        &:hover{
-          opacity: .8;
-        }
-      }
+    .area-control{
+      width: 32.5%!important;
     }
     .upload-btn{
       cursor: pointer;
@@ -847,6 +853,68 @@ html,body{
         background-image: url("/static/image/sprite.png");
       }
     }
+    .sy-personal-form{
+      div.item > div:first-child{
+        width: 120px;
+        padding-right: 8px;
+        select{
+          width: 100%;
+          border-radius: 2px;
+          outline: none;
+          border: 1px solid #BFBFBF;
+          color: #333;
+          &:focus{
+            border: 1px solid $baseColor;
+            box-shadow: 0 0 1px 1px #a6ccaa;
+          }
+        }
+        select{
+          height: 32px;
+          line-height: 32px;
+        }
+      }
+      div.item > div:nth-child(2){
+        &>.extra{
+          width: 315px;
+          &+button{
+            height: 32px;
+            line-height: 30px;
+            border-radius: 2px;
+            &.del{
+              color: #FF8459;
+              border-color: #FF8459;
+              &:hover{
+                background: #fff;
+                opacity: .8;
+              }
+            }
+          }
+        }
+      }
+    }
+    .show-info{
+      padding: 18px 0;
+      margin-top: 0;
+      font-size: 14px;
+      &>.item{
+        margin-bottom: 20px;
+        &:last-child{
+          margin-bottom: 0;
+        }
+        &>div{
+          display: inline-block;
+          &:nth-child(1){
+            width: 120px;
+            padding-right: 8px;
+            text-align: right;
+            color: #B0B0B0;
+          }
+          &:nth-child(2){
+
+          }
+        }
+      }
+    }
   }
   //简历信息
   .personal.resume{
@@ -856,12 +924,6 @@ html,body{
     }
     .sy-btn{
       margin-right: 15px;
-    }
-    .edit{
-      cursor: pointer;
-      &:hover{
-        opacity: .8;
-      }
     }
     .sy-resume-title{
       color: #2FC9D0;
@@ -884,11 +946,100 @@ html,body{
         }
       }
     }
-    form.sy-personal-form>div.item>div:first-child{
-      width: 140px;
+    .skill{
+      .sy-personal-form{
+        padding-top: 10px;
+      }
+    }
+    .sy-personal-form{
+      button{
+        margin-right: 0;
+        vertical-align: -1px;
+      }
+      input,select{
+        width: 200px!important;
+        color: #666!important;
+      }
+      &>div.item>div:first-child{
+        width: 140px;
+      }
+      &>div.item>div:nth-child(2){
+        width: 722px;
+      }
+    }
+    .skill-info{
+      &>.am-g{
+        margin-left: -87px;
+        margin-bottom: 1rem;
+        font-size: 14px;
+        font-weight: 400;
+        color: #999;
+      }
+    }
+    .certificatePut{
+      margin-right: 4px;
     }
   }
   //技能测试
+  nav.nav{
+    padding: 20px 15px 10px;
+    font-size: 0;
+    &>.nav{
+      border-bottom: 2px solid $baseColor;
+      &>.item{
+        display: inline-block;
+        width: 90px;
+        height: 38px;
+        line-height: 38px;
+        margin-right: 15px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        background: #EBEBEB;
+        border-radius: 2px 2px 0 0;
+        letter-spacing: 1px;
+        &.active,
+        &:hover{
+          color: #fff;
+          background: $baseColor;
+        }
+      }
+    }
+    &>.filter{
+      padding: 6px 0;
+      background: #FCFCFC;
+      &>.item{
+        display: inline-block;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 18px;
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: #333;
+        border-left: 1px solid #EBEBEB;
+        &:last-child{
+          border-right: 1px solid #EBEBEB;
+        }
+        &.active,
+        &:hover{
+          cursor: pointer;
+          color: $baseColor;
+        }
+      }
+      &>div{
+        margin-right: 10px;
+      }
+      .am-checkbox,.am-radio{
+        display: inline-block;
+        margin: 0;
+        margin-left: 20px;
+        cursor: pointer;
+      }
+      .am-ucheck-icons{
+        left: 2px;
+      }
+    }
+  }
   .personal.skill{
     padding: 1.5rem 0 3rem 0;
     span.more{
@@ -1057,6 +1208,142 @@ html,body{
       height: 180px;
       background-image: url("/static/image/sprite.png");
       background-position: -38px -535px;
+    }
+    .labels{
+      padding: 10px 40px 15px;
+      input,
+      select,
+      &>div>span,
+      &>span{
+        height: 32px;
+        line-height: 30px;
+        margin: 5px 5px 5px 0;
+        font-size: 14px;
+        color: #333;
+        background: #fff;
+        border: 1px solid #BFBFBF;
+      }
+      &>div>span,
+      &>span{
+        display: inline-block;
+        padding: 0 15px;
+        min-width: 90px;
+        text-align: center;
+        border-radius: 15px;
+        &:hover{
+          cursor: pointer;
+          color: #fff;
+          border-color: $baseColor;
+          background: $baseColor;
+        }
+      }
+      input,
+      select{
+        width: 160px;
+        outline: none;
+        border-radius: 2px;
+        &:focus{
+          border-color: $baseColor;
+        }
+      }
+      input{padding-left: 5px;}
+    }
+    .add-form{
+      margin-top: 15px;
+      .labels{
+        &>table{
+          margin-top: 15px;
+        }
+        &>div>span,
+        &>span{
+          &.selected{
+            color: #fff;
+            background: $baseColor;
+            border-color: $baseColor;
+            &:hover{
+              opacity: .8;
+            }
+          }
+        }
+      }
+      .sy-btns{
+        padding-top: 40px;
+        padding-left: 40px;
+        padding-bottom: 40px;
+      }
+      button.sy-btn{
+        height: 32px;
+        line-height: 30px;
+        font-size: 14px;
+        border-radius: 2px;
+        &+button{
+          margin-left: 10px;
+        }
+      }
+      a.del{
+        color: #FF8459;
+        border-color: #FF8459;
+        &:hover{
+          opacity: .8;
+        }
+      }
+      textarea{
+        width: 770px;
+        min-height: 110px;
+        padding: 5px;
+        outline: none;
+        border: 1px solid #C4C4C4;
+        border-radius: 5px;
+        font-size: 14px;
+        resize: vertical;
+        &:focus{
+          border-color: $baseColor;
+        }
+      }
+    }
+    .show-info{
+      margin-top: 0;
+      .labels{
+        padding: 10px 20px;
+        &>div{
+          display: table-cell;
+          &:nth-child(1){
+            color: #333;
+            min-width: 85px;
+            max-width: 120px;
+            padding-right: 5px;
+          }
+          &>span{
+            color: #fff;
+            border-color: $baseColor;
+            background: $baseColor;
+            &:hover{
+              cursor: default;
+            }
+          }
+        }
+      }
+    }
+    table.am-table{
+      width: 592px;
+      border: 1px solid #f9f9f9;
+      td,th{
+        padding: 5px 0;
+        border: none;
+      }
+      th{
+        background: #EEEEEE;
+        font-weight: normal;
+        text-align: center;
+      }
+    }
+    .am-table-striped>tbody>tr:nth-child(even)>td,
+    .am-table-striped>tbody>tr:nth-child(even)>th{
+      background: #F9F9F9;
+    }
+    .am-table-striped>tbody>tr:nth-child(odd)>td,
+    .am-table-striped>tbody>tr:nth-child(odd)>th{
+      background: #fff;
     }
   }
   //技能测试中
@@ -1395,6 +1682,7 @@ html,body{
           label{
             &.am-radio{
               margin-left: 0px;
+              margin-right: 5px;
             }
             &>input{width: 0}
             &.drawAll_Balance{
@@ -1912,6 +2200,14 @@ html,body{
 .sy-personal-icon{
   display: inline-block;
 }
+span.edit{
+  color: #2FC9D0;
+  font-size: 14px;
+  &:hover{
+    cursor: pointer;
+    opacity: .8;
+  }
+}
 .sy-personal-icon-edit{
   width: 24px;
   height: 24px;
@@ -1929,5 +2225,35 @@ html,body{
   cursor: pointer;
   &.on{
     background-position: -356px -725px;
+  }
+}
+.am-selected.am-dropdown {
+  width: 160px;
+  height: 32px;
+  &>button {
+    width: inherit;
+    height: inherit;
+    line-height: 32px;
+    padding: 0 14px 0 5px;
+    border-color: #bfbfbf;
+    border-radius: 2px;
+    font-size: 14px;
+  }
+  &>.am-selected-content{
+    font-size: 14px;
+  }
+  .am-selected-list li{
+    padding: 1px 10px;
+    &.am-checked{
+      .am-icon-check{
+        color: $baseColor;
+      }
+    }
+  }
+  &.am-active{
+    .am-btn-default.am-dropdown-toggle{
+      background: none;
+      border-color: $baseColor;
+    }
   }
 }

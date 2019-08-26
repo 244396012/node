@@ -1,13 +1,15 @@
+const fs = require('fs');
+const https = require('https');
 const path = require('path');
-// const fs = require('fs');
-// const https = require('https');
 const express = require('express');
 const ejs = require('ejs');
 const ejsLayout = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const favicon = require('serve-favicon');
 const compression = require('compression');
+const logger = require('morgan');
+
 /*
 *
 "express-session": "^1.15.6",
@@ -19,20 +21,22 @@ var morgan = require('morgan');//日志组件
 var FileStreamRotator = require('file-stream-rotator');//分割日志
 *
 * */
+
 const app = express();
 
 //基本设置
-app.use(favicon(__dirname + '/static/image/404.png'));
+app.disable('x-powered-by');
+app.use(favicon(__dirname + '/static/image/favicon.png'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'views')));
 app.use(ejsLayout);
 app.set("layout extractScripts", true);
 app.set('layout','shared/layout');
 app.set('view engine', 'ejs');
 app.engine('.ejs', ejs.__express);
-app.use(express.static('public', {
+app.use('/public', express.static('public', {
     //'maxAge': '2h'
 }));
 app.use('/static', express.static('static', {
@@ -43,18 +47,20 @@ app.use('/static', express.static('static', {
     'lastModified': false
 }));
 app.use(compression());//gzip
+app.use(logger('dev'));//logger
 
 //获取路由
 const pageRoute = require('./routes'),
+      pageOrderRoute = require('./routes/orderRoute'),
       pageInfoRoute = require('./routes/informationRoute'),
       pageUserRoute = require('./routes/userRoute'),
       pageUserArticleRoute = require('./routes/userArticleRoute'),
       pageArticleRoute = require('./routes/articleRoute');
 const pageActivityRoute = require('./routes/activityRoute');
 
-
 //使用路由，控制页面跳转、加载
 app.use('/', pageRoute);
+app.use('/order', pageOrderRoute);
 app.use('/information', pageInfoRoute);
 app.use('/personal', pageUserRoute);
 app.use('/personalArticle', pageUserArticleRoute);

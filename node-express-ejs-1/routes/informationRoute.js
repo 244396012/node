@@ -17,7 +17,7 @@ const server = require('./server');
 routes.get('/', function(req, res, next){
     res.render('information/index', {
         mark: 'information',
-        title: '译员风采-文章列表',
+        title: '译员风采 | 文章列表',
         layout: 'shared/layout'
     });
 });
@@ -38,7 +38,7 @@ routes.get('/detail', function(req, res, next){
     Promise.all([detailData, userData]).done(data => {
         res.render('information/detail', {
             mark: 'information',
-            title: '译员风采-文章详情',
+            title: '译员风采 | 文章详情',
             layout: 'shared/layout',
             detail: JSON.parse(data[0]),
             userBase: JSON.parse(data[1])
@@ -52,10 +52,10 @@ routes.get('/detail', function(req, res, next){
 *
 * */
 //主页
-routes.get('/industryList', function(req, res, next){
-    res.render('information/industryList', {
+routes.get('/industry', function(req, res, next){
+    res.render('information/industry', {
         mark: 'information',
-        title: '行业资讯-文章列表',
+        title: '行业资讯 | 文章列表',
         layout: 'shared/layout'
     });
 });
@@ -70,7 +70,7 @@ routes.get('/industryDetail', function(req, res, next){
     }).then(result => {
         res.render('information/industryDetail', {
             mark: 'information',
-            title: '行业资讯-文章详情',
+            title: '行业资讯 | 文章详情',
             layout: 'shared/layout',
             data: JSON.parse(result)
         });

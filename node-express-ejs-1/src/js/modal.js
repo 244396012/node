@@ -15,7 +15,7 @@ jQuery.extend({
             $(".my-tips-" + i).animate({ top: 30 + "%", opacity: 0 }, 500, function () {
                 $(this).remove();
             })
-        },1800);
+        },2000);
     },
     warning: function (txt) {
         const tar = $("head");
@@ -28,7 +28,7 @@ jQuery.extend({
             $(".my-warn-"+i).animate({ top: 30 + "%", opacity: 0 }, 500, function() {
                 $(this).remove();
             })
-        },1800);
+        },2000);
     },
     error: function(txt){
         const tar = $("head");
@@ -41,11 +41,11 @@ jQuery.extend({
             $(".my-alert-"+i).animate({top:30+"%",opacity:0},500,function(){
                 $(this).remove();
             })
-        },1800);
+        },2000);
     },
     loading: function (txt) {
-        $('#sy-loading').remove();
-        const ele = '<div id="sy-loading" class="my-tip my-loading"><i class="am-icon-spinner am-icon-spin"></i> ' + txt + '</div>';
+        $('.my-loading').remove();
+        const ele = '<div class="my-tip my-loading"><i class="am-icon-spinner am-icon-spin"></i> ' + txt + '</div>';
         $(document.body).append(ele);
     },
     /*

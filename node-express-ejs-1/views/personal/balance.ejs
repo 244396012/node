@@ -5,7 +5,7 @@
              title="点击查看提现规则"
              onclick="$.toolinfo({
                 title: '提现规则',
-                txt: bundle.promptTxt.balanceRule})">
+                txt: __bundle__.promptTxt.balanceRule})">
             <span class="sy-info-icon"></span>提现规则</div>
     </div>
     <div class="am-g sy-center account-info">
@@ -58,7 +58,7 @@
                        onclick="$.toolinfo({
                             width: '600px',
                             title: '《51社保提现三方协议》',
-                            txt: bundle.promptTxt.balanceRule})">
+                            txt: __bundle__.promptTxt.balanceRule})">
                         《51社保提现三方协议》</a>
                 </div>
                 <div class="ageFalse sy-hidden">
@@ -69,7 +69,7 @@
                        onclick="$.toolinfo({
                             width: '600px',
                             title: '《云账户提现三方协议》',
-                            txt: bundle.promptTxt.balanceRule})">
+                            txt: __bundle__.promptTxt.balanceRule})">
                         《云账户提现三方协议》</a>
                 </div>
             </div>
@@ -144,7 +144,7 @@ $(function () {
 
     //计算税率
     var amountEl = document.getElementsByClassName('withdrawalAmount')[0];
-    amountEl.addEventListener('input',bundle.throttleFn(function () {
+    amountEl.addEventListener('input',__bundle__.throttleFn(function () {
         __api__.getFinanceTax(this);
     }, 500), false);
 

@@ -2,7 +2,13 @@
     <div class="content">
         <div class="am-g">
             <div class="am-u-sm-7 nav-gator nav_Header">
-                <a class="nav-item nav-logo" href="/">logo</a>
+                <a class="nav-logo" href="/">
+                    <% if(mark === 'account') { %>
+                    <img src="/static/image/logowhite.png" alt="">
+                    <% } else { %>
+                    <img src="/static/image/logo.png" alt="">
+                    <% } %>
+                </a>
                 <!--添加 active-->
                 <a class="nav-item" href="/">首页</a>
                 <a class="nav-item" href="/order/">订单中心</a>

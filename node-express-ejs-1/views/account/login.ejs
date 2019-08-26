@@ -13,12 +13,12 @@
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <input id="account" type="text" class="sy-input" placeholder="手机号" required>
+                        <input id="account" type="text" class="sy-input" placeholder="手机号/邮箱" required>
                     </div>
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <i class="sy-icon-eye am-icon-eye-slash" onclick="bundle.togglePassword(this);"></i>
+                        <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
                         <input id="password" type="password" class="sy-input" placeholder="密码" required autocomplete="off">
                     </div>
                 </div>
@@ -32,10 +32,22 @@
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <button type="button" id="loginBtn_Account" class="sy-btn sy-btn-default">登 录</button>
+                        <button type="button"
+                                class="sy-btn sy-btn-default loginBtn_acc">登 录</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+    (function () {
+
+        document.addEventListener('keyup', function (event) {
+            if(event.keyCode === 13){
+                $('.loginBtn_acc').click();
+            }
+        }, false);
+
+    }());
+</script>

@@ -155,7 +155,7 @@ div.index{
         min-height: 270px;
         padding: 25px;
         background-color: #fff;
-        box-shadow: 0px 0px 25px 10px #F4F4F4;
+        box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.1);
         p{
           text-align: justify;
         }
@@ -307,7 +307,7 @@ div.index{
       text-align: center;
       background-image: url("/static/image/index-star-bg.png");
       &:hover{
-        box-shadow: 0px 0px 15px 10px #f2f2f2;
+        box-shadow: 0px 0px 10px 2px rgba(0,0,0,.1);
       }
       &.item-1{
         h5{
@@ -540,7 +540,7 @@ ul.am-direction-nav{
   width: 70px;
   font-size: 10px;
   background-color: #fff;
-  box-shadow: 0px 0px 6px 2px #ddd;
+  box-shadow: 0px 0px 6px 0px rgba(0,0,0,.1);
   ul, li{
     margin-bottom: 0;
     padding-left: 0;
@@ -668,7 +668,7 @@ ul.am-direction-nav{
     width: 240px;
     color: #333!important;
     font-size: 14px;
-    box-shadow: 0px 0px 10px 2px #ddd;
+    box-shadow: 0px 0px 20px -1px rgba(0,0,0,.2);
     background-color: #fff;
     cursor: default;
     &:after{

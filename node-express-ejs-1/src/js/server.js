@@ -1,27 +1,38 @@
 /*
 *
 * server： ajax请求
-* 导入模块，压缩、打包，导出__api__全局对象，调用
+* 导入模块，压缩、打包，注册__api__全局对象，调用
 * author：zhaoyong
 *
 * */
-import { baseUrl, loginUrl, baseRMUrl } from './interceptor';
+import { baseUrl, loginUrl, baseRMUrl, basePMUrl } from './interceptor';
 import { getResponse } from "./asyncAjax";
 import './server_account';
 import serverArticle from './server_article';
 import serverPersonal from './server_personal';
+import serverOrder from './server_order';
+import freeLancer from './server_freelancer';
 
-(function (global, $){
+//url 对外api接口
+(function (api, global) {
+
+    api.baseUrl = baseUrl;
+    api.loginUrl = loginUrl;
+    api.baseRMUrl = baseRMUrl;
+    api.basePMUrl = basePMUrl;
+    api.getResponse = getResponse;
+
+    global.__api__ = api;
+
+})(window.__api__||{}, window);
+
+// 个人中心 对外api
+(function (global){
 
     const __api__ = {
-        baseUrl: baseUrl,
-        loginUrl: loginUrl,
-        baseRMUrl: baseRMUrl,
-        getResponse: getResponse,
-        //个人中心
-        getPageInformation: serverPersonal.getPageInformation,
+        initBaseInfoPage: serverPersonal.initBaseInfoPage,
         getPageResume: serverPersonal.getPageResume,
-        getWorkedCompany: serverPersonal.getWorkedCompany,
+        initResumePageBase: serverPersonal.initResumePageBase,
         getPageSkill: serverPersonal.getPageSkill,
         deletePageSkill: serverPersonal.deletePageSkill,
         getPageSkillChoiceTest: serverPersonal.getPageSkillChoiceTest,
@@ -39,22 +50,54 @@ import serverPersonal from './server_personal';
         judgeFinanceInfo: serverPersonal.judgeFinanceInfo,
         getFinanceTax: serverPersonal.getFinanceTax,
         getUserAllInfo: serverPersonal.getUserAllInfo,
-        //文章
-        previewArticle: serverArticle.previewArticle,
-        releaseArticle: serverArticle.releaseArticle,
-        getUserListArticle: serverArticle.userListArticle,
-        getIndexGoodArticle: serverArticle.getIndexGoodArticle,
-        getGoodArticle: serverArticle.getGoodArticle,
-        getIndustryArticle: serverArticle.getIndustryArticle,
-        userNotListArticle: serverArticle.userNotListArticle,
-        getCommentsList: serverArticle.getCommentsList
     };
+
+    //注册到global全局
+    if(global.__api__){
+        Object.assign(global.__api__, __api__);
+    }else{
+        global.__api__ = __api__;
+    }
+
+}(window));
+
+// 订单中心 对外api
+(function (api, global) {
+
+    api.getOrderStatusNum = serverOrder.getOrderStatusNum;
+    api.getOrderListPage_1 = serverOrder.getOrderListPage_1;
+    api.getOrderListPage_2 = serverOrder.getOrderListPage_2;
+    api.getOrderPage_2_WaitNum = serverOrder.getOrderPage_2_WaitNum;
+
+    global.__api__ = api;
+
+})(window.__api__||{}, window);
+
+// 文章管理 对外api
+(function (api, global) {
+
+    api.previewArticle = serverArticle.previewArticle;
+    api.releaseArticle = serverArticle.releaseArticle;
+    api.getUserListArticle = serverArticle.userListArticle;
+    api.getIndexGoodArticle = serverArticle.getIndexGoodArticle;
+    api.getGoodArticle = serverArticle.getGoodArticle;
+    api.getIndustryArticle = serverArticle.getIndustryArticle;
+    api.userNotListArticle = serverArticle.userNotListArticle;
+    api.getCommentsList = serverArticle.getCommentsList;
+
+    global.__api__ = api;
+
+})(window.__api__||{}, window);
+
+// 是否权限认证，注册到全局
+(function (api, global) {
+
     /*
-    * 判断“认证权限”
-    * @params：identity身份认证
-    * @params：skill技能认证
-    * */
-    __api__.judgeAuth = function (config){
+   * 判断“认证权限”
+   * @params：identity身份认证
+   * @params：skill技能认证
+   * */
+    api.judgeAuth = function (config){
 
         config = config || {};
         const identity = config.identity || "";
@@ -81,7 +124,6 @@ import serverPersonal from './server_personal';
         return result;
     };
 
-    //注册到global全局
-    !global.__api__ && (global.__api__ = __api__);
+    global.__api__ = api;
 
-}(window, jQuery));
+})(window.__api__||{}, window);

@@ -1,0 +1,82 @@
+<% include skill_nav.ejs %>
+<div class="personal skill">
+    <div class="resource">
+        <!--信息展示-->
+        <div class="show-info sy-hidden">
+            <div class="am-u-lg-12">
+            <span class="editLabel edit sy-float-r">
+                <i class="sy-personal-icon sy-personal-icon-edit"></i>编辑
+            </span>
+            </div>
+            <div class="am-u-lg-12 labels">
+                <table class="am-table am-table-striped am-table-hover sy-center sy-font-md" style="width: 770px">
+                    <thead>
+                    <tr><th>服务地区</th><th>设备</th><th>设备数量</th><th>设备单价</th><th>单位</th></tr>
+                    </thead>
+                    <tbody class="deviceTarget"></tbody>
+                </table>
+            </div>
+            <div class="am-u-lg-12 labels">
+                <div>备注：</div>
+                <div class="sy-font-md">
+                    这是备注这是备注这是备注这是备注
+                </div>
+            </div>
+        </div>
+        <!--提交、修改信息表单-->
+        <form class="add-form" action="#">
+            <div class="am-u-lg-12">服务地区：</div>
+            <div class="am-u-lg-12 labels select" prop="服务地区">
+                <select class="area-control" name="deliverprovince" id="deliverprovince"></select>
+                <select class="area-control" name="delivercity" id="delivercity"></select>
+                <select class="area-control" name="deliverarea" id="deliverarea"></select>
+            </div>
+            <div class="am-u-lg-12">设备信息：</div>
+            <div class="am-u-lg-12 labels select" prop="设备信息">
+                <div class="label-item">
+                    <select class="device">
+                        <option value="">请选择设备</option>
+                        <option value="同传套件">同传套件</option>
+                        <option value="同传主机">同传主机</option>
+                        <option value="辐射板">辐射板</option>
+                        <option value="接收机">接收机</option>
+                        <option value="译员机">译员机</option>
+                        <option value="翻译间">翻译间</option>
+                        <option value="手拉手设备">手拉手设备</option>
+                        <option value="无限导览">无限导览</option>
+                        <option value="无限导览接收机">无限导览接收机</option>
+                        <option value="音箱">音箱</option>
+                    </select>
+                    <input class="device-num" type="number" placeholder="请输入设备数量">
+                    <input class="device-price" type="number" placeholder="请输入设备单价">
+                    <select class="device-unit">
+                        <option value="/天/套">/天/套</option>
+                    </select>
+                    <button type="button" class="sy-btn sy-btn-sm sy-btn-green addDevice">添加设备</button>
+                </div>
+                <table class="am-table am-table-striped am-table-hover sy-center sy-font-md" style="width: 770px">
+                    <thead>
+                    <tr><th>服务地区</th><th>设备</th><th>设备数量</th><th>设备单价</th><th>单位</th><th>操作</th></tr>
+                    </thead>
+                    <tbody class="deviceTarget"></tbody>
+                </table>
+            </div>
+            <div class="am-u-lg-12">备注：</div>
+            <div class="am-u-lg-12 labels select" prop="备注">
+                <textarea placeholder="请输入相关备注"></textarea>
+            </div>
+            <div class="am-u-lg-12 sy-btns sy-font-md">
+                <button class="btn btn-default sy-btn sy-btn-default sy-btn-md cancelBtn">取 消</button>
+                <button class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn">提 交</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="/static/lib/area.js"></script>
+<script>
+    (function () {
+
+        new PCAS("deliverprovince", "delivercity", "deliverarea");
+
+    }());
+</script>

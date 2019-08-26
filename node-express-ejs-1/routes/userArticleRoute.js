@@ -41,7 +41,7 @@ routes.get('/', function (req, res, next){
         }
         res.render('personalArticle/index', {
             mark: 'article',
-            title: '我的主页-介绍',
+            title: '我的主页 | 介绍',
             layout: 'shared/layout',
             data: rebackData
         });
@@ -81,7 +81,7 @@ routes.get('/list', function (req, res, next){
         }
         res.render('personalArticle/list', {
             mark: 'article',
-            title: '我的主页-文章列表',
+            title: '我的主页 | 文章列表',
             layout: 'shared/layout',
             data: rebackData
         });
@@ -91,7 +91,7 @@ routes.get('/list', function (req, res, next){
 routes.get('/create', function (req, res, next){
     res.render('personalArticle/create', {
         mark: 'article',
-        title: '我的主页-创建文章',
+        title: '我的主页 | 创建文章',
         layout: 'shared/layout'
     });
 });
@@ -115,7 +115,7 @@ routes.get('/edit', function (req, res, next){
         const _data = JSON.parse(data);
         res.render('personalArticle/edit', {
             mark: 'article',
-            title: '我的主页-编辑文章',
+            title: '我的主页 | 编辑文章',
             layout: 'shared/layout',
             data: _data
         });
@@ -133,7 +133,7 @@ routes.get('/detail', function (req, res, next){
         const _data = JSON.parse(data);
         res.render('personalArticle/detail', {
             mark: 'article',
-            title: '我的主页-文章详情',
+            title: '我的主页 | 文章详情',
             layout: 'shared/layout',
             data: _data
         });

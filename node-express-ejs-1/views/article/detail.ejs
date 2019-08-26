@@ -35,7 +35,7 @@
                     <i class="sy-icon icon-commenting"></i><%= detail.data.commentsNumber %>
                 </div>
             </div>
-            <div class="detailContent_Info detail"><%- detail.data.contentHtml %></div>
+            <div class="detailContent_Info detail"><%- detail.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %></div>
             <div class="comment">
                 <p class="sy-bold">评论</p>
                 <textarea placeholder="欢迎留言评论哦~"></textarea>
@@ -57,5 +57,7 @@
     </div>
 </div>
 <script>
-    __api__.getCommentsList();
+    document.addEventListener('DOMContentLoaded', function () {
+        __api__.getCommentsList();
+    }, false)
 </script>

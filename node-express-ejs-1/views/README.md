@@ -11,10 +11,12 @@
 
 ## information 行业资讯、译员风采
 
+## order 订单中心
+
 ## personal 个人中心   ----------------
                                       | --->  模块需要登录才能访问
 ## personalArticle 译员个人文章 -------
 
-## shared 模版、模板页
+## shared 模版、公共组件
 
 ## index.ejs 首页（home页）

@@ -1,0 +1,21 @@
+<div class="nav">
+    <a class="item" href="/order/">订单服务</a>
+    <a class="item" href="/order/book">图书翻译</a>
+    <a class="item" href="/order/typeset">桌面排版</a>
+    <a class="item" href="/order/interpret">口译外派</a>
+    <a class="item" href="/order/train">培&nbsp;&nbsp;训</a>
+</div>
+<script>
+    (function () {
+        var pathname = location.pathname;
+        var items = document.querySelectorAll('div.nav>a.item');
+        for(var i = 0, len = items.length; i<len; i++){
+            var item = items[i],
+                href = item.getAttribute('href');
+            if(pathname === href){
+                item.classList.add('active');
+                break;
+            }
+        }
+    }());
+</script>

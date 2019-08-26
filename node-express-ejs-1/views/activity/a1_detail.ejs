@@ -117,7 +117,7 @@
 <script src="/static/lib/zhuanpan.js"></script>
 <script>
     //tab显示详情
-    var refStep = bundle.getQueryString('step');
+    var refStep = __bundle__.getQueryString('step');
     var stepBtn = $('a.a1_step');
     stepBtn.on('click', function (){
         var currStep = $(this).attr('data-step');

@@ -22,16 +22,16 @@
                         <% } else if (data.data.status === 2) { %>
                             <div class="am-u-sm-6 sy-right tip"><%= data.data.reviewDesc %></div>
                         <% } else if (data.data.status === 3) {%>
-                            <div class="am-u-sm-6">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
-                            <div class="am-u-sm-2 sy-right"><i class="sy-icon icon-eye"></i><%= data.data.viewCount %></div>
-                            <div class="am-u-sm-2 sy-right"><i class="sy-icon icon-thumbs"></i><%= data.data.likeNumber %></div>
-                            <div class="am-u-sm-2 sy-right"><i class="sy-icon icon-commenting"></i><%= data.data.commentsNumber %></div>
+                            <div class="am-u-sm-6" style="width: 70%">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                            <div class="am-u-sm-2 sy-right" style="width: 10%"><i class="sy-icon icon-eye"></i><%= data.data.viewCount %></div>
+                            <div class="am-u-sm-2 sy-right" style="width: 10%"><i class="sy-icon icon-thumbs"></i><%= data.data.likeNumber %></div>
+                            <div class="am-u-sm-2 sy-right" style="width: 10%"><i class="sy-icon icon-commenting"></i><%= data.data.commentsNumber %></div>
                         <% } %>
                     </div>
                 </div>
             </div>
             <div class="detailContent_Info detail">
-                <%- data.data.contentHtml %>
+                <%- data.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %>
             </div>
         </div>
         <% } else { %>
@@ -40,7 +40,7 @@
     </div>
 </div>
 <script>
-$(function (){
+(function (){
 
     $('.editTarget').click(function (e) {
         e.preventDefault();
@@ -54,7 +54,7 @@ $(function (){
         $('#sy-confirm').modal({
             closeViaDimmer: false,
             onConfirm: function (e) {
-                var aid = bundle.getQueryString('aid');
+                var aid = __bundle__.getQueryString('aid');
                 __api__.getResponse({
                     type: 'delete',
                     url: '/interpreterArticle/deleteInterpreterArtile?id='+ aid
@@ -73,5 +73,5 @@ $(function (){
         });
     });
 
-});
+})();
 </script>

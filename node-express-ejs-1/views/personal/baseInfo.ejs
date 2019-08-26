@@ -1,0 +1,298 @@
+<div class="personal information">
+    <% if(data.message === 'success'){ %>
+    <div class="am-g sy-personal-hd">
+        <div class="am-u-lg-6 sy-center sy-bold">基本信息</div>
+        <div class="am-u-lg-6 sy-center sy-person-title">
+            <% if(data.data.nickName){ %>
+            <span class="edit"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
+            <% } %>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-3 extra sy-right" style="height: 128px">
+            <img id="headerIcon" src="<%= data.data.picturePath?data.data.picturePath:'/static/image/personal-default-head.png' %>" alt="头像">
+            <div id="upload" class="sy-hidden"></div>
+            <div class="upload-btn sy-center" onclick="$('a.uploadify-button').click()">
+                <i class="sy-personal-icon sy-personal-icon-head"></i>
+            </div>
+        </div>
+        <div class="am-u-lg-9 extra">
+            <div class="sy-personal-cnt">
+                <form class="sy-personal-form sy-personal-base <%= data.data.nickName?'sy-hidden':'' %>">
+                    <div class="item">
+                        <div><i class="required">*</i>昵称：</div>
+                        <div>
+                            <input id="nickName" type="text"
+                                   required prop="昵称" placeholder="快给自己想一个拉风的名字吧！>_<"
+                                    <%= data.data.nickName?'disabled':'' %> >
+                            <p class="tips">* 昵称可由中文、字母和数字组合，长度4-20位，确认后不能修改</p>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div>姓名：</div>
+                        <div>
+                            <input id="realName" type="text" placeholder="请输入真实姓名">
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div>性别：</div>
+                        <div>
+                            <select id="sex">
+                                <option value=""></option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>国籍：</div>
+                        <div>
+                            <select id="nationality" required data-am-selected="{searchBox: 1}"></select>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>母语：</div>
+                        <div><select id="motherTogue" required class="languageOption"></select></div>
+                    </div>
+                    <div class="item">
+                        <div>出生日期：</div>
+                        <div>
+                            <input id="birthday" type="text" class="am-form-field birthDay" placeholder="请选择出生日期"/>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>翻译年限：</div>
+                        <div>
+                            <select id="translateYear" required prop="翻译年限">
+                                <option value=""></option>
+                                <option value="1年以内">1年以内</option>
+                                <option value="1-3年">1-3年</option>
+                                <option value="3-5年">3-5年</option>
+                                <option value="5年-10年">5年-10年</option>
+                                <option value="10年以上">10年以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>常住地址：</div>
+                        <div>
+                            <select class="area-control" name="deliverprovince" id="deliverprovince" required prop="常住地址" ></select>
+                            <select class="area-control" name="delivercity" id="delivercity"></select>
+                            <select class="area-control" name="deliverarea" id="deliverarea"></select>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>币种：</div>
+                        <div>
+                            <select id="currencyType" required prop="币种">
+                                <option value="CNY">人民币</option>
+                                <option value="USD">美元</option>
+                                <option value="Euro">欧元</option>
+                                <option value="Pound">英镑</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+                <div class="show-info <%= data.data.nickName?'':'sy-hidden' %>">
+                    <div class="item">
+                        <div>昵称：</div>
+                        <div><%= data.data.nickName %></div>
+                    </div>
+                    <div class="item">
+                        <div>姓名：</div>
+                        <div><%= data.data.userName %></div>
+                    </div>
+                    <div class="item">
+                        <div>性别：</div>
+                        <div><%= data.data.sex %></div>
+                    </div>
+                    <div class="item">
+                        <div>国籍：</div>
+                        <div><%= data.data.userExtension.nationality %></div>
+                    </div>
+                    <div class="item">
+                        <div>母语：</div>
+                        <div><%= data.data.userExtension.motherTongue %></div>
+                    </div>
+                    <div class="item">
+                        <div>出生日期：</div>
+                        <div><%= data.data.userExtension.birthday.split(' ')[0] %></div>
+                    </div>
+                    <div class="item">
+                        <div>翻译年限：</div>
+                        <div><%= data.data.userExtension.translateYear %></div>
+                    </div>
+                    <div class="item">
+                        <div>常住地址：</div>
+                        <div><%= data.data.userExtension.permanentAddress %></div>
+                    </div>
+                    <div class="item">
+                        <div>币种：</div>
+                        <div><%= data.data.userExtension.currencyName %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="am-g sy-personal-hd">
+        <div class="am-u-lg-6 sy-center sy-bold">联系方式</div>
+        <div class="am-u-lg-6 sy-center sy-person-title">
+            <% if(data.data.nickName){ %>
+            <span class="edit"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
+            <% } %>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-lg-3 extra sy-right"></div>
+        <div class="am-u-lg-9 extra">
+            <div class="sy-personal-cnt">
+                <form class="sy-personal-form sy-personal-base <%= data.data.nickName?'sy-hidden':'' %>"><!--未编辑时，添加class: sy-disabled-->
+                    <div class="item">
+                        <div>手机：</div>
+                        <div><input id="telephone" type="tel" disabled></div>
+                    </div>
+                    <div class="item">
+                        <div>邮箱：</div>
+                        <div><input id="email" type="email" placeholder="请输入邮箱地址"></div>
+                    </div>
+                    <div class="item addItemTarget">
+                        <div>
+                            <select class="otherContact">
+                                <option value="">其他联系方式</option>
+                                <option value="QQ">QQ</option>
+                                <option value="微信">微信</option>
+                                <option value="座机">座机</option>
+                                <option value="Skype">Skype</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" class="extra otherContactPut" placeholder="请输入联系方式">
+                            <button type="button" class="sy-btn sy-btn-default sy-btn-sm addItemBtn">添加</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="show-info <%= data.data.nickName?'':'sy-hidden' %>">
+                    <div class="item">
+                        <div>手机号码：</div>
+                        <div><%= data.data.telephone %></div>
+                    </div>
+                    <div class="item">
+                        <div>邮箱帐号：</div>
+                        <div><%= data.data.email %></div>
+                    </div>
+                    <% if(data.data.userExtension.contactInfo){ %>
+                        <% _data = JSON.parse(data.data.userExtension.contactInfo) %>
+                        <% for(var i = 0; i<_data.length; i++) { %>
+                        <div class="item">
+                            <div><%= Object.keys(_data[i]) %>：</div>
+                            <div><%= Object.values(_data[i]) %></div>
+                        </div>
+                        <% } %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="am-g" style="margin: 2rem 0">
+        <div class="am-u-lg-3 extra sy-right"></div>
+        <div class="am-u-lg-9 extra">
+            <button id="addInfoBtn_Information"
+                    class="btn btn-default sy-btn sy-btn-green sy-btn-md <%= data.data.nickName?'sy-hidden':'' %>"
+                    style="margin-left: 140px;font-size: 14px;">提交</button>
+        </div>
+    </div>
+    <div class="hiddenData sy-hidden"><%= JSON.stringify(data) %></div>
+    <% } %>
+</div>
+<script type="text/javascript" src="/static/lib/laydate.min.js"></script>
+<script type="text/javascript" src="/static/lib/area.js"></script>
+<script src="/static/lib/Huploadify.js"></script>
+<script>
+$(function() {
+
+    laydate.render({ elem: '.birthDay' });
+    new PCAS("deliverprovince", "delivercity", "deliverarea");
+
+    //初始化
+    __api__.initBaseInfoPage();
+
+    //添加“click”事件委托
+    $('div.information').on('click', function (e) {
+        var event = e || window.event,
+            target = event.target || event.srcElement;
+    //编辑时，填充已提交信息
+        if($(target).hasClass('edit')){
+            var hiddenEl = $('.hiddenData'),
+                targetDiv = $(target).parents('.am-g').next('.am-g');
+            var hiddenData = JSON.parse(hiddenEl.html());
+            for(var prop in hiddenData.data){
+                $('#'+prop).val(hiddenData.data[prop]);
+            }
+            for(var prop in hiddenData.data.userExtension){
+                var val = hiddenData.data.userExtension[prop];
+                $('#'+prop).val(val);
+                if(prop === 'birthday'){
+                    val && $('#birthday').val(val.split(' ')[0]);
+                }else if(prop === 'currencyCode'){
+                    $('#currencyType').val(val);
+                }else if(prop === 'permanentAddress'){
+                    $('#deliverprovince').val(val.split(' ')[0]);
+                    new PCAS("deliverprovince", "delivercity", "deliverarea");
+                    $('#delivercity').val(val.split(' ')[1]);
+                    $('#deliverarea').val(val.split(' ')[2]);
+                }else if(prop === 'contactInfo'){
+                    var arr = JSON.parse(val),
+                        itemStr = '';
+                    for(var i = 0, len = arr.length; i<len; i++){
+                        var item = arr[i];
+                        itemStr += `
+                                <div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
+                                    <div>${Object.keys(item)}：</div>
+                                    <div>
+                                        <input type="text" class="extra" value="${Object.values(item)}" readonly>
+                                        <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
+                                    </div>
+                                </div>`;
+                    }
+                    $('.addItemTarget').before(itemStr);
+                }
+            }
+            $('#nationality').trigger('changed.selected.amui');
+            targetDiv.find('form').removeClass('sy-hidden');
+            targetDiv.find('div.show-info').addClass('sy-hidden');
+            $('#addInfoBtn_Information').removeClass('sy-hidden');
+    //添加联系方式
+        }else if($(target).hasClass('addItemBtn')){
+            var targetItem = $('.addItemTarget'),
+                conTypeVal = $('.otherContact').val(),
+                conPutVal = $('.otherContactPut').val();
+            if(conTypeVal === '' || conPutVal.trim() === ''){
+                $.warning('请先填写联系方式');
+                return false;
+            }
+            var items = $('.addItem');
+            for(var i = 0, len = items.length; i<len; i++){
+                var item = items[i];
+                if($(item).attr(conTypeVal) === ''){
+                    $.warning('已存在该联系方式');
+                    return false;
+                }
+            }
+            var data = {};
+            data[conTypeVal] = conPutVal;
+            targetItem.before(`
+                <div class="item addItem" data='${JSON.stringify(data)}' ${conTypeVal}>
+                    <div>${conTypeVal}：</div>
+                    <div>
+                        <input type="text" class="extra" value="${conPutVal}" readonly>
+                        <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
+                    </div>
+                </div>`);
+    //删除item
+        }else if($(target).hasClass('delItemBtn')){
+            var delItem = $(target).parents('.addItem');
+            delItem.remove();
+        }
+    });
+});
+</script>

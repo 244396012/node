@@ -61,7 +61,7 @@ export function togglePassword (_this) {
 //验证码倒计时
 export function countDown(el) {
     $(el).attr('disabled','disabled');
-    let time = 60;
+    let time = 120;
     let down = setInterval(function(){
         time --;
         $(el).html(time + 's后重发');
@@ -79,8 +79,9 @@ export function getQueryString(name) {
     if (r != null) return decodeURI(r[2]);
     return null;
 }
-//格式化时间格式
+//格式化时间格式，形如 2010-10-01 20:20
 export function formatTime(date) {
+
     const myDate = new Date(date);
     let timeStr, years, months, days, hours, minutes;
 

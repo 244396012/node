@@ -18,9 +18,9 @@
                         <div onclick="$('a.uploadify-button').click()">重新上传</div>
                     </div>
                     <p class="tip">* 图片格式仅支持JPG、PNG两种格式，大小不超过3M</p>
-                    <div id="upload" class="sy-hidden"></div>
+                    <div id="uploadCover" class="sy-hidden"></div>
                 </div>
-                <div class="targetContentHtml sy-hidden"><%- data.data.contentHtml %></div>
+                <div class="targetContentHtml sy-hidden"><%- data.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %></div>
                 <div id="editor" class="createArticle_Editor">
 
                 </div>
@@ -46,7 +46,7 @@ $(function (){
 
     //上传封面图
     setTimeout(function () {
-        $('#upload').Huploadify({
+        $('#uploadCover').Huploadify({
             auto: true,
             multi: false,
             fileTypeExts: '*.jpg;*.png;',
@@ -63,7 +63,7 @@ $(function (){
             onUploadComplete: function(file, res){
                 var resJson = JSON.parse(res);
                 if(resJson.message === 'success'){
-                    $('#sy-loading').remove();
+                    $('.my-loading').remove();
                     if(resJson.data){
                         $('.editArticle_Img').attr('src', resJson.data);
                         $('.createArticle_CoverUrl').val(resJson.data);
@@ -72,11 +72,11 @@ $(function (){
             },
             onUploadError: function(file, res){
                 var resJson = JSON.parse(res);
-                $('#sy-loading').remove();
+                $('.my-loading').remove();
                 $.error(resJson.message);
             }
         });
-    }, 1500);
+    }, 1000);
 
     var previewBtn = document.getElementsByClassName('editArticle_PreviewBtn')[0],
         draftBtn = document.getElementsByClassName('editArticle_DraftBtn')[0],

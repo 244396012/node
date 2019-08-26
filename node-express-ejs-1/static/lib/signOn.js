@@ -102,8 +102,9 @@ var calUtil = {
 
 window.onload = function () {
     calUtil.loadStyle();
-    //签到弹框
+    //点击签到
     $('#showSignOn').click(function () {
+        //获取当月已签到天数信息
         __api__.getResponse({
             url: '/sign/listSignInfoThisMonth',
             data: {
@@ -113,24 +114,27 @@ window.onload = function () {
             return new Promise(resolve => {
                 resolve(res);
             })
-        }).then(res => {
+        }).then(result => {
             const signed = [];
-            if(res.message === 'success'){
-                res.data.forEach(item => {
+            if(result.message === 'success'){
+                result.data.forEach(item => {
                     signed.push({signDate: item.signDate})
                 });
+            }else{
+                $.error(result.message);
             }
+            //弹出签到弹框
             $.signOn({
                 signList: [...signed],
                 signOn: function () {
                     //确认签到
                     __api__.getResponse({
                         type: 'post',
-                        url: '/sign/sign',
-                        data:{
-                            signDate: new Date().toLocaleDateString().replace(/\//g,'-'),
-                            userId: localStorage.getItem('sy_rm_client_ud')
-                        }
+                        url: '/sign/sign'
+                        // data:{
+                        //     signDate: new Date().toLocaleDateString().replace(/\//g,'-'),
+                        //     userId: localStorage.getItem('sy_rm_client_ud')
+                        // }
                     }).then(res => {
                         if(res.message === 'success'){
                             $.success('签到成功');

@@ -1,0 +1,175 @@
+<div id="orderPage" class="order_page">
+    <div class="content">
+        <div class="am-g">
+            <div class="am-u-lg-8 content-left">
+                <nav class="nav">
+                    <% include order-nav.ejs %>
+                    <div class="filter">
+                        <a class="item active" href="#" data-event-click>待领取<span>0</span></a>
+                        <a class="item" href="#10" data-event-click>进行中<span>0</span></a>
+                        <a class="item" href="#20" data-event-click>已提交<span>0</span></a>
+                        <a class="item" href="#25" data-event-click>已完成<span>0</span></a>
+                        <a class="item" href="#21" data-event-click>退稿/终止<span>0</span></a>
+                        <div class="sy-float-r">
+                            <label class="am-checkbox am-success">
+                                <input type="checkbox" name="fileType" value="1" data-event-click data-am-ucheck checked> 文档订单
+                            </label>
+                            <label class="am-checkbox am-success">
+                                <input type="checkbox" name="fileType" value="2" data-event-click data-am-ucheck checked> 证件订单
+                            </label>
+                        </div>
+                    </div>
+                </nav>
+                <section class="cnt orderContent">
+
+                </section>
+                <div class="sy-center more">
+                    <input class="order_PageNo" type="hidden" value="1">
+                    <button class="sy-btn order_LoadMoreBtn sy-hidden" type="button" data-event-click>加载更多</button>
+                </div>
+            </div>
+            <div class="am-u-lg-4 content-right">
+                <div class="empty"></div>
+                <div class="detail">
+                    <div class="title">订单类型说明</div>
+                    <div class="cnt">
+                        <span>文档翻译</span>
+                        <p>企业法律合同翻译、标书翻译、及其它法律文件的翻译；简历、留学材料翻译、移民资料翻译；符合论文发表与专利申请要求的论文翻译与专利翻译； 病历、检验单、出入院记录单、医嘱、体检报告等医疗报告翻译。</p>
+                        <span>证件翻译</span>
+                        <p>由公安、民政、工商、卫计委、疾控、房地产管理、车管所等单位签发的格式统一的证书翻译，包括身份证、户口本、港澳通行证、出生证、结婚证、营业执照、健康证、房产证、驾照翻译等；由教育、银行等出具的证明学历、工作经历与财务能力的格式不统一内容相对统一的证明性文件，
+                            包括毕业证、学位证、成绩单、在职证明、退休证、学生证/在读证明、收入证明、个人资信证明、银行存款证明、银行对账单等。</p>
+                    </div>
+                </div>
+                <div class="detail" data-tabs>
+                    <div class="title">
+                        <label class="tab active">众包订单</label>
+                        <label class="tab">普通订单</label>
+                    </div>
+                    <div class="cnt">
+                        <p>承接人按订单质量等级交付成品译件，若该订单需要审校、润色、质检等流程，应当由承接人全权负责。</p>
+                        <p class="sy-hidden">承接人按订单质量等级交付流程稿，包括但不限于翻译、审校、质检等，对本流程的过程译件质量负责。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+
+        location.hash = '';
+
+        var unclaimedUrl = '/transTask/getNotReceiveTask', //未领取
+            claimedUrl = '/transTask/getTaskList', //除未领取
+            rowCountUrl = '/transTask/allTransListCount'; //各状态条目
+
+        //初始获取状态条目
+        __api__.getOrderStatusNum({
+            url: rowCountUrl,
+            type: 5
+        });
+
+        //初始获取"待领取"列表
+        __api__.getOrderListPage_1({
+            method: 'get',
+            url: unclaimedUrl,
+            data: {
+                "page": $('.order_PageNo').val(),
+                "limit": 5,
+                "type": 4
+            }
+        });
+
+        var pageOrder = document.getElementsByClassName('order_page').item(0),
+            container = document.getElementsByClassName('orderContent').item(0),
+            pageEl = document.getElementsByClassName('order_PageNo').item(0);
+        /*
+        * 订单页面 "div.order_page" 添加“click”事件委托
+        * */
+        pageOrder.addEventListener('click', function (e) {
+            var event = e || window.event,
+                target = event.target || event.srcElement,
+                checkedEl = $('input[name=fileType]:checked');
+            var type = 5, status = 10;
+            var url = '', method = '', data = null;
+        //包含属性'data-event-click'的元素触发事件
+            if(target.getAttribute('data-event-click') !== null){
+                if($('.filter').attr('disabled')){
+                    event.preventDefault();
+                    $.warning('正在获取数据，请勿频繁操作');
+                    return false;
+                }
+                if(checkedEl.length === 0){
+                    event.preventDefault();
+                    $.warning('至少勾选一项订单类型');
+                    return false;
+                }else if(checkedEl.length === 1){
+                    type = checkedEl[0].value;
+                }
+            }
+            //切换“状态”
+            if(target.nodeName === 'A' && $(target).hasClass('item')) {
+                pageEl.value = 1;
+                container.innerHTML = '';
+                location.hash = target.getAttribute('href').slice(1);
+                $(target).addClass('active').siblings().removeClass('active');
+            //切换“类型”
+            }else if(target.nodeName === 'INPUT' && ($(target).hasClass('am-ucheck-checkbox')||$(target).hasClass('am-ucheck-radio'))) {
+                pageEl.value = 1;
+                container.innerHTML = '';
+                __api__.getOrderStatusNum({
+                    url: rowCountUrl,
+                    type: type
+                });
+            //加载更多
+            }else if($(target).hasClass('order_LoadMoreBtn')){
+                target.setAttribute('disabled', true);
+                target.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
+            }
+            //发送ajax
+            if(target.getAttribute('data-event-click') !== null){
+                status = location.hash ? location.hash.slice(1) : '';
+                if(!status){ //未领取订单传递的数据，get请求
+                    url = unclaimedUrl;
+                    method = 'get';
+                    data = {
+                        "page": $('.order_PageNo').val(),
+                        "limit": 5,
+                        "type": +type !== 5 ? type : 4
+                    };
+                }else{
+                    url = claimedUrl;
+                    method = 'post';
+                    data = {
+                        jsonStr: JSON.stringify({
+                            "page":{
+                                "page": $('.order_PageNo').val(),
+                                "limit": 5
+                            },
+                            "status": status,
+                            "type": type
+                        })
+                    }
+                }
+                __api__.getOrderListPage_1({
+                    method: method,
+                    url: url,
+                    data: data
+                });
+            }
+        }, false);
+
+        //tab切换右侧“订单类型”提示
+        $('div[data-tabs]').on('click', function (e) {
+            var target = e.target;
+            if(target.nodeName === 'LABEL' && $(target).hasClass('tab')){
+                var idx = $(target).index();
+                var parentNode = target.parentNode,
+                    parentNextNode = parentNode.nextElementSibling;
+                $(target).addClass('active').siblings().removeClass('active');
+                $(parentNextNode).find('p').eq(idx).removeClass('sy-hidden').siblings().addClass('sy-hidden');
+            }
+        })
+
+    }());
+</script>

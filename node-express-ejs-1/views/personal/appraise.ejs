@@ -68,7 +68,7 @@
             type: 'post',
             url: '/orderAndComment/getTotalScoreInfo',
             data: {
-                userCode: bundle.getQueryString('uc')
+                userCode: __bundle__.getQueryString('uc')
             }
         }).then(res => {
             if(res){
@@ -81,7 +81,7 @@
         __api__.getResponse({
             url: '/orderAndComment/labelStatistics',
             data: {
-                userCode: bundle.getQueryString('uc')
+                userCode: __bundle__.getQueryString('uc')
             }
         }).then(res => {
             if(res && typeof(res) === 'object'){

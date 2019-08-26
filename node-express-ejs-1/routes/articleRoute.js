@@ -8,7 +8,7 @@ const server = require('./server');
 *
 * */
 //主页
-routes.get('/', function(req, res, next){
+routes.get('/', function(req, res){
     const uid = req.query.uid;
     server.getNoTokenMessage({
         url: '/userExtension/findResumeByUserId', //获取个人简历信息
@@ -48,7 +48,7 @@ routes.get('/', function(req, res, next){
     });
 });
 //文章
-routes.get('/list', function (req, res, next){
+routes.get('/list', function (req, res){
     const uid = req.query.uid;
     server.getNoTokenMessage({
         url: '/userExtension/findResumeByUserId', //获取个人简历信息
@@ -70,7 +70,7 @@ routes.get('/list', function (req, res, next){
                 yxTotalScore: data.yxTotalScore
             }
         }
-        let title = data.nickName?'"'+data.nickName+'"的主页-文章':'XXX的主页-文章';
+        let title = data.nickName?'"'+data.nickName+'"的主页-文章':'XXX的主页|文章';
         res.render('article/list', {
             mark: 'article',
             title: title,
@@ -80,7 +80,7 @@ routes.get('/list', function (req, res, next){
     });
 });
 //文章详情
-routes.get('/detail', function (req, res, next){
+routes.get('/detail', function (req, res){
     const uid = req.query.uid,
         aid = req.query.aid;
     //获取文章详情
@@ -95,7 +95,7 @@ routes.get('/detail', function (req, res, next){
     });
     Promise.all([detailData, userData]).done(data => {
         const userBase = JSON.parse(data[1]);
-        let title = userBase.data.nickName?'"'+userBase.data.nickName+'"的主页-文章详情':'XXX的主页-文章详情';
+        let title = userBase.data.nickName?'"'+userBase.data.nickName+'"的主页-文章详情':'XXX的主页|文章详情';
         res.render('article/detail', {
             mark: 'article',
             title: title,

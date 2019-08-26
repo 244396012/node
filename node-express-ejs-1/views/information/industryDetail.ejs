@@ -11,20 +11,20 @@
                 <div class="am-u-md-11">
                     <h5>官方账号</h5>
                     <div class="am-g">
-                        <div class="am-u-sm-6">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
-                        <div class="am-u-sm-2 sy-right">
+                        <div class="am-u-sm-6" style="width: 70%">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                        <div class="am-u-sm-2 sy-right" style="width: 10%">
                             <i class="sy-icon icon-eye"></i><%= data.data.viewCount %>
                         </div>
-                        <div class="am-u-sm-2 sy-right">
+                        <div class="am-u-sm-2 sy-right" style="width: 10%">
                             <i class="sy-icon icon-thumbs"></i><%= data.data.likeCount %>
                         </div>
-                        <div class="am-u-sm-2 sy-right">
+                        <div class="am-u-sm-2 sy-right" style="width: 10%">
                             <i class="sy-icon icon-commenting"></i><%= data.data.commentsCount %>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="detailContent_Info detail"><%- data.data.contentHtml %></div>
+            <div class="detailContent_Info detail"><%- data.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %></div>
             <div class="comment">
                 <p class="sy-bold">评论</p>
                 <textarea placeholder="欢迎留言评论哦~"></textarea>
@@ -46,5 +46,7 @@
     </div>
 </div>
 <script>
- __api__.getCommentsList();
+    document.addEventListener('DOMContentLoaded', function () {
+        __api__.getCommentsList();
+    }, false)
 </script>

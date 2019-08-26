@@ -1,0 +1,116 @@
+<nav class="nav">
+    <div class="nav">
+        <a class="item" href="/personal/skill">文本翻译</a>
+        <a class="item" href="/personal/skill/typeset">桌面排版</a>
+        <a class="item" href="/personal/skill/meeting">会&nbsp;&nbsp;展</a>
+        <a class="item" href="/personal/skill/interpret">外&nbsp;&nbsp;派</a>
+        <a class="item" href="/personal/skill/train">培&nbsp;&nbsp;训</a>
+        <a class="item" href="/personal/skill/device">设&nbsp;&nbsp;备</a>
+        <a class="item" href="/personal/skill/setup">搭&nbsp;&nbsp;建</a>
+    </div>
+</nav>
+<script>
+    (function () {
+
+    //添加active
+        var pathname = location.pathname;
+        var items = document.querySelectorAll('div.nav>.item');
+        for(var i = 0, len = items.length; i<len; i++){
+            var item = items[i],
+                href = item.getAttribute('href');
+            if(pathname === href){
+                item.classList.add('active');
+                break;
+            }
+        }
+
+    //div.resource对象添加“click”事件委托
+        var targetEl = document.getElementsByClassName('resource').item(0);
+        targetEl.addEventListener('click', function (e) {
+            var event = e || window.event,
+                target = event.target || event.srcElement;
+            var parentNode = target.parentNode;
+            event.preventDefault();
+            //span标签添加“selected”
+            if(target.nodeName === 'SPAN' && $(parentNode).hasClass('labels')) {
+                if ($(parentNode).hasClass('single')) {
+                    $(target).addClass('selected').siblings().removeClass('selected');
+                } else {
+                    $(target).toggleClass('selected');
+                }
+            //添加语种
+            }else if($(target).hasClass('addLanPair')) {
+                var targetTbody = $('.lanTarget'),
+                    prevAll = $(target).prevAll();
+                for(var i = 0, len = prevAll.length; i<len; i++){
+                    var item = prevAll[i];
+                    if (item.value === '') {
+                        $.warning('请填写语种信息');
+                        return false;
+                    }
+                }
+                targetTbody.append(
+                    `<tr>
+                        <td>${prevAll[2].value}</td><td>${prevAll[1].value}</td><td>${prevAll[0].value}</td>
+                        <td><a href="javascript:;" class="del">删 除</a></td>
+                    </tr>`);
+            //添加设备
+            }else if($(target).hasClass('addDevice')){
+                var targetTbody = $('.deviceTarget'),
+                    parentsEl = $(target).parents('.labels'),
+                    prevAll = parentsEl.find('select,input'),
+                    areaAll = $('.area-control');
+                if (areaAll[0].value === '') {
+                    $.warning('请先填写服务地区');
+                    return false;
+                }
+                for(var i = 0, len = prevAll.length; i<len; i++){
+                    var item = prevAll[i];
+                    if (item.value === '') {
+                        $.warning('请填写'+parentsEl.attr('prop'));
+                        return false;
+                    }
+                }
+                var areaStr = areaAll[0].value + areaAll[1].value + areaAll[2].value;
+                targetTbody.append(
+                    `<tr>
+                        <td>${areaStr}</td>
+                        <td>${prevAll[0].value}</td><td>${prevAll[1].value}</td><td>${prevAll[2].value}</td><td>${prevAll[3].value}</td>
+                        <td><a href="javascript:;" class="del">删 除</a></td>
+                    </tr>`);
+            //提交信息
+            }else if($(target).hasClass('confirmBtn')) {
+                var labelEl = $('form>.labels.single,form>.labels.multiple'),
+                    selectEl = $('form>.select').find('select,input,textarea');
+                var item, prop, childLen;
+                for (var i = 0, labelLen = labelEl.length; i < labelLen; i++) {
+                    item = labelEl[i];
+                    prop = $(item).attr('prop');
+                    childLen = $(item).find('span.selected');
+                    if (childLen.length < 1) {
+                        $.warning('请填写' + prop);
+                        return null;
+                    }
+                }
+                for (var j = 0, selectLen = selectEl.length; j < selectLen; j++) {
+                    item = selectEl[j];
+                    prop = $(item).parents('.select').attr('prop');
+                    if (item.value === '') {
+                        $.warning('请填写' + prop);
+                        return null;
+                    }
+                }
+                //ajax here
+            }else if($(target).hasClass('del')){
+                $(target).parents('tr').remove();
+            }else if($(target).hasClass('edit') || $(parentNode).hasClass('edit')){
+                $('.show-info').addClass('sy-hidden');
+                $('.add-form').removeClass('sy-hidden');
+            }else if($(target).hasClass('cancelBtn')){
+                $('.show-info').removeClass('sy-hidden');
+                $('.add-form').addClass('sy-hidden');
+            }
+        }, false);
+
+    }());
+</script>

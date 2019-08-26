@@ -1,6 +1,6 @@
 <div class="article_page article personalArticle">
     <div class="content">
-        <%- include('../shared/article-u') %>
+        <%- include top-head.ejs %>
     </div>
     <div class="content">
         <aside class="article_aside">
@@ -27,12 +27,17 @@
     </div>
 </div>
 <script>
+(function () {
+
     //初始化列表
     __api__.getUserListArticle();
 
-document.addEventListener('DOMContentLoaded', function(){
+    var filter = document.getElementsByClassName('nav-filter')[0],
+        pageno = document.getElementsByClassName('article_PageNo')[0],
+        loadMore = document.getElementsByClassName('article_LoadMoreBtn')[0],
+        container = document.getElementsByClassName('personalArticleList')[0];
+
     //加载更多
-    var loadMore = document.getElementsByClassName('article_LoadMoreBtn')[0];
     loadMore.addEventListener('click', function () {
         var cur = $('.nav-filter>label.active');
         this.setAttribute('disabled', true);
@@ -41,9 +46,6 @@ document.addEventListener('DOMContentLoaded', function(){
     }, false);
 
     //筛选文章状态
-    var filter = document.getElementsByClassName('nav-filter')[0],
-        pageno = document.getElementsByClassName('article_PageNo')[0],
-        container = document.getElementsByClassName('personalArticleList')[0];
     filter.addEventListener('click', function (e) {
         var event = e || window.event,
             tarEl = event.target;
@@ -79,5 +81,5 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 
-}, false);
+}());
 </script>
