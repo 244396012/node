@@ -3,8 +3,8 @@
         <div class="sy-personal-info">
             <img class="sy-personal-head headIcon_AsideU" src="/static/image/personal-default-head.png" alt="头像">
             <div class="sy-personal-name">
-                <h3 class="sy-font-lg nickName_AsideU">XXX</h3>
-                <span class="sy-font-md account_AsideU">XXX</span>
+                <h3 class="sy-font-lg nickName_AsideU">--</h3>
+                <span class="sy-font-md account_AsideU">--</span>
             </div>
         </div>
         <div class="sy-personal-item sy-font-md">
@@ -18,7 +18,7 @@
             <span class="sy-info-icon more-icon" title="如何获取更多积分？"></span>
         </div>
         <div class="sy-personal-item sy-invite">
-            <a id="showSignOn" class="sy-font-md" href="javascript:;">签到领积分哦～～</a>
+            <a class="sy-font-md showSignOn" href="javascript:;">签到领积分哦～～</a>
         </div>
     </div>
     <ul class="nav_AsideU sy-personal sy-user-menu sy-center">
@@ -47,12 +47,10 @@
     (function () {
         //滑动时，固定左侧“个人中心”导航栏
         var aside = document.querySelector('#userMenuAside'),
-            scroll = 0,
-            asideOffTop = 0;
+            scroll = 0;
         window.onscroll = function () {
             scroll = document.documentElement.scrollTop || document.body.scrollTop;
-            asideOffTop = aside.offsetTop;
-            scroll > asideOffTop
+            scroll > 80
                 ? aside.classList.add('aside-u-fixed')
                 : aside.classList.remove('aside-u-fixed');
         }

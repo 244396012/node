@@ -1,6 +1,7 @@
 const express = require('express'),
     routes = express.Router();
-const server = require('./server');
+const server = require('./promise'),
+    getTokenMsg = server.getTokenMessage;
 
 /*
 *
@@ -25,21 +26,19 @@ routes.get('/myhome', function (req, res) {
 });
 //个人基本信息
 routes.get('/baseInfo', function (req, res) {
-    // const userId = req.cookies.sy_rm_client_ud,
-    //     token = req.cookies.sy_rm_client_tk;
     const userId = req.query.u,
         token = req.query.t;
-    server.getMessage({
+    getTokenMsg({
         url: '/userExtension/findResumeByUserId',
         token: token,
         data: { userId: userId }
-    }).done(data => {
-        const _data = JSON.parse(data);
+    }).done(redata => {
+        const data = JSON.parse(redata);
         res.render('personal/baseInfo', {
             mark: 'personal',
             title: '个人中心 | 基本信息',
             layout: 'shared/layout',
-            data: _data
+            data: data
         });
     });
 });
@@ -47,17 +46,17 @@ routes.get('/baseInfo', function (req, res) {
 routes.get('/teamInfo', function (req, res) {
     const userId = req.query.u,
         token = req.query.t;
-    server.getMessage({
+    getTokenMsg({
         url: '/userExtension/findResumeByUserId',
         token: token,
         data: { userId: userId }
-    }).done(data => {
-        const _data = JSON.parse(data);
+    }).done(redata => {
+        const data = JSON.parse(redata);
         res.render('personal/baseTeamInfo', {
             mark: 'personal',
             title: '个人中心 | 团队基本信息',
             layout: 'shared/layout',
-            data: _data
+            data: data
         });
     });
 });
@@ -97,51 +96,117 @@ routes.get('/skill/test/translation', function (req, res) {
 });
 //技能测试 -> 桌面排版
 routes.get('/skill/typeset', function (req, res) {
-    res.render('personal/skill-typeset', {
-        mark: 'personal',
-        title: '个人中心 | 技能测试-桌面排版',
-        layout: 'shared/layout'
+    const token = req.cookies.sy_rm_client_tk;
+    getTokenMsg({
+        url: '/newSkillController/getCurrentUserDtp',
+        token: token
+    }).done(redata => {
+        const data = JSON.parse(redata);
+        if(!data.data || !data.data.id){
+            data.data = {};
+        }
+        res.render('personal/skill-typeset', {
+            mark: 'personal',
+            title: '个人中心 | 技能测试-桌面排版',
+            layout: 'shared/layout',
+            data: data
+        });
     });
 });
-//技能测试 -> 会展
+//技能测试 -> 会展(口译)
 routes.get('/skill/meeting', function (req, res) {
-    res.render('personal/skill-meeting', {
-        mark: 'personal',
-        title: '个人中心 | 技能测试-会展',
-        layout: 'shared/layout'
-    });
+    const token = req.cookies.sy_rm_client_tk;
+    getTokenMsg({
+        url: '/newSkillController/getNewSkillInterpretation',
+        token: token
+    }).done(redata => {
+        const data = JSON.parse(redata);
+        if(!data.data || !data.data.id){
+            data.data = {};
+        }
+        res.render('personal/skill-meeting', {
+            mark: 'personal',
+            title: '个人中心 | 技能测试-会展',
+            layout: 'shared/layout',
+            data: data
+        })
+    })
 });
 //技能测试 -> 外派
-routes.get('/skill/interpret', function (req, res) {
-    res.render('personal/skill-interpret', {
-        mark: 'personal',
-        title: '个人中心 | 技能测试-外派',
-        layout: 'shared/layout'
-    });
+routes.get('/skill/assign', function (req, res) {
+    const token = req.cookies.sy_rm_client_tk;
+    getTokenMsg({
+        url: '/newSkillController/getNewSkillExpatriate',
+        token: token
+    }).done(redata => {
+        const data = JSON.parse(redata);
+        if(!data.data || !data.data.id){
+            data.data = {};
+        }
+        res.render('personal/skill-assign', {
+            mark: 'personal',
+            title: '个人中心 | 技能测试-外派',
+            layout: 'shared/layout',
+            data: data
+        });
+    })
 });
 //技能测试 -> 培训
 routes.get('/skill/train', function (req, res) {
-    res.render('personal/skill-train', {
-        mark: 'personal',
-        title: '个人中心 | 技能测试-培训',
-        layout: 'shared/layout'
-    });
+    const token = req.cookies.sy_rm_client_tk;
+    getTokenMsg({
+        url: '/newSkillController/getNewSkillTrain',
+        token: token
+    }).done(redata => {
+        const data = JSON.parse(redata);
+        if(!data.data || !data.data.id){
+            data.data = {};
+        }
+        res.render('personal/skill-train', {
+            mark: 'personal',
+            title: '个人中心 | 技能测试-培训',
+            layout: 'shared/layout',
+            data: data
+        });
+    })
 });
 //技能测试 -> 设备
 routes.get('/skill/device', function (req, res) {
-    res.render('personal/skill-device', {
-        mark: 'personal',
-        title: '个人中心 | 技能测试-设备',
-        layout: 'shared/layout'
-    });
+    const token = req.cookies.sy_rm_client_tk;
+    getTokenMsg({
+        url: '/newSkillController/getNewSkillEquip',
+        token: token
+    }).done(redata => {
+        const data = JSON.parse(redata);
+        if(!data.data || !data.data.id){
+            data.data = {};
+        }
+        res.render('personal/skill-device', {
+            mark: 'personal',
+            title: '个人中心 | 技能测试-设备',
+            layout: 'shared/layout',
+            data: data
+        });
+    })
 });
 //技能测试 -> 搭建
 routes.get('/skill/setup', function (req, res) {
-    res.render('personal/skill-setup', {
-        mark: 'personal',
-        title: '个人中心 | 技能测试-搭建',
-        layout: 'shared/layout'
-    });
+    const token = req.cookies.sy_rm_client_tk;
+    getTokenMsg({
+        url: '/newSkillController/getNewSkillBuild',
+        token: token
+    }).done(redata => {
+        const data = JSON.parse(redata);
+        if(!data.data || !data.data.id){
+            data.data = {};
+        }
+        res.render('personal/skill-setup', {
+            mark: 'personal',
+            title: '个人中心 | 技能测试-搭建',
+            layout: 'shared/layout',
+            data: data
+        });
+    })
 });
 //认证中心
 routes.get('/identification', function (req, res) {

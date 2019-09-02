@@ -149,15 +149,17 @@
     </div>
 </div>
 <script>
-    (function () {
+    (function ($) {
 
-        __api__.getPageIdentification();
+        //获取已提交的验证信息
+        __api__.getIdentyResult();
 
+        //添加"click"事件委托
         $('div.identification').on('click',function (e) {
             var target = e.target;
             // 显示/隐藏身份证号码
             if($(target).hasClass('showIDCard')) {
-                var txt = target.innerText;
+                var txt = $(target).text();
                 target.innerText = txt === '隐藏信息' ? '查看完整信息' : '隐藏信息';
                 $('div.certificateNum').each(function () {
                     $(this).hasClass('sy-hidden')
@@ -166,22 +168,20 @@
                 });
             // 收缩、展示内容
             }else if($(target).hasClass('toggle')){
-                var $this = $(target),
-                    outDiv = $this.parents('.identify-item'),
+                var outDiv = $(target).parents('.identify-item'),
                     targetDiv = outDiv.find('.identify-cnt');
-                if($this.hasClass('am-icon-angle-down')){
+                if($(target).hasClass('am-icon-angle-down')){
                     targetDiv.addClass('sy-hidden');
-                    $this.addClass('am-icon-angle-up').removeClass('am-icon-angle-down');
+                    $(target).addClass('am-icon-angle-up').removeClass('am-icon-angle-down');
                 }else{
                     targetDiv.removeClass('sy-hidden');
-                    $this.addClass('am-icon-angle-down').removeClass('am-icon-angle-up');
+                    $(target).addClass('am-icon-angle-down').removeClass('am-icon-angle-up');
                 }
-            // 取消保存
+            // 点击"取消"
             }else if($(target).attr('data-sy-cancel') === ''){
-                var $this = $(target),
-                    formEl = $this.parents('.add-form'),
+                var formEl = $(target).parents('.add-form'),
                     targerEl = formEl.find('input,select,textarea');
-                $this.next().removeAttr('data-u-id');
+                $(target).next().removeAttr('data-u-id');
                 targerEl.each(function () {
                     if(!$(this).attr('disabled')){
                         $(this).val('');
@@ -190,7 +190,37 @@
                 if(formEl.next('.show-info').children().length > 0){
                     formEl.addClass('sy-hidden');
                 }
+            // 点击"编辑"
+            }else if($(target).hasClass('sy-edit')){
+                var infoDiv = $(target).parents('.show-info'),
+                    addForm = infoDiv.prev('.add-form');
+                var data = JSON.parse($(target).prev('.syHiddenData').text());
+                if(Object.prototype.toString.call(data) === '[object Object]'){
+                    addForm.removeClass('sy-hidden');
+                    addForm.find('button[data-sy-confirm]').attr('data-u-id', data.id);
+                    if(addForm.hasClass('bankForm')){
+                        addForm.find('.bankNo').val(data.settleAccount);
+                        addForm.find('.bankDeposit').val(data.bankDeposit);
+                        addForm.find('.bankBranch').val(data.bankBranch);
+                    }else if(addForm.hasClass('alipayForm')){
+                        addForm.find('.alipayCode').val(data.settleAccount);
+                    }else {
+                        addForm.find('.PaypalCode').val(data.settleAccount);
+                    }
+                }
+            // 显示/隐藏(银行卡、支付宝、Paypal账号)
+            }else if($(target).hasClass('iconShow')){
+                var tarEl = $(target).prev('span');
+                var dataEl = $(target).parents('.info-item').find('.syHiddenData'),
+                    data = JSON.parse(dataEl.text());
+                if($(target).hasClass('am-icon-eye-slash')){
+                    tarEl.html(data.settleAccount);
+                    $(target).addClass('am-icon-eye').removeClass('am-icon-eye-slash');
+                }else{
+                    tarEl.html(data.settleAccountFuzzy);
+                    $(target).addClass('am-icon-eye-slash').removeClass('am-icon-eye');
+                }
             }
-        });
-    })();
+        })
+    })(jQuery);
 </script>

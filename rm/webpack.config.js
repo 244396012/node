@@ -29,7 +29,7 @@ module.exports = [
             ignored: /node_modules/
         },
         entry: {
-            bundle: './src/ts/bundle.ts'
+            bundle: './src/ts/freelancer.ts'
         },
         output: {
             path: path.resolve(__dirname, './src/ts'),

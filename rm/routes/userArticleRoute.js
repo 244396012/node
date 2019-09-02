@@ -1,6 +1,41 @@
 const express = require('express'),
       routes = express.Router();
-const server = require('./server');
+const server = require('./promise'),
+    getTokenMsg = server.getTokenMessage;
+
+//获取个人简历信息
+function getResume(token, uid, callback) {
+    getTokenMsg({
+        url: '/userExtension/findResumeByUserId',
+        token: token,
+        data: { userId: uid }
+    }).done(redata => {
+        const { data, message } = JSON.parse(redata);
+        const backData = {
+            base: '',
+            lanPair: [],
+            labelArr: [],
+            workExp: [],
+            projectExp: []
+        };
+        if(message === 'success'){
+            const areaArr = data.userExtension.area.split(','),
+                selfArr = data.userExtension.individualization.split(',');
+            backData.labelArr = [...areaArr, ...selfArr];
+            backData.workExp = data.workExperienceList;
+            backData.projectExp = data.projectExperienceList;
+            backData.lanPair = data.userExtendList.slice(0,4);
+            backData.base = {
+                picturePath: data.picturePath,
+                nickName: data.nickName,
+                currentPointSummary: data.currentPointSummary,
+                translateYear: data.userExtension.translateYear,
+                yxTotalScore: data.yxTotalScore
+            }
+        }
+        callback(backData);
+    })
+}
 
 /*
 * personalArticle 
@@ -8,87 +43,33 @@ const server = require('./server');
 *
 * */
 //主页
-routes.get('/', function (req, res, next){
+routes.get('/', function (req, res){
     const token = req.query.t,
         uid = req.query.u;
-    server.getMessage({
-        url: '/userExtension/findResumeByUserId', //获取个人简历信息
-        token: token,
-        data: { userId: uid }
-    }).done(response => {
-        const { data } = JSON.parse(response);
-        const rebackData = {
-            base: '',
-            lanPair: [],
-            labelArr: [],
-            workExp: [],
-            projectExp: []
-        };
-        if(JSON.parse(response).message === 'success'){
-            const areaArr = data.userExtension.area.split(','),
-                selfArr = data.userExtension.individualization.split(',');
-            rebackData.labelArr = [...areaArr, ...selfArr];
-            rebackData.workExp = data.workExperienceList;
-            rebackData.projectExp = data.projectExperienceList;
-            rebackData.lanPair = data.userExtendList.slice(0,4);
-            rebackData.base = {
-                picturePath: data.picturePath,
-                nickName: data.nickName,
-                currentPointSummary: data.currentPointSummary,
-                translateYear: data.userExtension.translateYear,
-                yxTotalScore: data.yxTotalScore
-            }
-        }
+    getResume(token, uid, function (data) {
         res.render('personalArticle/index', {
             mark: 'article',
             title: '我的主页 | 介绍',
             layout: 'shared/layout',
-            data: rebackData
+            data: data
         });
     });
 });
 //文章列表
-routes.get('/list', function (req, res, next){
+routes.get('/list', function (req, res){
     const token = req.query.t,
         uid = req.query.u;
-    server.getMessage({
-        url: '/userExtension/findResumeByUserId', //获取个人简历信息
-        token: token,
-        data: { userId: uid }
-    }).done(response => {
-        const { data } = JSON.parse(response);
-        const rebackData = {
-            base: '',
-            lanPair: [],
-            labelArr: [],
-            workExp: [],
-            projectExp: []
-        };
-        if(JSON.parse(response).message === 'success'){
-            const areaArr = data.userExtension.area.split(','),
-                selfArr = data.userExtension.individualization.split(',');
-            rebackData.labelArr = [...areaArr, ...selfArr];
-            rebackData.workExp = data.workExperienceList;
-            rebackData.projectExp = data.projectExperienceList;
-            rebackData.lanPair = data.userExtendList.slice(0,4);
-            rebackData.base = {
-                picturePath: data.picturePath,
-                nickName: data.nickName,
-                currentPointSummary: data.currentPointSummary,
-                translateYear: data.userExtension.translateYear,
-                yxTotalScore: data.yxTotalScore
-            }
-        }
+    getResume(token, uid, function (data) {
         res.render('personalArticle/list', {
             mark: 'article',
             title: '我的主页 | 文章列表',
             layout: 'shared/layout',
-            data: rebackData
+            data: data
         });
     });
 });
 //创建文章
-routes.get('/create', function (req, res, next){
+routes.get('/create', function (req, res){
     res.render('personalArticle/create', {
         mark: 'article',
         title: '我的主页 | 创建文章',
@@ -104,38 +85,38 @@ routes.get('/preview', function (req, res) {
     });
 });
 //编辑文章
-routes.get('/edit', function (req, res, next){
+routes.get('/edit', function (req, res){
     const token = req.query.t,
         aid = req.query.aid;
-    server.getMessage({
+    getTokenMsg({
         url: '/interpreterArticle/InterpreterArticle', //获取文章详情，填充
         token: token,
         data: { articleId: aid }
-    }).done((data) => {
-        const _data = JSON.parse(data);
+    }).done(redata => {
+        const data = JSON.parse(redata);
         res.render('personalArticle/edit', {
             mark: 'article',
             title: '我的主页 | 编辑文章',
             layout: 'shared/layout',
-            data: _data
+            data: data
         });
     });
 });
 //文章详情
-routes.get('/detail', function (req, res, next){
+routes.get('/detail', function (req, res){
     const token = req.query.t,
           aid = req.query.aid;
-    server.getMessage({
+    getTokenMsg({
         url: '/interpreterArticle/InterpreterArticle', //获取文章详情
         token: token,
         data: { articleId: aid }
-    }).done((data) => {
-        const _data = JSON.parse(data);
+    }).done((redata) => {
+        const data = JSON.parse(redata);
         res.render('personalArticle/detail', {
             mark: 'article',
             title: '我的主页 | 文章详情',
             layout: 'shared/layout',
-            data: _data
+            data: data
         });
     });
 });

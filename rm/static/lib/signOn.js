@@ -103,7 +103,7 @@ var calUtil = {
 window.onload = function () {
     calUtil.loadStyle();
     //点击签到
-    $('#showSignOn').click(function () {
+    $('.showSignOn').click(function () {
         //获取当月已签到天数信息
         __api__.getResponse({
             url: '/sign/listSignInfoThisMonth',

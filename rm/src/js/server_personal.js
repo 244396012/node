@@ -44,7 +44,7 @@ const personalServer = (function (window, document, $, undefined) {
 *
 * */
 //数据初始化，获取国籍、语言对
-    function initBaseInfoPage (){
+    function getBaseInfo (){
         //上传头像
         setTimeout(function () {
             $('#upload').Huploadify({
@@ -105,8 +105,8 @@ const personalServer = (function (window, document, $, undefined) {
         });
     }
 // 提交个人信息
-    $('#addInfoBtn_Information').on('click', function () {
-        const _this = this;
+    function commitBaseInfo(btn) {
+        const _this = btn;
         const requiredEles = $('select[required],input[required]');
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
@@ -185,10 +185,10 @@ const personalServer = (function (window, document, $, undefined) {
                 }
             });
         });
-    });
+    }
 // 提交团队信息
-    $('#addTeamInfoBtn_Information').on('click', function () {
-        const _this = this;
+    function commitBaseTeamInfo(btn) {
+        const _this = btn;
         const requiredEles = $('select[required],input[required]');
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
@@ -267,8 +267,7 @@ const personalServer = (function (window, document, $, undefined) {
                 }
             });
         });
-    });
-
+    }
 /*
 *
 * ------------------------ 分割线
@@ -276,7 +275,7 @@ const personalServer = (function (window, document, $, undefined) {
 *
 * */
 //初始化页面数据
-    function initResumePageBase() {
+    function getResumeBaseInfo() {
         const userId = localStorage.getItem('sy_rm_client_ud'),
             token = localStorage.getItem('sy_rm_client_access_token');
         //获取语言对
@@ -372,7 +371,7 @@ const personalServer = (function (window, document, $, undefined) {
                 onUploadComplete: function(file, res){
                     const resJson = JSON.parse(res);
                     if(resJson.message === 'success'){
-                        getPageResume();
+                        getResumeInfo();
                         $('.my-loading').remove();
                     }
                 },
@@ -385,13 +384,11 @@ const personalServer = (function (window, document, $, undefined) {
         }, 1000);
     }
 //根据userId获取简历信息
-    function getPageResume() {
+    function getResumeInfo() {
         const userId = localStorage.getItem('sy_rm_client_ud');
         getResponse({
             url: '/userExtension/findResumeByUserId',
-            data: {
-                userId: userId
-            }
+            data: { userId: userId }
         }).then(res => {
             if(res.message === 'success'){
                 //学历信息
@@ -600,8 +597,8 @@ const personalServer = (function (window, document, $, undefined) {
             if(res.message === 'success'){
                 $.success('保存成功');
                 $(_this).prev().click();
-                getPageResume();
-                initResumePageBase();
+                getResumeInfo();
+                getResumeBaseInfo();
             }else{
                 $.error(res.message);
             }
@@ -638,7 +635,7 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 $.success('保存成功');
-                getPageResume();
+                getResumeInfo();
             }else{
                 $.error(res.message);
             }
@@ -652,7 +649,7 @@ const personalServer = (function (window, document, $, undefined) {
         //根据id删除信息
         if($(el).hasClass('sy-delete')){
             $.confirm();
-            $('#sy-confirm').modal({
+            $('.confirmModal').modal({
                 closeViaDimmer: false,
                 onConfirm: function (e) {
                     const id = $(el).attr('data-u-id');
@@ -663,7 +660,7 @@ const personalServer = (function (window, document, $, undefined) {
                     }).then(res => {
                         if(res.message === 'success' && res.data){
                             $.success('删除成功');
-                            getPageResume();
+                            getResumeInfo();
                         }else{
                             $.error(res.message);
                         }
@@ -710,141 +707,166 @@ const personalServer = (function (window, document, $, undefined) {
 *       技能测试
 *
 * */
-//获取擅长语言，返回数据：list列表
-    function getPageSkill() {
+//获取擅长语言，返回数据{ data: [] }列表
+    function getAdeptLanguageList() {
+        $.loading('获取数据...');
         getResponse({
             url: '/exam/customer/listAdeptLanguages'
         }).then(res => {
-            let languageStr = "";
-            const languageDiv = $('.languageCnt'),
-                lanList = $('.languageList li'),
-                more = $('span.more');
+            // console.log(res);
             if(res.message === 'success'){
-                lanList.removeClass('active');
-                $('.my-loading').remove();
-                res.data.forEach(item => {
-                    for(let i = 0; i < lanList.length; i++){
-                        const el = lanList[i];
-                        if(el.innerHTML === item.targetLanguageName){
-                            $(el).addClass('active');
-                            break;
-                        }
-                    };
-                    //选择题
-                    let isChoice = '',choiceStatus = '';
-                    if(item.choiceLevel.passedStatue === '未通过'){
-                        choiceStatus = `你已经测试过${item.choiceLevel.examTimes}次，很遗憾，未通过<span style="font-size: 12px;color: #999">(下次可测试时间${item.choiceLevel.nextExamTime})</span>`;
-                    }else{
-                        choiceStatus = item.choiceLevel.passedStatue;
-                    }
-                    if(item.choiceLevel.isEnableExam){//是否显示按钮
-                        isChoice = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
-                                                    onclick="$.skillTest({
-                                                                title: '选择题说明',
-                                                                txt: promptTxt.skillChoice,
-                                                                href: 'test/choice?id=${item.choiceLevel.id}'
-                                                            });">开始测试</button>`;
-                    }
-                    //原->译
-                    let oriBtnTxt = '开始测试';
-                    if(!(item.fToSLevel.level === null || item.fToSLevel.level === 0)){
-                        oriBtnTxt = '升级测试';
-                    }
-                    let oriTrans = item.originLanguageName.slice(0,1)+`译`+item.targetLanguageName.slice(0,1);
-                    let oriFieldArr = item.fToSLevel.skillFields && JSON.parse(item.fToSLevel.skillFields);
-                    let oriField = '', oriLevel = ''; //测试通过，显示等级、领域
-                    if(typeof oriFieldArr === 'object'){
-                        oriFieldArr.forEach(fd => {
-                            oriField += `<i> ${fd} </i>`;
-                        });
-                    }
-                    if(item.fToSLevel.nextExamLevel){
-                        oriLevel = `<i class="level">${item.fToSLevel.nextExamLevel}</i>`;
-                    }
-                    let isOriPass = '';
-                    if(item.fToSLevel.passedStatue === '未测试'){
-                        isOriPass = `<span>${item.fToSLevel.passedStatue}</span>`;
-                    }else{
-                        isOriPass = `<label class="pass">${oriLevel + oriField}</label>`;
-                    }
-                    let oriTransBtn = item.fToSLevel.isEnableExam
-                        ? `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
-                                           onclick="$.skillTest({
-                                                        title: '翻译题说明',
-                                                        txt: promptTxt.skillTranslation,
-                                                        href: 'test/translation?id=${item.fToSLevel.id}&l=${encodeURI(oriTrans)}&o=${encodeURI(item.fToSLevel.originLanguageName)}&t=${encodeURI(item.fToSLevel.targetLanguageName)}'
-                                                    });">${oriBtnTxt}</button>`
-                        : `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
-                    //译->原
-                    let tarBtnTxt = '开始测试';
-                    if(!(item.sToFLevel.level === null || item.sToFLevel.level === 0)){
-                        tarBtnTxt = '升级测试';
-                    }
-                    let tarTrans = item.targetLanguageName.slice(0,1)+`译`+item.originLanguageName.slice(0,1);
-                    let tarFieldArr = item.sToFLevel.skillFields && JSON.parse(item.sToFLevel.skillFields);
-                    let tarField = '', tarLevel = '';
-                    if(typeof tarFieldArr === 'object'){
-                        tarFieldArr.forEach(fd => {
-                            tarField += `<i> ${fd} </i>`;
-                        });
-                    }
-                    if(item.sToFLevel.nextExamLevel){
-                        tarLevel = `<i class="level">${item.sToFLevel.nextExamLevel}</i>`;
-                    }
-                    let isTarPass = '';
-                    if(item.sToFLevel.passedStatue === '未测试'){
-                        isTarPass = `<span>${item.sToFLevel.passedStatue}</span>`;
-                    }else{
-                        isTarPass = `<label class="pass">${tarLevel + tarField}</label>`;
-                    }
-                    let tarTransBtn = item.sToFLevel.isEnableExam
-                        ? `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
-                                           onclick="$.skillTest({
-                                                        title: '翻译题说明',
-                                                        txt: promptTxt.skillTranslation,
-                                                        href: 'test/translation?id=${item.sToFLevel.id}&l=${encodeURI(oriTrans)}&o=${encodeURI(item.fToSLevel.targetLanguageName)}&t=${encodeURI(item.fToSLevel.originLanguageName)}'
-                                                    });">${tarBtnTxt}</button>`
-                        : `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
+                let resStr = "",
+                    { data } = res;
+                data.forEach(item => {
+                    let tabStr = '', operateStr = '';
+                    //格式化：语言对
+                    let originName = item.originLanguageName.split('-')[0].trim(),
+                        targetName = item.targetLanguageName.split('-')[0].trim();
+                    //格式化：一级领域、二级领域( 判断数据格式为[] )
+                    let firstAreaName = item.domain.startsWith('[') ? JSON.parse(item.domain).toString() : item.domain,
+                        secondAreaName = item.subDomain.startsWith('[') ?
+                            JSON.parse(item.subDomain).map(sub => `<span>${sub}</span>`).join('') : `<span>${item.subDomain}</span>`;
+                    /*
+                    * 判断是否为绿色通道 (greenChannel：绿色通道，exam：测试)
+                    * */
+                    if(item.overviewType === 'greenChannel'){
+                        //判断是否已申请
+                        if(item.applyGreenChannel){
+                            let fileStr = item.applyGreenChannel.files.reduce((prev, curr) => {
+                                return prev + `<a href="${curr.visitUrl}" target="_blank" title="点击下载文件">${curr.fileName}</a>`;
+                            }, '');
+                            if(item.applyGreenChannel.applyState === '待联系'){
+                                tabStr = `
+                                    <tr><td class="sy-font-md">你已成功申请了绿色通道，工作人员核实后会与你取得联系</td></tr>
+                                    <tr><td class="file">${fileStr}</td></tr>
+                                `;
+                            }else if(item.applyGreenChannel.applyState === '不通过'){
+                                tabStr = `
+                                    <tr><td class="sy-font-md sy-orange">很抱歉，请重新提交相关文档，以便于工作人员核实</td></tr>
+                                    <tr><td class="file">
+                                            ${fileStr}
+                                            <button type="button" 
+                                                id="${item.id}"
+                                                class="sy-btn sy-btn-green sy-btn-sh fileBtn"
+                                                data-am-popover="{content: '仅支持doc、docx和pdf格式的文件，大小3M以内', trigger: 'hover'}"
+                                                >重新上传</button>
+                                        </td></tr>
+                                `;
+                            }else{
+                                tabStr = `
+                                    <tr><td class="sy-font-md">恭喜你，你已成功申请了绿色通道</td></tr>
+                                    <tr><td class="file">${fileStr}</td></tr>
+                                `;
+                            }
 
-                    //未测试，可删除
-                    let isDelete = item.choiceLevel.passedStatue === '未测试' ? `<a class="sy-delete" href="javascript:__api__.deletePageSkill('${item.id}');">删除</a>`:'';
-                    languageStr += `
-                        <div class="item">
-                            <div>
-                                <h1>${item.targetLanguageName}</h1>
-                                <h1>${item.targetLanguageCode}</h1>
-                            </div>
-                            <div class="item-cnt">
-                                <table>
-                                    <tr>
-                                        <td>选择题</td>
-                                        <td>${choiceStatus}</td>
-                                        <td>${isChoice}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ver-top">翻译题</td>
-                                        <td>
-                                            <p><span class="lan">${oriTrans}</span>${isOriPass}</p>
-                                            <p><span class="lan">${tarTrans}</span>${isTarPass}</p>
-                                        </td>
-                                        <td align="right">
-                                            <p>${oriTransBtn}</p>
-                                            <p>${tarTransBtn}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            ${isDelete}
-                        </div>`;
+                        }else{
+                            tabStr = `
+                                <tr><td class="sy-font-md">上传你曾经做的相关文档并申请绿色通道，工作人员会第一时间与你取得联系</td></tr>
+                                <tr><td><button type="button" 
+                                                id="${item.id}"
+                                                class="sy-btn sy-btn-green sy-btn-sh fileBtn"
+                                                data-am-popover="{content: '仅支持doc、docx和pdf格式的文件，大小3M以内', trigger: 'hover'}"
+                                                >上传文档</button></td></tr>
+                            `;
+                        }
+                    }else{//exam：非绿色通道
+                        let [selectStatus, selectBtn, tranStatus, tranBtn] = ["", "", "", ""];
+                        item.cuLevelList.forEach(em => {
+                        // ******* 选择题 *******
+                            if(em.levelType === 'select'){
+                                //测试状态
+                                if(em.passedStatue === '未测试'){
+                                    selectStatus = `<span class="notest">未测试</span>`;
+                                }else if(em.passedStatue === '未通过'){
+                                    selectStatus = `
+                                        <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
+                                        <span class="tip">预计下次测试时间为${em.nextExamTime}</span>
+                                    `;
+                                }else{
+                                    selectStatus = `<span>${em.passedStatue}</span>`;
+                                }
+                                //按钮是否显示
+                                em.isEnableExam && (selectBtn = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
+                                                onclick="$.skillTest({
+                                                            title: '选择题说明',
+                                                            txt: __bundle__.promptTxt.skillChoice,
+                                                            href: 'test/choice?id=${em.id}'
+                                                        });">开始测试</button>`);
+                        // ******* 翻译题 *******
+                            }else{
+                                //测试状态
+                                if(em.passedStatue === '未测试'){
+                                    tranStatus = `<span class="notest">未测试</span>`;
+                                }else if(em.passedStatue === '未通过'){
+                                    tranStatus = `
+                                        <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
+                                        <span class="tip">预计下次测试时间为${em.nextExamTime}</span>
+                                    `;
+                                }else{
+                                    tranStatus = `
+                                        <span>${em.passedStatue}</span>
+                                        <span class="level">等级：<i>${em.level}</i></span>
+                                    `;
+                                }
+                                //按钮显示测试等级
+                                let tranBtnTxt = '开始测试';
+                                if(em.nextExamLevel !== '初级'){
+                                    tranBtnTxt = em.nextExamLevel+'测试';
+                                }
+                                //按钮是否显示
+                                tranBtn = em.isEnableExam
+                                    ? `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
+                                               onclick="$.skillTest({
+                                                           title: '翻译题说明',
+                                                           txt: __bundle__.promptTxt.skillTranslation,
+                                                           href: 'test/translation?id=${em.id}'
+                                                       });">${tranBtnTxt}</button>`
+                                    : `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
+                            }
+                        });
+                        tabStr = `
+                            <tr><td>选择题 ${selectStatus} ${selectBtn}</td></tr>
+                            <tr><td>翻译题 ${tranStatus} ${tranBtn}</td></tr>
+                        `;
+                    }
+                    //为true，可删除
+                    if(item.isEnableCancle){
+                        operateStr = `<a class="pos sy-delete" href="javascript:;"
+                                         onclick="__api__.deleteSkillPageRow('${item.id}')"><i class="am-icon-trash-o"></i> 删除</a>`;
+                    }else{
+                        if(item.applyGreenChannel){
+                            operateStr = `<span class="pos">${item.applyGreenChannel.applyState}</span>`;
+                        }
+                    }
+                    resStr +=  `<div class="item">
+                                        <div class="item-lan">
+                                            <h1>${originName} → ${targetName}</h1>
+                                            <h1>${item.originLanguageCode} → ${item.targetLanguageCode}</h1>
+                                            <span>${firstAreaName}</span>
+                                        </div>
+                                        <div class="item-cnt">
+                                            <table>
+                                                ${tabStr}
+                                                <tr>
+                                                    <td class="area">${secondAreaName}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        ${operateStr}
+                                    </div>`;
                 });
-                languageDiv.html(res.data.length > 0 ? languageStr : `<div class="bg"></div>`);
+                $('.languageCnt').html(res.data.length > 0 ? resStr : `<div class="bg"></div>`);
+                $('.fileBtn').popover();
+            }else{
+                $.error(res.message);
             }
+            $('.my-loading').remove();
         });
     }
 //删除擅长语言，参数：id
-    function deletePageSkill (id){
+    function deleteSkillPageRow (id){
         $.confirm();
-        $('#sy-confirm').modal({
+        $('.confirmModal').modal({
             closeViaDimmer: false,
             onConfirm: function (e) {
                 getResponse({
@@ -853,7 +875,7 @@ const personalServer = (function (window, document, $, undefined) {
                 }).then(res => {
                     if(res.message === 'success'){
                         $.success('删除成功');
-                        getPageSkill();
+                        getAdeptLanguageList();
                     }else{
                         $.error(res.message);
                     }
@@ -892,54 +914,91 @@ const personalServer = (function (window, document, $, undefined) {
 *       技能测试 --- 选择题
 *
 * */
-    async function getPageSkillChoiceTest() {
-        const id = getQueryString('id');
-        return await getResponse({
-            type: 'post',
-            url: '/exam/customer/createChoiceExam',
-            data: {
-                id: id
-            }
-        }).then(res => {
-            let remainTime = '';
-            if(res.message === 'success'){
-                if(!localStorage.getItem('sy_rm_client_choice_test_no')){
-                    localStorage.setItem('sy_rm_client_choice_test', JSON.stringify(res.data.questions));
-                    localStorage.setItem('sy_rm_client_choice_test_no', 0);
+        function createChoiceTest(id) {
+            getResponse({
+                type: 'post',
+                url: '/exam/customer/createChoiceExam',
+                data: { id: id }
+            }).then(res => {
+                let filedStr = '',
+                    questionStr = '';
+                if(res.message === 'success'){
+                    const data = res.data.questions;
+                    if(!localStorage.getItem('sy_rm_client_choice_test_no')){
+                        localStorage.setItem('sy_rm_client_choice_test', JSON.stringify(data));
+                        localStorage.setItem('sy_rm_client_choice_test_no', 0);
+                    }
+                    let no = +localStorage.getItem('sy_rm_client_choice_test_no'),
+                        questions = JSON.parse(localStorage.getItem('sy_rm_client_choice_test'));
+                    questions[no].domain.forEach(item => {
+                        filedStr += `<span class="sy-font-sm label">${item}</span>`;
+                    });
+                    questions[no].subDomain.slice(0,3).forEach(item => {
+                        filedStr += `<span class="sy-font-sm label">${item}</span>`;
+                    });
+                    questionStr += `
+                        <h3>${no+1}. ${questions[no].questionRequirement}：</h3>
+                        <p class="sy-font-md"><span>【题目】</span>${questions[no].questionHead}</p>
+                        <ol class="sy-font-md">
+                            <li data-answer="a" data-answer-id="${questions[no].answerId}">${questions[no]['A:']}</li>
+                            <li data-answer="b" data-answer-id="${questions[no].answerId}">${questions[no]['B:']}</li>
+                            <li data-answer="c" data-answer-id="${questions[no].answerId}">${questions[no]['C:']}</li>
+                            <li data-answer="d" data-answer-id="${questions[no].answerId}">${questions[no]['D:']}</li>
+                        </ol>`;
+                    $('.currPage').html(`${no+1}/10`);
+                    $('.field').html(filedStr);
+                    $('.choiceTest').prepend(questionStr);
+                    $('.choiceConfirmBtn')
+                        .removeClass('sy-hidden')
+                        .attr('data-recordId',res.data.recordId)
+                        .html(+no >= 9 ? '提交':'下一题');
+                    return new Promise(resolve => {
+                        resolve(res.data.recordId);
+                    })
+                }else{
+                    $.error(res.message);
+                    setTimeout(()=>{
+                       location.href = '/personal/skill';
+                    }, 1500);
                 }
-                let questionStr = '';
-                const questions = JSON.parse(localStorage.getItem('sy_rm_client_choice_test'));
-                const no = localStorage.getItem('sy_rm_client_choice_test_no');
-                questionStr += `
-                    <h3>${+no+1}. ${questions[no].questionRequirement}：</h3>
-                    <p class="sy-font-md"><span>【题目】</span>${questions[no].questionHead}</p>
-                    <ol class="sy-font-md">
-                        <li data-answer="a" data-answer-id="${questions[no].answerId}">${questions[no]['A:']}</li>
-                        <li data-answer="b" data-answer-id="${questions[no].answerId}">${questions[no]['B:']}</li>
-                        <li data-answer="c" data-answer-id="${questions[no].answerId}">${questions[no]['C:']}</li>
-                        <li data-answer="d" data-answer-id="${questions[no].answerId}">${questions[no]['D:']}</li>
-                    </ol>`;
-                $('.page').html(`${+no+1}/10`);
-                $('.choiceTest').prepend(questionStr);
-                $('#choiceConfirmBtn').removeClass('sy-hidden').attr('data-recordId',res.data.recordId).html(+no >= 9 ? '提交':'下一题');
-                remainTime = getLeastTime(res.data.recordId);
-            }else{
-                $.error(res.message);
-                setTimeout(()=>{
-                   location.href = '/personal/skill';
-                }, 1500);
-            }
-            return remainTime;
-        })
-    }
+            }).then(recordId => {
+                getLeastTime(recordId).then(result => {
+                    if(result.data.remainTime && result.data.remainTime > 0){
+                        //倒计时
+                        let countDownEl = $('span.time');
+                        let time = Math.ceil(result.data.remainTime/1000);  //15分钟换算成900秒
+                        let countDown = setInterval(function(){
+                            time --;
+                            let minute = parseInt(time / 60) > 9 ? parseInt(time / 60) : '0'+parseInt(time / 60),
+                                second = parseInt(time % 60) > 9 ? parseInt(time % 60) : '0'+parseInt(time % 60);
+                            countDownEl.html('00:'+ minute +':'+ second);
+                            if(minute === '00' && second === '00'){
+                                $.warning('测试时间已到');
+                                clearInterval(countDown);
+                                setTimeout(function () {
+                                    localStorage.removeItem('sy_rm_client_choice_test');
+                                    localStorage.removeItem('sy_rm_client_choice_test_no');
+                                    location.href = '/personal/skill';
+                                },1500);
+                                return false;
+                            }
+                        },1000);
+                    }else{
+                        localStorage.removeItem('sy_rm_client_choice_test');
+                        localStorage.removeItem('sy_rm_client_choice_test_no');
+                        location.href = '/personal/skill';
+                    }
+                })
+            })
+        }
 //下一题或交卷
-    $('#choiceConfirmBtn_Testing').on('click', function () {
-        const _this = this,
+    function confirmChoiceResult(btn) {
+        const _this = btn,
             tarEl = $('.choiceTest'),
             answerEl = tarEl.find('li.active');
         if(answerEl.length < 1){
             $.warning('请选择答案');
-            return;
+            return false;
         }
         const recordId = $(_this).attr('data-recordId');
         $(_this).attr('disabled','disabled');
@@ -953,47 +1012,55 @@ const personalServer = (function (window, document, $, undefined) {
                 recordId: recordId
             }
         }).then(res => {
-            const oldNo = localStorage.getItem('sy_rm_client_choice_test_no');
+            let filedStr = '',
+                questionStr = '';
+            let oldNo = +localStorage.getItem('sy_rm_client_choice_test_no'),
+                questions = JSON.parse(localStorage.getItem('sy_rm_client_choice_test'));
             if(res.message === 'success'){
-                let questionStr = '';
-                localStorage.setItem('sy_rm_client_choice_test_no', +oldNo+1);
+                localStorage.setItem('sy_rm_client_choice_test_no', oldNo+1);
                 //确认交卷
-                if(+localStorage.getItem('sy_rm_client_choice_test_no') === 10){
+                let curNo = +localStorage.getItem('sy_rm_client_choice_test_no');
+                if(curNo === 10){
                     confirmPageSkill(_this, recordId).then(res => {
                         if(res.message === 'success'){
                             $.success('提交成功');
                             localStorage.removeItem('sy_rm_client_choice_test');
                             localStorage.removeItem('sy_rm_client_choice_test_no');
-                            getPageSkillChoiceResult(recordId);
+                            getChoiceResult(recordId);
                         }else{
                             $.error(res.message);
                         }
                     });
-                    return;
+                    return null;
                 }
-                const questions = JSON.parse(localStorage.getItem('sy_rm_client_choice_test'));
-                const no = localStorage.getItem('sy_rm_client_choice_test_no');
+                questions[curNo].domain.forEach(item => {
+                    filedStr += `<span class="sy-font-sm label">${item}</span>`;
+                });
+                questions[curNo].subDomain.slice(0,3).forEach(item => {
+                    filedStr += `<span class="sy-font-sm label">${item}</span>`;
+                });
                 questionStr += `
-                <h3>${+no+1}. ${questions[no].questionRequirement}：</h3>
-                <p class="sy-font-md"><span>【题目】</span>${questions[no].questionHead}</p>
-                <ol class="sy-font-md">
-                    <li data-answer="a" data-answer-id="${questions[no].answerId}">${questions[no]['A:']}</li>
-                    <li data-answer="b" data-answer-id="${questions[no].answerId}">${questions[no]['B:']}</li>
-                    <li data-answer="c" data-answer-id="${questions[no].answerId}">${questions[no]['C:']}</li>
-                    <li data-answer="d" data-answer-id="${questions[no].answerId}">${questions[no]['D:']}</li>
-                </ol>`;
+                    <h3>${curNo+1}. ${questions[curNo].questionRequirement}：</h3>
+                    <p class="sy-font-md"><span>【题目】</span>${questions[curNo].questionHead}</p>
+                    <ol class="sy-font-md">
+                        <li data-answer="a" data-answer-id="${questions[curNo].answerId}">${questions[curNo]['A:']}</li>
+                        <li data-answer="b" data-answer-id="${questions[curNo].answerId}">${questions[curNo]['B:']}</li>
+                        <li data-answer="c" data-answer-id="${questions[curNo].answerId}">${questions[curNo]['C:']}</li>
+                        <li data-answer="d" data-answer-id="${questions[curNo].answerId}">${questions[curNo]['D:']}</li>
+                    </ol>`;
                 $(_this).prevAll().remove();
-                $('.page').html(`${+no+1}/10`);
+                $('.field').html(filedStr);
+                $('.currPage').html(`${curNo+1}/10`);
                 $('.choiceTest').prepend(questionStr);
             }else{
                 $.error(res.message);
             }
             $(_this).removeAttr('disabled');
-            $(_this).html(+oldNo > 7 ? '提交':'下一题');
+            $(_this).html(oldNo > 7 ? '提交':'下一题');
         })
-    });
+    }
 //获取选择题测试结果，参数：recordId
-    function getPageSkillChoiceResult(recordId){
+    function getChoiceResult(recordId){
         getResponse({
             type: 'post',
             url: '/exam/customer/getSelectExamResult',
@@ -1004,26 +1071,24 @@ const personalServer = (function (window, document, $, undefined) {
             if(res.message === 'success'){
                 let resultStr = '';
                 if(res.data.examResult === '不合格'){
-                    resultStr = `
-                                    <div class="am-g sy-center result no-pass">
-                                        <div class="bg"></div>
-                                        <div class="tip">
-                                            <p>很遗憾，你的测试未通过</p>
-                                            <p>正确率：${res.data.examOverview}</p>
-                                            <p class="sy-orange">请过段时间再来试试吧！</p>
-                                            <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">返回</a>
-                                        </div>
-                                    </div>`;
+                    resultStr = `<div class="am-g sy-center result no-pass">
+                                    <div class="bg"></div>
+                                    <div class="tip">
+                                        <p>很遗憾，你的测试未通过</p>
+                                        <p>正确率：${res.data.examOverview}</p>
+                                        <p class="sy-orange">请过段时间再来试试吧！</p>
+                                        <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">返回</a>
+                                    </div>
+                                </div>`;
                 }else{
-                    resultStr = `
-                                     <div class="am-g sy-center sy-font-md result pass">
-                                        <div class="bg"></div>
-                                        <div class="tip">
-                                            Congratulations! 你已经通过选择题测试，</br>
-                                            现在可以进行翻译能力测试！
-                                        </div>
-                                        <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">前往翻译题测试</a>
-                                    </div>`;
+                    resultStr = `<div class="am-g sy-center sy-font-md result pass">
+                                    <div class="bg"></div>
+                                    <div class="tip">
+                                        Congratulations! 你已经通过选择题测试，</br>
+                                        现在可以进行翻译能力测试！
+                                    </div>
+                                    <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">前往翻译题测试</a>
+                                </div>`;
                 }
                 $('.choiceTest').remove();
                 $('.choiceWrap').after(resultStr);
@@ -1037,134 +1102,13 @@ const personalServer = (function (window, document, $, undefined) {
 *       技能测试 --- 翻译题
 *
 * */
-//获取语言对、行业领域等信息
-    function getPageSkillTransTestBase() {
-        const id = getQueryString('id');
-        const lan = getQueryString('l'),
-            source = getQueryString('o'),
-            target = getQueryString('t');
-        $('span.shortLan').html(lan);
-        $('span.target').html(target.split('-')[0]);
+
+//获取翻译题试题
+    function createTransTest(id) {
         getResponse({
-            url: '/exam/customer/listAdeptLanguages'
-        }).then(res => {
-            let domainsId = '';
-            if(res.message === 'success'){
-                res.data.forEach(item => {
-                    for(let prop in item){
-                        if(typeof item[prop] === 'object' && item[prop].id === id){
-                            domainsId = item[prop].skillFields;
-                            return false;
-                        }
-                    }
-                });
-            }
-            return new Promise(resolve => {
-                resolve(domainsId)
-            })
-        }).then(res => {
-            let resultStr = '';
-            if(res){
-                $('.before-trans').remove();
-                const field = JSON.parse(res);
-                let fdStr = '';
-                field.forEach(fd => {
-                    fdStr += ` <span class="sy-font-sm label">${fd}</span> `;
-                });
-                $('.shortLan').after(fdStr);
-                resultStr += `<div class="transing">
-                                    <div class="am-g warn">
-                                        <div class="am-u-lg-9 sy-font-md tip-txt tipTxt"></div>
-                                        <div class="am-u-lg-3 sy-center tip-time">
-                                            <b>剩余时间</b>
-                                            <span class="time">--:--:--</span>
-                                        </div>
-                                    </div>
-                                    <div class="trans-test transTest">
-                                        <div class="sy-bold">原文：</div>
-                                        <div class="sy-font-md origin-txt originTxt">--</div>
-                                    </div>
-                                    <div class="trans-test transTest">
-                                        <div class="sy-bold">译文：</div>
-                                        <div class="sy-font-md">
-                                            <textarea class="targetTxt"></textarea>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="sy-btn sy-btn-green sy-btn-md sy-font-md tempBtn" onclick="__api__.pageSkillTempTransTxt(this)">保 存</button>
-                                    <button type="button" class="sy-btn sy-btn-green sy-btn-md sy-font-md confirmBtn" onclick="__api__.pageSkillConfirmTransTxt(this)">提 交</button>
-                                </div>`;
-                $('.positionEl').after(resultStr);
-                $('.tipTxt').html(promptTxt.skillTestingTrans);
-                getPageSkillTransTest();
-            }else{
-                $('select.origin').html(`<option value="${source}">${source}</option>`);
-                $('select.target').html(`<option value="${target}">${target}</option>`);
-                getResponse({
-                    url: '/domain/listAll'
-                }).then(function (res) {
-                    if(res.message === 'success'){
-                        let str = '';
-                        res.data.forEach(function (item) {
-                            str += `<label class="am-checkbox am-success">
-                                <input type="checkbox" value="${item.id}" data-name="${item.fullSpecialtyName}" data-am-ucheck> ${item.fullSpecialtyName}
-                            </label>`;
-                        });
-                        $('.areaList').html(str);
-                    }
-                });
-            }
-        });
-    }
-//点击开始测试
-    $('#startTransBtn_Testing').on('click', function () {
-        const _this = this;
-        const origin = $('select.origin'),
-            target = $('select.target'),
-            checked = $('.areaList').find('input:checked');
-        if(origin.val() === '' || target.val() === ''){
-            $.warning('请选择语言对');
-            return false;
-        }
-        if(checked.length < 1){
-            $.warning('请选择行业领域');
-            return false;
-        }
-        const id = getQueryString('id');
-        const domainsId = [],
-            domainsName = [];
-        checked.toArray().forEach(item => {
-            domainsId.push(item.value);
-            domainsName.push($(item).attr('data-name'));
-        });
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        //测试前，创建翻译领域
-        getResponse({
-            type: 'post',
-            url: '/exam/customer/setTransField',
-            data: {
-                domainIds: JSON.stringify(domainsId),
-                domainNames: JSON.stringify(domainsName),
-                force: false,
-                id: id
-            }
-        }).then(res => {
-            if(res.message === 'success'){
-                getPageSkillTransTestBase();
-            }
-            $(_this).removeAttr('disabled');
-            $(_this).html('开始测试');
-        });
-    });
-//获取翻译题试题，参数：id
-    async function getPageSkillTransTest() {
-        const id = getQueryString('id');
-        return await getResponse({
             type: 'post',
             url: '/exam/customer/createTranSExam',
-            data: {
-                id: id
-            }
+            data: { id: id }
         }).then(res => {
             if(res.message === 'success'){
                 $('.originTxt').html(res.data.questions[0].question);
@@ -1173,66 +1117,70 @@ const personalServer = (function (window, document, $, undefined) {
                     'data-rid': res.data.recordId,
                     'data-aid': res.data.questions[0].answerId
                 });
-                //获取翻译剩余时间
-                getLeastTime(res.data.recordId).then(res => {
-                    if(res.data.remainTime && res.data.remainTime > 0){
-                        //倒计时
-                        const countDownEl = $('span.time');
-                        let time = res.data.remainTime/1000;
-                        let countDown = setInterval(function(){
-                            time --;
-                            let hour = parseInt(time / 3600) > 9 ? parseInt(time / 3600) : '0'+parseInt(time / 3600),
-                                minute = parseInt(time / (60*24)) > 9 ? parseInt(time / (60*24)) : '0'+parseInt(time / (60*24)),
-                                second = parseInt(time % 60) > 9 ? parseInt(time % 60) : '0'+parseInt(time % 60);
-                            countDownEl.html(hour +':'+ minute +':'+ second);
-                            if(hour === '00' && minute === '00' && second === '00'){
-                                $.success('测试时间已到');
-                                clearInterval(countDown);
-                                setTimeout(function () {
-                                    location.href = '/personal/skill';
-                                },1500);
-                                return false;
-                            }
-                        },1000);
-                    }else{
-                        location.href = '/personal/skill';
-                    }
-                });
+                return new Promise(resolve => {
+                    resolve(res.data.recordId);
+                })
             }else{
                 $.error(res.message);
                 setTimeout(()=>{
                   location.href = '/personal/skill';
                 }, 1500);
             }
+        }).then(recordId => {
+            //获取翻译剩余时间
+            getLeastTime(recordId).then(result => {
+                if(result.data.remainTime && result.data.remainTime > 0){
+                    //倒计时
+                    const countDownEl = $('span.time');
+                    let time = result.data.remainTime/1000;
+                    let countDown = setInterval(function(){
+                        time --;
+                        let hour = parseInt(time / 3600) > 9 ? parseInt(time / 3600) : '0'+parseInt(time / 3600),
+                            minute = parseInt(time / (60*24)) > 9 ? parseInt(time / (60*24)) : '0'+parseInt(time / (60*24)),
+                            second = parseInt(time % 60) > 9 ? parseInt(time % 60) : '0'+parseInt(time % 60);
+                        countDownEl.html(hour +':'+ minute +':'+ second);
+                        if(hour === '00' && minute === '00' && second === '00'){
+                            $.warning('测试时间已到');
+                            clearInterval(countDown);
+                            setTimeout(function () {
+                                location.href = '/personal/skill';
+                            },1500);
+                            return false;
+                        }
+                    },1000);
+                }else{
+                    location.href = '/personal/skill';
+                }
+            });
         })
     }
 //翻译题临时保存
-    function pageSkillTempTransTxt(_this) {
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+    function tempCommitTrans(btn) {
+        $(btn).attr('disabled','disabled')
+            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             url: '/exam/customer/transCommitOne',
             data: {
                 answer: $('.targetTxt').val(),
-                answerId: $(_this).attr('data-aid'),
-                recordId: $(_this).attr('data-rid')
+                answerId: $(btn).attr('data-aid'),
+                recordId: $(btn).attr('data-rid')
             }
         }).then(res => {
             res.message === 'success' ? $.success('保存成功') : $.error(res.message);
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(btn).removeAttr('disabled').html('保存');
         });
     }
 //翻译题交卷，modal弹框，确认交卷
-    function pageSkillConfirmTransTxt(_this) {
+    function confirmCommitTrans(btn) {
         $.confirm();
-        $('#sy-confirm').modal({
+        $('.confirmModal').modal({
             closeViaDimmer: false,
             onConfirm: function (e) {
-                $(_this).attr('disabled','disabled');
-                $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
-                confirmPageSkill(_this, $(_this).attr('data-rid')).then(res => {
+                const rid = $(btn).attr('data-rid');
+                $(btn).attr('disabled','disabled')
+                    .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                confirmPageSkill(btn, rid).then(res => {
                     if(res.message === 'success'){
                         $('.transing').remove();
                         let resultStr = `<div class="am-g sy-center result result-tip">
@@ -1263,7 +1211,7 @@ const personalServer = (function (window, document, $, undefined) {
 *
 * */
 //获取认证信息
-    function getPageIdentification (){
+    function getIdentyResult (){
         getResponse({
             url: '/userExtension/findResumeByUserId',
             data: {
@@ -1401,41 +1349,6 @@ const personalServer = (function (window, document, $, undefined) {
             }
         })
     }
-//结算方式添加"click"事件委托
-    $('.setDefaultPayWay').on('click', function (e) {
-        const el = e.target;
-        //编辑银行卡、支付宝、Paypal信息
-        if($(el).hasClass('sy-edit')){
-            const infoDiv = $(el).parents('.show-info'),
-                addForm = infoDiv.prev('.add-form');
-            const data = JSON.parse($(el).prev('.syHiddenData').text());
-            if(Object.prototype.toString.call(data) === '[object Object]'){
-                addForm.removeClass('sy-hidden');
-                addForm.find('button[data-sy-confirm]').attr('data-u-id', data.id);
-                if(addForm.hasClass('bankForm')){
-                    addForm.find('.bankNo').val(data.settleAccount);
-                    addForm.find('.bankDeposit').val(data.bankDeposit);
-                    addForm.find('.bankBranch').val(data.bankBranch);
-                }else if(addForm.hasClass('alipayForm')){
-                    addForm.find('.alipayCode').val(data.settleAccount);
-                }else {
-                    addForm.find('.PaypalCode').val(data.settleAccount);
-                }
-            }
-        //显示或隐藏---银行卡、支付宝、Paypal账号
-        }else if($(el).hasClass('iconShow')){
-            const tarEl = $(el).prev('span');
-            const dataEl = $(el).parents('.info-item').find('.syHiddenData'),
-                data = JSON.parse(dataEl.text());
-            if($(el).hasClass('am-icon-eye-slash')){
-                tarEl.html(data.settleAccount);
-                $(el).addClass('am-icon-eye').removeClass('am-icon-eye-slash');
-            }else{
-                tarEl.html(data.settleAccountFuzzy);
-                $(el).addClass('am-icon-eye-slash').removeClass('am-icon-eye');
-            }
-        }
-    });
 //提交身份认证
     $('.certificateBtn').on('click', function () {
         const _this = this,
@@ -1466,7 +1379,7 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success' && res.data){
                 $.success('身份验证通过');
-                getPageIdentification();
+                getIdentyResult();
             }else{
                 $.error(res.message);
             }
@@ -1509,7 +1422,7 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 $.success('银行卡信息验证通过');
-                getPageIdentification();
+                getIdentyResult();
             }else{
                 $.error(res.message);
             }
@@ -1546,7 +1459,7 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 $.success('保存成功');
-                getPageIdentification();
+                getIdentyResult();
             }else{
                 $.error(res.message);
             }
@@ -1584,7 +1497,7 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 $.success('保存成功');
-                getPageIdentification();
+                getIdentyResult();
             }else{
                 $.error(res.message);
             }
@@ -1593,7 +1506,7 @@ const personalServer = (function (window, document, $, undefined) {
         })
     });
 //设置默认结算方式
-    $('div.identification input[name=payWay]').on('click', function (e) {
+    $('div.identification input[name=payWay]').on('click', function () {
         const h3El = $(this).parents('h3'),
             formEl = h3El.next('.add-form'),
             infoEl = formEl.next('.show-info'),
@@ -1623,11 +1536,36 @@ const personalServer = (function (window, document, $, undefined) {
 *       安全设置
 *
 * */
+//获取初始化设置信息
+    function getSafetyResult (){
+        getResponse({
+            url: '/userExtension/findResumeByUserId',
+            data: {
+                userId: localStorage.getItem('sy_rm_client_ud')
+            }
+        }).then(res => {
+            if(res.message === 'success'){
+                $('#telPhone').val(res.data.telephone);
+                if(+res.data.userExtension.bindEmail === 1){
+                    const elDiv = $('.updateCode');
+                    $('#updateEmail').val(res.data.email);
+                    elDiv.removeClass('sy-hidden');
+                    elDiv.nextAll('.item').addClass('sy-hidden');
+                }
+                if(res.data.userExtension.settlePassword){
+                    const telBtn = $('#updateTelBtn');
+                    telBtn.removeClass('sy-hidden');
+                    telBtn.prev().addClass('sy-hidden');
+                    telBtn.parents('.item').nextAll('.item').addClass('sy-hidden');
+                }
+            }
+        });
+    }
 //修改密码
-    $('#updatePwdBtn_Safety').on('click', function () {
-        const _this = this;
+    function modifyPwd(btn) {
+        const _this = btn;
         const addForm = $(_this).parents('form'),
-           requiredEles = addForm.find('input[required]');
+            requiredEles = addForm.find('input[required]');
         for(let i = 0; i < requiredEles.length; i++){
             const el = requiredEles[i];
             if(el.value.trim() === ''){
@@ -1671,10 +1609,10 @@ const personalServer = (function (window, document, $, undefined) {
             $(_this).removeAttr('disabled');
             $(_this).html('保存');
         })
-    });
+    }
 //获取手机验证码
-    $('#validateBtn_Safety').on('click', function () {
-        const _this = this;
+    function getValidateCode (btn){
+        const _this = btn;
         const sMobile = $('#telPhone').val();
         if(!(/^1[1-9][0-9]{9}$/.test(sMobile))){
             $.warning('请输入正确的手机号');
@@ -1691,10 +1629,10 @@ const personalServer = (function (window, document, $, undefined) {
                 ? $.success('验证码发送成功')
                 : $.error(res.message);
         })
-    });
+    }
 //结算密码
-    $('#settlePwdBtn_Safety').click(function () {
-        const _this = this;
+    function settlePwd(btn){
+        const _this = btn;
         const addForm = $(_this).parents('form'),
             requiredEles = addForm.find('input[required]');
         for(let i = 0; i < requiredEles.length; i++){
@@ -1738,10 +1676,10 @@ const personalServer = (function (window, document, $, undefined) {
             $(_this).removeAttr('disabled');
             $(_this).html('保存');
         })
-    });
+    }
 //获取邮箱验证码
-    $('#emailCodeBtn_Safety').on('click', function () {
-        const _this = this,
+    function getEmailCode(btn){
+        const _this = btn,
             email = $('#email').val();
         if(!(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email))){
             $.warning('请输入正确的邮箱地址');
@@ -1759,10 +1697,10 @@ const personalServer = (function (window, document, $, undefined) {
                 ? $.success('验证码发送成功')
                 : $.error(res.message);
         })
-    });
+    }
 //提交邮箱绑定
-    $('#bindingEmailBtn_Safety').click(function () {
-        const _this = this;
+    function bindingEmail(btn){
+        const _this = btn;
         const addForm = $(_this).parents('form'),
             requiredEles = addForm.find('input[required]');
         for(let i = 0; i < requiredEles.length; i++){
@@ -1798,7 +1736,7 @@ const personalServer = (function (window, document, $, undefined) {
             $(_this).removeAttr('disabled');
             $(_this).html('保存');
         })
-    });
+    }
 
 /*
 *
@@ -2481,16 +2419,19 @@ const personalServer = (function (window, document, $, undefined) {
 * */
     return {
         getResponse,
-        initBaseInfoPage,
-        getPageResume,
-        initResumePageBase,
-        getPageSkill,
-        deletePageSkill,
-        getPageSkillChoiceTest,
-        getPageSkillTransTestBase,
-        pageSkillTempTransTxt,
-        pageSkillConfirmTransTxt,
-        getPageIdentification,
+        getBaseInfo,
+        commitBaseInfo,
+        commitBaseTeamInfo,
+        getResumeInfo,
+        getResumeBaseInfo,
+        getAdeptLanguageList,
+        deleteSkillPageRow,
+        confirmChoiceResult,
+        createChoiceTest,
+        createTransTest,
+        tempCommitTrans,
+        confirmCommitTrans,
+        getIdentyResult,
         getPageMessage,
         getApplication,
         getApplicationCode,
@@ -2500,8 +2441,15 @@ const personalServer = (function (window, document, $, undefined) {
         getFinanceList,
         judgeFinanceInfo,
         getFinanceTax,
-        getUserAllInfo
+        getUserAllInfo,
+        getSafetyResult,
+        modifyPwd,
+        getValidateCode,
+        settlePwd,
+        getEmailCode,
+        bindingEmail
     }
+
 })(window, document, jQuery);
 
 export default personalServer;

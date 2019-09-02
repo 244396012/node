@@ -7,8 +7,6 @@ import './modal';
 import promptTxt from './promptTxt';
 import { getQueryString, togglePassword, dragSlide, formatTime, throttleFn } from './utils';
 
-// import '../ts/bundle';
-
 (function (bundle, global, document, $){
 
     const t = localStorage.getItem('sy_rm_client_access_token'),

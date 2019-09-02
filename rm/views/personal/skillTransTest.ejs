@@ -3,24 +3,31 @@
     <div class="am-g positionEl">翻译题测试
         <span class="sy-font-sm label greenbg shortLan">--</span>
     </div>
-<!--翻译前选择-->
-    <div class="before-trans">
-        <div class="am-g sy-font-md" style="margin-bottom: 60px">
-            您已通过 <span class="target">--</span> 选择题测试，您现在可以参加 <span class="target">--</span> 翻译题测试，
-            请在开始翻译题测试前设置测试题语言对和擅长的行业领域。
+<!--翻译题-->
+    <div class="transing">
+        <div class="am-g warn">
+            <div class="am-u-lg-9 sy-font-md tip-txt tipTxt"></div>
+            <div class="am-u-lg-3 sy-center tip-time">
+                <b>剩余时间</b>
+                <span class="time">--:--:--</span>
+            </div>
         </div>
-        <div class="am-g sy-font-md">
-            语言对：&nbsp;&nbsp;&nbsp;&nbsp;
-            <select required class="origin"></select>
-            <i class="am-icon-long-arrow-right"></i>
-            <select required class="target"></select>
+        <div class="trans-test transTest">
+            <div class="sy-bold">原文：</div>
+            <div class="sy-font-md origin-txt originTxt">--</div>
         </div>
-        <p class="sy-font-sm"><i class="sy-orange">*</i> 选择该语言对下擅长的行业领域（最多5项）</p>
-        <div class="sy-font-md area-list">
-            <div>行业领域：</div>
-            <div class="areaList"></div>
+        <div class="trans-test transTest">
+            <div class="sy-bold">译文：</div>
+            <div class="sy-font-md">
+                <textarea class="targetTxt"></textarea>
+            </div>
         </div>
-        <button id="startTransBtn_Testing" type="button" class="sy-btn sy-btn-green sy-btn-md sy-font-md">开始测试</button>
+        <button type="button"
+                onclick="__api__.tempCommitTrans(this)"
+                class="sy-btn sy-btn-green sy-btn-md sy-font-md tempBtn">保 存</button>
+        <button type="button"
+                onclick="__api__.confirmCommitTrans(this)"
+                class="sy-btn sy-btn-green sy-btn-md sy-font-md confirmBtn">提 交</button>
     </div>
 <!--测试结果展示-->
     <!--<div class="am-g sy-center result no-pass">-->
@@ -41,25 +48,18 @@
     <!--</div>-->
 </div>
 <script>
-    //获取基本信息
-    __api__.getPageSkillTransTestBase();
+    (function ($) {
 
-    //选择领域
-    (function () {
-        $('.areaList').on('click', function (e) {
-            var _this = $(this);
-            if(e.target.nodeName === 'INPUT' && e.target.type === 'checkbox'){
-                if(_this.find('input:checked').length > 5){
-                    $.error('行业领域最多选择5项');
-                    return false;
-                }
-            }
-        });
-    })();
+        $('.tipTxt').html(__bundle__.promptTxt.skillTestingTrans);
+
+        //获取翻译题
+        var id = __bundle__.getQueryString('id');
+        __api__.createTransTest(id);
+
+    })(jQuery);
 
     //刷新页面时弹出提醒
     window.onbeforeunload = function (event) {
         event.returnValue = "确定离开当前页面吗？"
     }
-
 </script>

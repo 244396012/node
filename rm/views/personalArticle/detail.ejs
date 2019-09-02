@@ -51,7 +51,7 @@
 //删除文章
     $('.delete').click(function () {
         $.confirm();
-        $('#sy-confirm').modal({
+        $('.confirmModal').modal({
             closeViaDimmer: false,
             onConfirm: function (e) {
                 var aid = __bundle__.getQueryString('aid');

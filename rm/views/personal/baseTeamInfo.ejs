@@ -217,8 +217,8 @@
     <div class="am-g" style="margin: 2rem 0">
         <div class="am-u-lg-3 extra sy-right"></div>
         <div class="am-u-lg-9 extra">
-            <button id="addTeamInfoBtn_Information"
-                    class="btn btn-default sy-btn sy-btn-green sy-btn-md"
+            <button onclick="__api__.commitBaseTeamInfo(this)"
+                    class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn"
                     style="margin-left: 140px;font-size: 14px;">提交</button>
         </div>
     </div>
@@ -235,7 +235,7 @@ $(function() {
     new PCAS("deliverprovince", "delivercity", "deliverarea");
 
     //初始化
-    __api__.initBaseInfoPage();
+    __api__.getBaseInfo();
 
     //添加“click”事件委托
     $('div.information').on('click', function (e) {
@@ -257,8 +257,7 @@ $(function() {
                 }else if(prop === 'currencyCode'){
                     $('#currencyType').val(val);
                 }else if(prop === 'permanentAddress'){
-                    $('#deliverprovince').val(val.split(' ')[0]);
-                    new PCAS("deliverprovince", "delivercity", "deliverarea");
+                    $('#deliverprovince').val(val.split(' ')[0]).change();
                     $('#delivercity').val(val.split(' ')[1]);
                     $('#deliverarea').val(val.split(' ')[2]);
                 }else if(prop === 'contactInfo'){
@@ -281,7 +280,7 @@ $(function() {
             $('#nationality').trigger('changed.selected.amui');
             targetDiv.find('form').removeClass('sy-hidden');
             targetDiv.find('div.show-info').addClass('sy-hidden');
-            $('#addInfoBtn_Information').removeClass('sy-hidden');
+            $('.confirmBtn').removeClass('sy-hidden');
     //添加联系方式
         }else if($(target).hasClass('addItemBtn')){
             var targetForm =  $(target).parents('form'),

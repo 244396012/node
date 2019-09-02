@@ -1,7 +1,8 @@
 <div class="personal testing">
     <!--选择题-->
     <div class="am-g">选择题测试
-        <span class="sy-font-sm label greenbg page">--/--</span>
+        <span class="sy-font-sm label greenbg currPage">--/--</span>
+        <div class="field"></div>
     </div>
     <div class="choice choiceWrap">
         <div class="am-g warn">
@@ -11,53 +12,31 @@
                 <span class="time">--:--:--</span>
             </div>
         </div>
-        <div class="am-g test choiceTest">
-            <button id="choiceConfirmBtn_Testing" type="button" class="sy-btn sy-btn-green sy-btn-md sy-font-md sy-hidden">下一题</button>
+        <div class="am-g test choiceTest" style="min-height: 534px">
+            <button type="button"
+                    onclick="__api__.confirmChoiceResult(this)"
+                    class="choiceConfirmBtn sy-btn sy-btn-green sy-btn-md sy-font-md sy-hidden">下一题</button>
         </div>
     </div>
 </div>
 <script>
+    (function ($) {
 
-    $('.tipTxt').html(__bundle__.promptTxt.skillTestingChoice);
+        $('.tipTxt').html(__bundle__.promptTxt.skillTestingChoice);
 
-    (function () {
         //获取选择题试题
-        __api__.getPageSkillChoiceTest().then(res => {
-            if(res.data.remainTime && res.data.remainTime > 0){
-                //倒计时
-                var countDownEl = $('span.time');
-                var time = Math.ceil(res.data.remainTime/1000);  //15分钟换算成900秒
-                var countDown = setInterval(function(){
-                    time --;
-                    var minute = parseInt(time / 60) > 9 ? parseInt(time / 60) : '0'+parseInt(time / 60),
-                        second = parseInt(time % 60) > 9 ? parseInt(time % 60) : '0'+parseInt(time % 60);
-                    countDownEl.html('00:'+ minute +':'+ second);
-                    if(minute === '00' && second === '00'){
-                        $.success('测试时间已到');
-                        clearInterval(countDown);
-                        setTimeout(function () {
-                            localStorage.removeItem('sy_rm_client_choice_test');
-                            localStorage.removeItem('sy_rm_client_choice_test_no');
-                            location.href = '/personal/skill';
-                        },1500);
-                        return false;
-                    }
-                },1000);
-            }else{
-                localStorage.removeItem('sy_rm_client_choice_test');
-                localStorage.removeItem('sy_rm_client_choice_test_no');
-                location.href = '/personal/skill';
+        var id = __bundle__.getQueryString('id');
+        __api__.createChoiceTest(id);
+
+        //选择答案
+        $('.choiceTest').on('click', function (e) {
+            if(e.target.nodeName === 'LI'){
+                var _this = $(e.target);
+                _this.addClass('active').siblings().removeClass('active');
             }
         });
-    })();
 
-    //选择答案
-    $('.choiceTest').on('click', function (e) {
-       if(e.target.nodeName === 'LI'){
-            var _this = $(e.target);
-            _this.addClass('active').siblings().removeClass('active');
-       }
-    });
+    })(jQuery);
 
     //刷新页面时弹出提醒
     window.onbeforeunload = function (event) {

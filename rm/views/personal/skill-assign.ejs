@@ -13,23 +13,17 @@
             </span>
             </div>
             <div class="am-u-lg-12 labels">
-                <div>口译经验：</div>
+                <div>外派经验：</div>
                 <div>
-                    <span><%= data.data.interpretationExperience %></span>
+                    <span><%= data.data.expatriateExperience %></span>
                 </div>
             </div>
             <div class="am-u-lg-12 labels">
-                <div>服务地区：</div>
-                <div><%= data.data.province
-                    +' '+data.data.city
-                    +" "+data.data.area %></div>
-            </div>
-            <div class="am-u-lg-12 labels">
-                <div>口译类型：</div>
+                <div>外派特长：</div>
                 <div>
-                    <% types = JSON.parse(data.data.interpretationTypes) %>
-                    <% for(var i = 0; i<types.length; i++) { %>
-                    <span><%= types[i] %></span>
+                    <% good = JSON.parse(data.data.expatriateExpertise) %>
+                    <% for(var i = 0; i<good.length; i++) { %>
+                    <span><%= good[i] %></span>
                     <% } %>
                 </div>
             </div>
@@ -57,25 +51,20 @@
             <% } %>
         <!--提交、修改信息表单-->
         <form class="add-form <%= data.data.id ? 'sy-hidden':'' %>" action="#">
-            <div class="am-u-lg-12">口译经验(单选)：</div>
-            <div class="am-u-lg-12 labels single experienceLabel" prop="口译经验"> <!--选中添加class=‘selected’-->
+            <div class="am-u-lg-12">外派经验(单选)：</div>
+            <div class="am-u-lg-12 labels single assignExp" prop="外派经验"> <!--选中添加class=‘selected’-->
                 <span>1年以下</span>
-                <span>1~3年</span>
-                <span>3~5年</span>
+                <span>1~2年</span>
+                <span>2~3年</span>
+                <span>3~4年</span>
+                <span>4~5年</span>
                 <span>5年以上</span>
             </div>
-            <div class="am-u-lg-12">服务地区：</div>
-            <div class="am-u-lg-12 labels area" prop="服务地区">
-                <select class="province" name="deliverprovince" id="deliverprovince"></select>
-                <select class="city" name="delivercity" id="delivercity"></select>
-                <select class="area" name="deliverarea" id="deliverarea"></select>
-            </div>
-            <div class="am-u-lg-12">口译类型(可多项)：</div>
-            <div class="am-u-lg-12 labels multiple typeLabel" prop="口译类型">
-                <span>同声传译</span>
-                <span>陪同传译</span>
-                <span>大型活动</span>
-                <span>交替传译</span>
+            <div class="am-u-lg-12">外派特长(可多项)：</div>
+            <div class="am-u-lg-12 labels multiple assignGood" prop="外派特长">
+                <span>普通翻译（内勤、后勤、采购等）</span>
+                <span>技术翻译（商务、文档等）</span>
+                <span>首席术翻译（项目经理助理、翻译管理）</span>
             </div>
             <div class="am-u-lg-12">语种信息(二级领域可多选)：</div>
             <div class="am-u-lg-12 labels select" prop="语种信息">
@@ -100,37 +89,31 @@
                 <button class="btn btn-default sy-btn sy-btn-default sy-btn-md cancelBtn">取 消</button>
                 <button class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn"
                         data-id="<%= data.data.id %>"
-                        data-type="meeting">提 交</button>
+                        data-type="assign">提 交</button>
             </div>
         </form>
         <div class="hiddenData sy-hidden"><%= JSON.stringify(data.data) %></div>
         <% } %>
     </div>
 </div>
-<script type="text/javascript" src="/static/lib/area.js"></script>
 <script>
     (function ($) {
-
-        new PCAS("deliverprovince", "delivercity", "deliverarea");
 
         //编辑时，获取本地数据
         $('span.editLabel').click(function () {
             var hideData = JSON.parse($('.hiddenData').html());
-            var expLabel = $('.experienceLabel>span'),
-                typeLabel = $('.typeLabel>span'),
+            var assignExpLabel = $('.assignExp>span'),
+                assignGoodLabel = $('.assignGood>span'),
                 tbodyEl = $('.lanTarget');
             var trStr = '',
                 trData = JSON.parse(hideData.languageInfo);
-            expLabel.each(function (index, item) {
-                hideData.interpretationExperience === $(item).text() && $(item).addClass('selected');
+            assignExpLabel.each(function (index, item) {
+                hideData.expatriateExperience === $(item).text() && $(item).addClass('selected');
             });
-            typeLabel.each(function (index, item) {
+            assignGoodLabel.each(function (index, item) {
                 var txt = $(item).text();
-                hideData.interpretationTypes.indexOf(txt) > -1 && $(item).addClass('selected');
+                hideData.expatriateExpertise.indexOf(txt) > -1 && $(item).addClass('selected');
             });
-            $('select.province').val(hideData.province).change();
-            $('select.city').val(hideData.city);
-            $('select.area').val(hideData.area);
             trData.forEach(function (item) {
                 trStr += `<tr>
                             <td>${item.langaugeName}</td>

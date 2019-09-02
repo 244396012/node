@@ -1,8 +1,12 @@
 <% include skill_nav.ejs %>
 <div class="personal skill">
     <div class="resource">
+        <% if(data.message !== 'success'){ %>
+        <p style="line-height: 200px;text-align: center;color: #999"><%= JSON.stringify(data) %></p>
+        <% } else { %>
         <!--信息展示-->
-        <div class="show-info sy-hidden">
+        <% if(data.data.id){ %>
+        <div class="show-info">
             <div class="am-u-lg-12">
             <span class="editLabel edit sy-float-r">
                 <i class="sy-personal-icon sy-personal-icon-edit"></i>编辑
@@ -10,34 +14,42 @@
             </div>
             <div class="am-u-lg-12 labels">
                 <div>DTP排版经验：</div>
-                <div>
-                    <span>后端获取</span>
+                <div class="show-experienceLabel">
+                    <span><%= data.data.editionExperience %></span>
                 </div>
             </div>
             <div class="am-u-lg-12 labels">
                 <div>擅长软件：</div>
-                <div>
-                    <span>后端获取</span>
+                <div class="show-softLabel">
+                    <% software = JSON.parse(data.data.software) %>
+                    <% for(var i = 0; i<software.length; i++) { %>
+                    <span><%= software[i] %></span>
+                    <% } %>
                 </div>
             </div>
             <div class="am-u-lg-12 labels">
                 <div>任务标签：</div>
-                <div>
-                    <span>后端获取</span>
+                <div class="show-taskLabel">
+                    <% taskLable = JSON.parse(data.data.taskLable) %>
+                    <% for(var i = 0; i<taskLable.length; i++) { %>
+                    <% taskName = taskLable[i].dtpLableName %>
+                    <span><%= taskName %></span>
+                    <% } %>
                 </div>
             </div>
         </div>
+        <% } %>
         <!--提交、修改信息表单-->
-        <form class="add-form" action="#">
+        <form class="add-form <%= data.data.id ? 'sy-hidden':'' %>" action="#">
             <div class="am-u-lg-12">DTP排版经验(单选)：</div>
-            <div class="am-u-lg-12 labels single" prop="DTP排版经验"> <!--选中添加class=‘selected’-->
+            <div class="am-u-lg-12 labels single experienceLabel" prop="DTP排版经验"> <!--选中添加class=‘selected’-->
                 <span>1年以下</span>
                 <span>1~2年</span>
                 <span>2~3年</span>
                 <span>3年以上</span>
             </div>
             <div class="am-u-lg-12">擅长软件(可多选)：</div>
-            <div class="am-u-lg-12 labels multiple" prop="擅长软件">
+            <div class="am-u-lg-12 labels multiple softLabel" prop="擅长软件">
                 <span>Word</span>
                 <span>Excel</span>
                 <span>PowerPoint</span>
@@ -50,13 +62,56 @@
                 <span>Pm</span>
             </div>
             <div class="am-u-lg-12">任务标签(可多项)：</div>
-            <div class="am-u-lg-12 labels multiple" prop="任务标签">
-                <span>后端获取</span>
+            <div class="am-u-lg-12 labels multiple taskLabel" prop="任务标签">
+
             </div>
             <div class="am-u-lg-12 sy-btns sy-font-md">
                 <button class="btn btn-default sy-btn sy-btn-default sy-btn-md cancelBtn">取 消</button>
-                <button class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn">提 交</button>
+                <button class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn"
+                        data-id="<%= data.data.id %>"
+                        data-type="typeset">提 交</button>
             </div>
         </form>
+        <div class="hiddenData sy-hidden"><%= JSON.stringify(data.data) %></div>
+        <% } %>
     </div>
 </div>
+<script>
+    (function ($) {
+
+        //获取任务标签
+        __api__.getResponse({
+            url: '/newSkillController/listUnitPriceDtp'
+        }).then(res => {
+            if(res.success){
+                var labelStr = res.data.reduce(function (prev,curr) {
+                    return prev + "<span id='"+ curr.id +"'>"+ curr.handleType +"</span>";
+                },"");
+                $('.taskLabel').html(labelStr);
+            }
+        })
+
+        //编辑时，获取本地数据
+        $('span.editLabel').click(function () {
+            var hideData = JSON.parse($('.hiddenData').html());
+            var expLabel = $('.experienceLabel>span'),
+                softLabel = $('.softLabel>span'),
+                taskLabel = $('.taskLabel>span');
+            expLabel.each(function (index, item) {
+                hideData.editionExperience === $(item).text() && $(item).addClass('selected');
+            });
+            softLabel.each(function (index, item) {
+                var txt = $(item).text();
+                hideData.software.indexOf(txt) > -1 && $(item).addClass('selected');
+            });
+            taskLabel.each(function (index, item) {
+                var txt = $(item).text(),
+                    task = JSON.parse(hideData.taskLable);
+                task.forEach(function (tk) {
+                    tk.dtpLableName === txt && $(item).addClass('selected');
+                })
+            });
+        });
+
+    })(jQuery);
+</script>

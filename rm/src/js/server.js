@@ -11,7 +11,7 @@ import './server_account';
 import serverArticle from './server_article';
 import serverPersonal from './server_personal';
 import serverOrder from './server_order';
-import freeLancer from './server_freelancer';
+import './server_freelancer';
 
 //url 对外api接口
 (function (api, global) {
@@ -30,16 +30,19 @@ import freeLancer from './server_freelancer';
 (function (global){
 
     const __api__ = {
-        initBaseInfoPage: serverPersonal.initBaseInfoPage,
-        getPageResume: serverPersonal.getPageResume,
-        initResumePageBase: serverPersonal.initResumePageBase,
-        getPageSkill: serverPersonal.getPageSkill,
-        deletePageSkill: serverPersonal.deletePageSkill,
-        getPageSkillChoiceTest: serverPersonal.getPageSkillChoiceTest,
-        getPageSkillTransTestBase: serverPersonal.getPageSkillTransTestBase,
-        pageSkillTempTransTxt: serverPersonal.pageSkillTempTransTxt,
-        pageSkillConfirmTransTxt: serverPersonal.pageSkillConfirmTransTxt,
-        getPageIdentification: serverPersonal.getPageIdentification,
+        getBaseInfo: serverPersonal.getBaseInfo,
+        commitBaseInfo: serverPersonal.commitBaseInfo,
+        commitBaseTeamInfo: serverPersonal.commitBaseTeamInfo,
+        getResumeInfo: serverPersonal.getResumeInfo,
+        getResumeBaseInfo: serverPersonal.getResumeBaseInfo,
+        getAdeptLanguageList: serverPersonal.getAdeptLanguageList,
+        deleteSkillPageRow: serverPersonal.deleteSkillPageRow,
+        confirmChoiceResult: serverPersonal.confirmChoiceResult,
+        createChoiceTest: serverPersonal.createChoiceTest,
+        createTransTest: serverPersonal.createTransTest,
+        tempCommitTrans: serverPersonal.tempCommitTrans,
+        confirmCommitTrans: serverPersonal.confirmCommitTrans,
+        getIdentyResult: serverPersonal.getIdentyResult,
         getPageMessage: serverPersonal.getPageMessage,
         getApplication: serverPersonal.getApplication,
         getApplicationCode: serverPersonal.getApplicationCode,
@@ -50,6 +53,12 @@ import freeLancer from './server_freelancer';
         judgeFinanceInfo: serverPersonal.judgeFinanceInfo,
         getFinanceTax: serverPersonal.getFinanceTax,
         getUserAllInfo: serverPersonal.getUserAllInfo,
+        getSafetyResult: serverPersonal.getSafetyResult,
+        modifyPwd: serverPersonal.modifyPwd,
+        getValidateCode: serverPersonal.getValidateCode,
+        settlePwd: serverPersonal.settlePwd,
+        getEmailCode: serverPersonal.getEmailCode,
+        bindingEmail: serverPersonal.bindingEmail
     };
 
     //注册到global全局

@@ -35,7 +35,8 @@
         <div class="item" style="margin-top: 35px">
             <span>&nbsp; 相关附件：</span>
             <input type="text" placeholder="请上传相关附件，最多只能上传三张图片">
-            <button type="button" class="sy-btn sy-btn-sm sy-btn-green upload-btn"
+            <button type="button"
+                    class="sy-btn sy-btn-sm sy-btn-green upload-btn"
                     onclick="$('div.selectFileBt').click()">+ 上传附件</button>
             <div id="fileUploadContent" class="fileUploadContent"></div>
 
@@ -65,11 +66,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-    function getEl (name){
-        return document.getElementsByClassName(name)[0];
-    }
+        function getEl (name){
+            return document.getElementsByClassName(name)[0];
+        }
 
-    //提交意见
+        //提交意见
         $('.sendAdviceBtn').click(function () {
             var type = $('input[name=advice]:checked').val(),
                 content = $('.adviceTextarea').val();
@@ -80,7 +81,7 @@
             $('.fileUploadBtn').click();
         });
 
-//上传图片附加
+        //上传图片附加
         $("#fileUploadContent").initUpload({
             'method': 'post',
             'fileName': 'multipartFile',
@@ -119,7 +120,7 @@
             }
         });
 
-//加载“我的反馈”列表
+        // 加载“我的反馈”列表
         __api__.getAdviceList();
 
         $(".loadMoreBtn").click(function () {
@@ -129,14 +130,14 @@
             __api__.getAdviceList(page);
         });
 
-//切换页面
+        // 切换页面
         $('#writePage,#listPage').on('click', function () {
             var _this = this,
                 page = _this.id;
             $(_this).addClass('sy-hidden').siblings().removeClass('sy-hidden');
             $('.'+page).addClass('sy-hidden').siblings().removeClass('sy-hidden');
         });
-//显示“反馈列表”大图
+        // 显示“反馈列表”大图
         $('.listPage')[0].addEventListener('click', function (e) {
             var event = e || window.event,
                 target = event.target || event.srcElement;
@@ -149,7 +150,21 @@
         }, false);
 
         var textArea = getEl('adviceTextarea');
-//文本域高度自适应
+        // 文本域长度限制
+        textArea.addEventListener('input', __bundle__.throttleFn(function () {
+            var _this = this,
+                font = $('.writeFont'),
+                val = _this.value,
+                len = _this.value.length;
+            if(len >= 300){
+                $.warning('内容长度超过限制');
+                _this.value = val.slice(0, 300);
+                font.html(`${_this.value.length}/300`);
+                return null;
+            }
+            font.html(`${len}/300`);
+        }, 500), false);
+        // 文本域高度自适应
         (function (elem, extra, maxHeight) {
             extra = extra || 0;
             var isFirefox = !!document.getBoxObjectFor || 'mozInnerScreenX' in window,
@@ -212,20 +227,6 @@
             addEvent('focus', change);
             change();
         })(textArea);
-//文本域长度限制
-        textArea.addEventListener('input', __bundle__.throttleFn(function () {
-            var _this = this,
-                font = $('.writeFont'),
-                val = _this.value,
-                len = _this.value.length;
-            if(len >= 300){
-                $.warning('内容长度超过限制');
-                _this.value = val.slice(0, 300);
-                font.html(`${_this.value.length}/300`);
-                return null;
-            }
-            font.html(`${len}/300`);
-        }, 500), false);
 
     }, false);
 </script>

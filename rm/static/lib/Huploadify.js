@@ -244,7 +244,7 @@ $.fn.Huploadify = function(opts){
 				  xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 				  var fd = new FormData();
 				  fd.append(option.fileObjName,file);
-				  if(option.formData){
+                  if(option.formData){
 				  	for(key in option.formData){
 				  		fd.append(key,option.formData[key]);
 				  	}

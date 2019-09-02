@@ -12,26 +12,32 @@
                         <div class="item">
                             <div>输入原密码：</div>
                             <div>
-                                <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
+                                <i class="sy-icon-eye am-icon-eye-slash"
+                                   onclick="__bundle__.togglePassword(this);"></i>
                                 <input id="prePwd" type="password" required placeholder="请输入原密码">
                             </div>
                         </div>
                         <div class="item">
                             <div>输入新密码：</div>
                             <div>
-                                <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
+                                <i class="sy-icon-eye am-icon-eye-slash"
+                                   onclick="__bundle__.togglePassword(this);"></i>
                                 <input id="newPwd" type="password" required placeholder="请输入新密码"/></div>
                         </div>
                         <div class="item">
                             <div>确认新密码：</div>
                             <div>
-                                <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
+                                <i class="sy-icon-eye am-icon-eye-slash"
+                                   onclick="__bundle__.togglePassword(this);"></i>
                                 <input id="conNewPwd" type="password" required placeholder="请确认新密码"/></div>
                         </div>
                         <div class="item">
                             <div></div>
                             <div>
-                                <button id="updatePwdBtn_Safety" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                                <button data-sy-confirm
+                                        type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
+                                        onclick="__api__.modifyPwd(this)">保存</button>
                             </div>
                         </div>
                     </form>
@@ -46,7 +52,9 @@
                             <div>登录手机号：</div>
                             <div>
                                 <input id="telPhone" type="tel" required disabled placeholder="请输入手机号">
-                                <button id="validateBtn_Safety" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh safety">获取验证码</button>
+                                <button type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh safety"
+                                        onclick="__api__.getValidateCode(this)">获取验证码</button>
                                 <button id="updateTelBtn" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh sy-hidden">修改结算密码</button>
                             </div>
                         </div>
@@ -57,19 +65,24 @@
                         <div class="item">
                             <div>设置结算密码：</div>
                             <div>
-                                <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
+                                <i class="sy-icon-eye am-icon-eye-slash"
+                                   onclick="__bundle__.togglePassword(this);"></i>
                                 <input id="settlePwd" type="password" required placeholder="请输入结算密码"/></div>
                         </div>
                         <div class="item">
                             <div>确认结算密码：</div>
                             <div>
-                                <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
+                                <i class="sy-icon-eye am-icon-eye-slash"
+                                   onclick="__bundle__.togglePassword(this);"></i>
                                 <input id="settleRePwd" type="password" required placeholder="请确认结算密码"/></div>
                         </div>
                         <div class="item">
                             <div></div>
                             <div>
-                                <button id="settlePwdBtn_Safety" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                                <button data-sy-confirm
+                                        type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
+                                        onclick="__api__.settlePwd(this)">保存</button>
                             </div>
                         </div>
                     </form>
@@ -92,7 +105,9 @@
                             <div>邮箱地址：</div>
                             <div>
                                 <input id="email" type="email" required placeholder="请输入邮箱地址">
-                                <button id="emailCodeBtn_Safety" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">获取验证码</button>
+                                <button type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
+                                        onclick="__api__.getEmailCode(this)">获取验证码</button>
                             </div>
                         </div>
                         <div class="item">
@@ -102,7 +117,10 @@
                         <div class="item">
                             <div></div>
                             <div>
-                                <button id="bindingEmailBtn_Safety" data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">提交</button>
+                                <button data-sy-confirm
+                                        type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
+                                        onclick="__api__.bindingEmail(this)">提交</button>
                             </div>
                         </div>
                     </form>
@@ -117,47 +135,33 @@
     </div>
 </div>
 <script>
-    //tab切换窗口
-    $('.setFilter').on('click', function (e) {
-        if(e.target.nodeName === 'LABEL'){
-            var _this = $(e.target),
-                type = _this.attr('data-sy-type');
-            _this.addClass('active').siblings().removeClass('active');
-            $('.setPage').find('.'+type).removeClass('sy-hidden').siblings().addClass('sy-hidden');
-        }
-    });
-    //修改结算密码、邮箱绑定
-    $('#updateTelBtn').click(function () {
-        $(this).parents('.item').nextAll('.item').removeClass('sy-hidden');
-        $(this).prev().removeClass('sy-hidden');
-        $(this).addClass('sy-hidden');
-    });
-    $('#updateEmailBtn').click(function () {
-        var elDiv = $('.updateCode');
-        elDiv.addClass('sy-hidden');
-        elDiv.nextAll('.item').removeClass('sy-hidden');
-    });
-    //获取初始信息
-    __api__.getResponse({
-        url: '/userExtension/findResumeByUserId',
-        data: {
-            userId: localStorage.getItem('sy_rm_client_ud')
-        }
-    }).then(res => {
-        if(res.message === 'success'){
-            $('#telPhone').val(res.data.telephone);
-            if(+res.data.userExtension.bindEmail === 1){
-                var elDiv = $('.updateCode');
-                $('#updateEmail').val(res.data.email);
-                elDiv.removeClass('sy-hidden');
-                elDiv.nextAll('.item').addClass('sy-hidden');
+    (function ($) {
+
+        //获取初始信息
+        __api__.getSafetyResult();
+
+        //tab切换窗口
+        $('.setFilter').on('click', function (e) {
+            if(e.target.nodeName === 'LABEL'){
+                var _this = $(e.target),
+                    type = _this.attr('data-sy-type');
+                _this.addClass('active').siblings().removeClass('active');
+                $('.setPage').find('.'+type).removeClass('sy-hidden').siblings().addClass('sy-hidden');
             }
-            if(res.data.userExtension.settlePassword){
-                var telBtn = $('#updateTelBtn');
-                telBtn.removeClass('sy-hidden');
-                telBtn.prev().addClass('sy-hidden');
-                telBtn.parents('.item').nextAll('.item').addClass('sy-hidden');
-            }
-        }
-    });
+        });
+
+        //修改结算密码、邮箱绑定
+        $('#updateTelBtn').click(function () {
+            $(this).parents('.item').nextAll('.item').removeClass('sy-hidden');
+            $(this).prev().removeClass('sy-hidden');
+            $(this).addClass('sy-hidden');
+        });
+
+        $('#updateEmailBtn').click(function () {
+            var elDiv = $('.updateCode');
+            elDiv.addClass('sy-hidden');
+            elDiv.nextAll('.item').removeClass('sy-hidden');
+        });
+
+    }(jQuery))
 </script>

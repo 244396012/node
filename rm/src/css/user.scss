@@ -393,8 +393,7 @@ html,body{
         }
       }
       &:hover{
-        outline: 1px solid $baseColor;
-        box-shadow: 1px 1px 8px -2px $baseColor;
+        box-shadow: 2px 2px 10px 0px rgba(0,0,0,.15);
         .operation{
           display: block;
         }
@@ -1042,62 +1041,42 @@ html,body{
   }
   .personal.skill{
     padding: 1.5rem 0 3rem 0;
-    span.more{
-      position: absolute;
-      right: 18px;
-      top: 0;
-      display: inline-block;
-      width: 34px;
-      height: 34px;
-      border: 1px solid #ccc;
-      border-radius: 2px;
-      font-size: 20px;
-      &:hover{
-        cursor: pointer;
-        border-color: $baseColor;
-        color: $baseColor;
-      }
-    }
-    .language-list{
-      width: 96%;
-      padding-left: 0;
-      overflow: hidden;
-      list-style: none;
-      &>li{
-        float: left;
-        padding: 0 10px;
-        margin-right: 6px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 2px;
-        height: 34px;
+    .language-pair{
+      &>select{
+        width: 200px;
+        height: 32px;
         line-height: 32px;
-        text-align: center;
-        &:hover{
-          cursor: pointer;
+        outline: none;
+        border: 1px solid #BFBFBF;
+        border-radius: 2px;
+        font-size: 14px;
+        color: #666;
+        &:focus{
           border-color: $baseColor;
-          color: $baseColor;
         }
-        &.active{
-          background: $baseColor;
-          border-color: $baseColor;
-          color: #fff;
-        }
+      }
+      &>button{
+        height: 32px;
+        line-height: 30px;
+        padding: 0 18px;
+        border-radius: 2px;
       }
     }
     .language-cnt{
       position: relative;
       min-height: 465px;
+      margin-top: 20px;
       .item{
         display: table;
         width: 100%;
-        margin-bottom: 20px;
         padding: 20px 0;
         border: 1px solid #eee;
         box-shadow: 2px 2px 10px 0px #eee;
+        &+.item{
+          margin-top: 20px;
+        }
         &:hover{
-          border-color: $baseColor;
-          box-shadow: 2px 2px 10px 0px #A3CCA4;
+          box-shadow: 2px 2px 10px 0px rgba(0,0,0,.15);
           .sy-delete{
             display: block!important;
           }
@@ -1105,7 +1084,7 @@ html,body{
         &>div{
           display: table-cell;
         }
-        &>div:nth-child(1){
+        &>div.item-lan{
           width: 200px;
           border-right: 1px solid #eee;
           text-align: center;
@@ -1114,8 +1093,12 @@ html,body{
             margin: 22px 0 5px;
           }
           h1{
+            padding: 0 10px;
             margin: 0;
             font-weight: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             &:nth-child(1){
               font-size: 24px;
             }
@@ -1123,11 +1106,15 @@ html,body{
               font-size: 18px;
             }
           }
-          img{
-            width: 45px;
-            height: 45px;
-            margin: 0 8px;
-            border-radius: 50%;
+          span{
+            display: block;
+            width: 100px;
+            height: 32px;
+            line-height: 30px;
+            margin: 30px auto 10px;
+            border: 1px solid $baseColor;
+            border-radius: 2px;
+            color: $baseColor;
           }
         }
         &>div.item-cnt{
@@ -1144,54 +1131,77 @@ html,body{
             }
           }
           td{
-            padding: 15px 20px 0 0;
-            &.ver-top{
-              vertical-align: top;
-            }
-            &:nth-child(1){
-              font-size: 16px;
-            }
-            &:nth-child(2){
-              font-size: 14px;
-            }
+            height: 45px;
+            vertical-align: middle;
             p{
               margin: 0;
               margin-bottom: 15px;
             }
-            .lan{
-              display: inline-block;
-              padding: 0 10px;
-              margin-right: 8px;
-              border-radius: 14px;
-              border: 1px solid $baseColor;
-              color: $baseColor;
+            button+button,
+            span+button{
+              margin-left: 60px;
             }
-            .pass{
-              i{
-                display: inline-block;
-                margin-left: 5px;
-                padding: 2px 10px;
-                font-style: normal;
+            span+span{
+              margin-left: 30px;
+            }
+            span{
+              margin-left: 30px;
+              font-size: 14px;
+              &.notest{
+                color: #FF8459;
+              }
+              &.tip{
                 font-size: 12px;
+                color: #999;
+              }
+              &.level{
+                font-size: 16px;
+                &>i{
+                  font-weight: 700;
+                  color: #FFB11A;
+                }
+              }
+            }
+            &.file{
+              a{
+                font-size: 16px;
+                color: #00BDCF;
+                &:hover{
+                  opacity: .8;
+                }
+                &+a{
+                  margin-left: 30px;
+                }
+              }
+            }
+            &.area{
+              span{
+                display: inline-block;
+                height: 22px;
+                line-height: 18px;
+                padding: 0px 10px;
+                margin-left: 0;
                 border: 1px solid #E5E5E5;
-                border-radius: 12px;
-               &.level{
-                 padding-top: 0;
-                 padding-bottom: 0;
-                 font-size: 14px;
-                 color: #fff;
-                 border-color: #FFB11A;
-                 background: #FFB11A;
-               }
+                border-radius: 10px;
+                font-size: 12px;
+                &+span{
+                  margin-left: 10px;
+                }
               }
             }
           }
         }
-        .sy-delete{
-          display: none;
+        .pos{
           position: absolute;
           right: 40px;
           font-size: 14px;
+        }
+        .sy-delete{
+          display: none;
+          &>i{
+            vertical-align: -1px;
+            font-size: 18px;
+          }
         }
       }
       .sy-info-icon:hover{
@@ -1355,14 +1365,18 @@ html,body{
     .label{
       display: inline-block;
       padding: 2px 16px;
+      margin-right: 5px;
       color: $baseColor;
       border: 1px solid $baseColor;
       border-radius: 12px;
-    }
-    .greenbg{
-      margin-left: 15px;
-      color: #fff;
-      background: $baseColor;
+      &.greenbg{
+        margin-left: 15px;
+        color: #fff;
+        background: $baseColor;
+        &+.field{
+          display: inline-block;
+        }
+      }
     }
     .warn{
       margin: 25px 0;
@@ -2256,4 +2270,65 @@ span.edit{
       border-color: $baseColor;
     }
   }
+}
+
+div.skill-modal{
+  .wrap-item{
+    padding: 5px 10px 15px;
+    &>span{
+      display: inline-block;
+      min-width: 80px;
+      height: 24px;
+      line-height: 22px;
+      padding: 0px 12px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #BFBFBF;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      &:hover,
+      &.selected{
+        color: #fff;
+        background: $baseColor;
+      }
+      &.selected{
+        border-color: $baseColor;
+      }
+    }
+    &.multi{
+      min-height: 100px;
+    }
+  }
+  span.tip{
+    font-size: 12px;
+    color: #999;
+  }
+  [data-am-modal-confirm]{
+    overflow: hidden;
+    margin-right: 20px;
+  }
+  .before-upload{
+    input,button{
+      height: 32px;
+      line-height: 30px;
+      border-radius: 0!important;
+    }
+    input{
+      width: 200px;
+      padding: 0 5px;
+      border: 1px solid #ccc;
+    }
+  }
+  .files{
+    &>.file-item{
+      &+.file-item{
+        margin-top: 10px;
+      }
+    }
+    a.delFile{
+      margin-left: 30px;
+    }
+  }
+
 }

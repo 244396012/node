@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="item">
+        <div class="item-lan">
+            <h1>中文 → 英文</h1>
+            <h1>zh-cn → en-us</h1>
+            <span>生物医药</span>
+        </div>
+        <div class="item-cnt">
+            <table>
+                <tr>
+                    <td>选择题
+                        <span class="nopass">未测试</span>
+                        <button type="button" class="sy-btn sy-btn-green sy-btn-sh">开始测试</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>翻译题
+                        <span class="nopass">未测试</span>
+                        <button type="button" disabled class="sy-btn sy-btn-green sy-btn-sh">不可测试</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="area">
+                        <span>生物</span>
+                        <span>生物</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <a class="pos sy-delete" href="javascript:;"><i class="am-icon-trash-o"></i> 删除</a>
+    </div>
+    <div class="item">
+        <div class="item-lan">
+            <h1>中文 → 英文</h1>
+            <h1>zh-cn → en-us</h1>
+            <span>生物医药</span>
+        </div>
+        <div class="item-cnt">
+            <table>
+                <tr>
+                    <td>选择题
+                        <span>很遗憾，未通过</span>
+                        <span class="tip">下次测试时间为2010-10-10</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>翻译题
+                        <span class="nopass">未测试</span>
+                        <button type="button" class="sy-btn sy-btn-green sy-btn-sh">开始测试</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="area" colspan="3">
+                        <span>生物</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="item">
+        <div class="item-lan">
+            <h1>中文 → 英文</h1>
+            <h1>zh-cn → en-us</h1>
+            <span>生物医药</span>
+        </div>
+        <div class="item-cnt">
+            <table>
+                <tr>
+                    <td>
+                        选择题
+                        <span>你已经通过选择题测试</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>翻译题
+                        <span>已通过中级测试</span>
+                        <span class="level">等级：<i>P5</i></span>
+                        <button type="button" class="sy-btn sy-btn-green sy-btn-sh">高级测试</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="area" colspan="3">
+                        <span>生物</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="item">
+        <div class="item-lan">
+            <h1>中文 → 英文</h1>
+            <h1>zh-cn → en-us</h1>
+            <span>生物医药</span>
+        </div>
+        <div class="item-cnt">
+            <table>
+                <tr>
+                    <td class="sy-font-md">上传你曾经做的相关文档并申请绿色通道，工作人员会第一时间与你取得联系</td>
+                </tr>
+                <tr>
+                    <td><button type="button" class="sy-btn sy-btn-green sy-btn-sh">上传文档</button></td>
+                </tr>
+                <tr>
+                    <td class="area">
+                        <span>生物</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <a class="pos sy-delete" href="javascript:;"><i class="am-icon-trash-o"></i> 删除</a>
+    </div>
+    <div class="item">
+        <div class="item-lan">
+            <h1>中文 → 英文</h1>
+            <h1>zh-cn → en-us</h1>
+            <span>生物医药</span>
+        </div>
+        <div class="item-cnt">
+            <table>
+                <tr>
+                    <td class="sy-font-md">你已成功申请了绿色通道，工作人员核实后会与你取得联系</td>
+                </tr>
+                <tr>
+                    <td class="file">
+                        <span>文档名字.DOC</span>
+                        <span>文档名字.DOC</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="area">
+                        <span>生物</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <span class="pos">待联系</span>
+    </div>
+    <div class="item">
+    <div class="item-lan">
+        <h1>中文 → 英文</h1>
+        <h1>zh-cn → en-us</h1>
+        <span>生物医药</span>
+    </div>
+    <div class="item-cnt">
+        <table>
+            <tr>
+                <td class="sy-font-md sy-orange">很抱歉，请重新提交相关文档，以便于工作人员核实</td>
+            </tr>
+            <tr>
+                <td class="file">
+                    <span>文档名字.DOC</span>
+                    <span>文档名字.DOC</span>
+                    <button type="button" class="sy-btn sy-btn-green sy-btn-sh">重新上传</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="area">
+                    <span>生物</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    function getSkillPageLanguageList() {
+        $.loading('获取数据...');
+        getResponse({
+            url: '/exam/customer/listAdeptLanguages'
+        }).then(res => {
+            console.log(res);
+            let languageStr = "";
+            const languageDiv = $('.languageCnt');
+            if(res.message === 'success'){
+                $('.my-loading').remove();
+                res.data.forEach(item => {
+                    //选择题
+                    let isChoice = '',choiceStatus = '';
+                    if(item.choiceLevel.passedStatue === '未通过'){
+                        choiceStatus = `你已经测试过${item.choiceLevel.examTimes}次，很遗憾，未通过<span style="font-size: 12px;color: #999">(下次可测试时间${item.choiceLevel.nextExamTime})</span>`;
+                    }else{
+                        choiceStatus = item.choiceLevel.passedStatue;
+                    }
+                    if(item.choiceLevel.isEnableExam){//是否显示按钮
+                        isChoice = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
+                                                    onclick="$.skillTest({
+                                                                title: '选择题说明',
+                                                                txt: promptTxt.skillChoice,
+                                                                href: 'test/choice?id=${item.choiceLevel.id}'
+                                                            });">开始测试</button>`;
+                    }
+                    //原->译
+                    let oriBtnTxt = '开始测试';
+                    if(!(item.fToSLevel.level === null || item.fToSLevel.level === 0)){
+                        oriBtnTxt = '升级测试';
+                    }
+                    let oriTrans = item.originLanguageName.slice(0,1)+`译`+item.targetLanguageName.slice(0,1);
+                    let oriFieldArr = item.fToSLevel.skillFields && JSON.parse(item.fToSLevel.skillFields);
+                    let oriField = '', oriLevel = ''; //测试通过，显示等级、领域
+                    if(typeof oriFieldArr === 'object'){
+                        oriFieldArr.forEach(fd => {
+                            oriField += `<i> ${fd} </i>`;
+                        });
+                    }
+                    if(item.fToSLevel.nextExamLevel){
+                        oriLevel = `<i class="level">${item.fToSLevel.nextExamLevel}</i>`;
+                    }
+                    let isOriPass = '';
+                    if(item.fToSLevel.passedStatue === '未测试'){
+                        isOriPass = `<span>${item.fToSLevel.passedStatue}</span>`;
+                    }else{
+                        isOriPass = `<label class="pass">${oriLevel + oriField}</label>`;
+                    }
+                    let oriTransBtn = item.fToSLevel.isEnableExam
+                        ? `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
+                                           onclick="$.skillTest({
+                                                        title: '翻译题说明',
+                                                        txt: promptTxt.skillTranslation,
+                                                        href: 'test/translation?id=${item.fToSLevel.id}&l=${encodeURI(oriTrans)}&o=${encodeURI(item.fToSLevel.originLanguageName)}&t=${encodeURI(item.fToSLevel.targetLanguageName)}'
+                                                    });">${oriBtnTxt}</button>`
+                        : `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
+                    //译->原
+                    let tarBtnTxt = '开始测试';
+                    if(!(item.sToFLevel.level === null || item.sToFLevel.level === 0)){
+                        tarBtnTxt = '升级测试';
+                    }
+                    let tarTrans = item.targetLanguageName.slice(0,1)+`译`+item.originLanguageName.slice(0,1);
+                    let tarFieldArr = item.sToFLevel.skillFields && JSON.parse(item.sToFLevel.skillFields);
+                    let tarField = '', tarLevel = '';
+                    if(typeof tarFieldArr === 'object'){
+                        tarFieldArr.forEach(fd => {
+                            tarField += `<i> ${fd} </i>`;
+                        });
+                    }
+                    if(item.sToFLevel.nextExamLevel){
+                        tarLevel = `<i class="level">${item.sToFLevel.nextExamLevel}</i>`;
+                    }
+                    let isTarPass = '';
+                    if(item.sToFLevel.passedStatue === '未测试'){
+                        isTarPass = `<span>${item.sToFLevel.passedStatue}</span>`;
+                    }else{
+                        isTarPass = `<label class="pass">${tarLevel + tarField}</label>`;
+                    }
+                    let tarTransBtn = item.sToFLevel.isEnableExam
+                        ? `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
+                                           onclick="$.skillTest({
+                                                        title: '翻译题说明',
+                                                        txt: __bundle__.promptTxt.skillTranslation,
+                                                        href: 'test/translation?id=${item.sToFLevel.id}&l=${encodeURI(oriTrans)}&o=${encodeURI(item.fToSLevel.targetLanguageName)}&t=${encodeURI(item.fToSLevel.originLanguageName)}'
+                                                    });">${tarBtnTxt}</button>`
+                        : `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
+
+                    //未测试，可删除
+                    let isDelete = item.choiceLevel.passedStatue === '未测试' ? `<a class="sy-delete" href="javascript:__api__.deletePageSkill('${item.id}');">删除</a>`:'';
+                    languageStr += `
+                        <div class="item">
+                            <div>
+                                <h1>${item.targetLanguageName}</h1>
+                                <h1>${item.targetLanguageCode}</h1>
+                            </div>
+                            <div class="item-cnt">
+                                <table>
+                                    <tr>
+                                        <td>选择题</td>
+                                        <td>${choiceStatus}</td>
+                                        <td>${isChoice}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ver-top">翻译题</td>
+                                        <td>
+                                            <p><span class="lan">${oriTrans}</span>${isOriPass}</p>
+                                            <p><span class="lan">${tarTrans}</span>${isTarPass}</p>
+                                        </td>
+                                        <td align="right">
+                                            <p>${oriTransBtn}</p>
+                                            <p>${tarTransBtn}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <a class="sy-delete" href="javascript:__api__.deletePageSkill('${item.id}');">删除</a>
+                        </div>`;
+                });
+                languageDiv.html(res.data.length > 0 ? languageStr : `<div class="bg"></div>`);
+            }
+        });
+    }
+
+</script>

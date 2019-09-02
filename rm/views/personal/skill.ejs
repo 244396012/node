@@ -1,87 +1,273 @@
 <% include skill_nav.ejs %>
-<div class="personal skill">
-    <div class="am-g">
-        <div class="am-u-lg-9 sy-bold sy-font-lg">您还未做任何的语言选择，请选择您最擅长的语言，开始接单接到手软之旅~</div>
+<div class="preTestSet">
+    <div class="personal skill">
+        <div class="am-g">
+            <div class="am-u-lg-9 sy-bold sy-font-lg">您还未做任何的语言选择，请选择您最擅长的语言，开始接单接到手软之旅~</div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-lg-12 sy-font-md" style="margin: 1.2rem 0;">请选择最擅长的语言对</div>
+            <div class="am-u-lg-12 language-pair">
+                <select class="language-control originLan">
+                    <option value="">请选择源语言</option>
+                </select>
+                <select class="language-control targetLan">
+                    <option value="">请选择目标语言</option>
+                </select>
+                <button type="button" class="sy-btn sy-btn-green sy-btn-md sy-font-md beginTestBtn">进行测试</button>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-lg-12 language-cnt languageCnt">
+                <div class="bg"></div>
+            </div>
+        </div>
+        <div class="uploadFile sy-hidden"></div>
     </div>
-    <div class="am-g">
-        <div class="am-u-lg-12 sy-font-md" style="margin: 1.2rem 0;">最多只能选择2项外语语种</div>
-        <div class="am-u-lg-12" style="position: relative;">
-            <ul class="sy-font-md language-list languageList"></ul>
-            <span class="sy-font-md sy-center sy-hidden more" data-sy-more="false" title="展开"><i class="am-icon-angle-down"></i></span>
+    <div class="am-modal am-modal-confirm skill-modal beginTestModal">
+        <div class="am-modal-dialog" style="width: 640px;">
+            <div class="am-modal-hd">选择擅长领域
+                <a href="javascript: void(0)"
+                   class="am-close am-close-spin"
+                   data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd sy-font-md sy-left">
+                <div>请选择您最擅长的行业领域(单选)</div>
+                <div class="wrap-item areaWrap single"></div>
+                <div>请选择二级标签(多选) <span class="tip">选择适合自己的标签，系统推单更精准哦~</span></div>
+                <div class="wrap-item labelWrap multi"></div>
+            </div>
+            <div class="am-modal-footer" style="margin: 1rem 0 2rem">
+                <span class="sy-btn sy-btn-green sy-btn-sm confirmBtn" data-am-modal-confirm>确 认</span>
+                <span class="am-modal-btn sy-btn sy-btn-white sy-btn-sm" data-am-modal-cancel>取 消</span>
+            </div>
         </div>
     </div>
-    <div class="am-g">
-        <div class="am-u-lg-12 language-cnt languageCnt">
-            <div class="bg"></div>
+    <div class="am-modal am-modal-confirm skill-modal fileModal">
+        <div class="am-modal-dialog" style="width: 540px;">
+            <div class="am-modal-hd">上传文档
+                <span class="tips sy-font-md"> 上传曾翻译的相关文档，请静待工作人员审核</span>
+                <a href="javascript: void(0)"
+                   class="am-close am-close-spin"
+                   data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd sy-font-md sy-left">
+                <input class="multipleFile sy-hidden" type="file" multiple>
+                <div class="before-upload">
+                    上传文档：
+                    <input type="text" class="sy-input" placeholder="请选择文件"
+                           onclick="$('.multipleFile').click()">
+                    <button type="button"
+                            onclick="$('.multipleFile').click()"
+                            class="sy-btn sy-btn-green sy-btn-sm selectFileBtn">选择文件</button>
+                </div>
+                <div style="padding-left: 76px;padding-top: 5px;">
+                    <p class="tips sy-orange">* 上传1~3篇文档即可</p>
+                    <div class="files filesList">
+
+                    </div>
+                </div>
+            </div>
+            <div class="am-modal-footer" style="margin: 1rem 0 2rem">
+                <span class="sy-btn sy-btn-green sy-btn-sm confirmBtn" data-am-modal-confirm>确 认</span>
+                <span class="am-modal-btn sy-btn sy-btn-white sy-btn-sm" data-am-modal-cancel>取 消</span>
+            </div>
         </div>
     </div>
 </div>
 <script>
-    //获取语言
-    __api__.getResponse({
-        url: '/language/listAll'
-    }).then(res => {
-        var optionStr = '';
-        if(res.message === 'success'){
-            res.data.forEach((item, index) => {
-                if(item.englishName !== 'zh-CN'){
-                    if(index < 7){
-                        optionStr += `<li data-value="${item.englishName}">${item.chineseName}</li>`;
-                    }else{
-                        optionStr += `<li class="sy-more sy-hidden" data-value="${item.englishName}">${item.chineseName}</li>`;
-                    }
-                }
+    (function ($) {
+
+        //获取擅长语言
+        __api__.getAdeptLanguageList();
+
+        //获取源语言、目标语言
+        __api__.getResponse({
+            url: '/language/listAll'
+        }).then(res => {
+            var optionStr = '';
+            res.data.forEach(function(item){
+                optionStr += '<option value="'+ item.chineseName +','+ item.englishName +'">'+ item.chineseName +'</option>';
             });
-            $('.languageList').html(optionStr);
-            $('span.more').removeClass('sy-hidden');
-            //获取擅长语言
-            __api__.getPageSkill();
-        }
-    });
-    //选择语种
-    $('ul.languageList').on('click', function (e) {
-        var target = $(this);
-        if(e.target.nodeName === 'LI'){
-           var _this = $(e.target);
-           if(_this.hasClass('active')) return;
-           if(target.find('li.active').length < 2){
-               const targetCode = _this.attr('data-value'),
-                   targetName = _this.html();
-               $.loading('数据获取中');
-               __api__.getResponse({
-                   type: 'post',
-                   url: '/exam/customer/createAdepetLanguage',
-                   data: {
-                       originLanguageCode: 'zh-CN',
-                       originLanguageName: '中文 - 中国',
-                       secondLuanguageCode: targetCode,
-                       secondLuanguageName: targetName
-                   }
-               }).then(res => {
-                   if(res.message === 'success'){
-                       _this.addClass('active');
-                       __api__.getPageSkill();
-                   }else{
-                       $.error(res.message);
-                   }
-               });
-           }else {
-               $.warning('最多选择2项语种');
-               return false;
-           }
-       }
-    });
-    //展开、收缩语种
-    $('span.more').on('click', function () {
-        var _this = $(this);
-        var target = $('ul.languageList'),
-            isHide = _this.attr('data-sy-more');
-        if(isHide === 'false'){
-            target.find('li.sy-more').removeClass('sy-hidden');
-            _this.attr({'data-sy-more': 'true', 'title': '收起'}).html('<i class="am-icon-angle-up">');
-        }else{
-            target.find('li.sy-more').addClass('sy-hidden');
-            _this.attr({'data-sy-more': 'false', 'title': '展开'}).html('<i class="am-icon-angle-down">');
-        }
-    });
+            $('.originLan').append(optionStr);
+            $('.targetLan').append(optionStr);
+        });
+        //获取一级领域
+        __api__.getResponse({
+            url: '/domain/listDomain'
+        }).then(res => {
+            var areaStr = '';
+            res.data.forEach(function(item){
+                areaStr += '<span data-value="'+ item.fullSpecialtyName +','+ item.id +'" data-pid="'+ item.specialtyId +'">'+ item.fullSpecialtyName +'</span>';
+            });
+            $('.areaWrap').html(areaStr);
+        });
+
+        //文件上传，判断文件大小、格式和数量
+        $('.multipleFile').change(function (e) {
+            var _this = this,
+                files = _this.files;
+            if(files.length > 3){
+                alert('文件数量超过限制');
+                _this.value = '';
+                return false;
+            }
+            var fileStr = '';
+            for(var i = 0, len = files.length; i<len; i++){
+                var file = files[i];
+                if(!/\.(doc|docx|pdf)$/.test(file.name)){
+                    alert(file.name+'文件格式不符合');
+                    _this.value = '';
+                    return false;
+                }else if((file.size/1024)*3 > 1024*3){
+                    alert(file.name+'文件大小超过3M');
+                    _this.value = '';
+                    return false;
+                }
+                fileStr += `
+                    <div class="file-item" data-index="${i}">${file.name}
+                        <a href="javascript:;"
+                           class="sy-orange delFile"
+                           onclick="this.parentNode.remove()" >删除</a>
+                    </div>
+                `;
+            }
+            $('.filesList').html(fileStr);
+        });
+
+        // div.preTestSet 添加click事件委托
+        $('.preTestSet').click(function (e) {
+            var target = e.target,
+                parentNode = target.parentNode;
+            //上传文件模态框
+            if($(target).hasClass('fileBtn')) {
+                $('.fileModal').modal({
+                    closeViaDimmer: false,
+                    onConfirm: function (e) {
+                        //上传文件
+                        var files = $('.multipleFile')[0].files,
+                            indexEl = $('.file-item');
+                        var fd = new FormData();
+                        fd.append("id", target.id);
+                        for(var i = 0, len = indexEl.length; i<len; i++){
+                            var idx = indexEl[i].dataset.index;
+                            fd.append("multipartFile", files[idx]);
+                        }
+                        if(indexEl.length < 1){
+                            $.warning('请先选择文件');
+                            return false;
+                        }
+                        $.loading('上传中...');
+                        $('.fileModal button[data-am-modal-confirm]')
+                            .attr('disabled','disabled')
+                            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                        $.ajax({
+                            url:  __api__.baseRMUrl + '/exam/customer/applyGreenChannel',
+                            type: "POST",
+                            data: fd,
+                            processData: false,
+                            contentType: false,
+                            success: function (res) {
+                                $('.my-loading').remove();
+                                if(res.message === 'success'){
+                                    $.success('上传成功');
+                                    setTimeout('location.reload()', 1000);
+                                }else{
+                                    $.error(res.message);
+                                }
+                            }
+                        });
+                    },
+                    onCancel: function (e) {}
+                });
+            //点击"进行测试"按钮，弹出领域模态框
+            }else if($(target).hasClass('beginTestBtn')){
+                var originLan = $('.originLan').val(),
+                    targetLan = $('.targetLan').val();
+                if(originLan === '' || targetLan === ''){
+                    $.warning('请先选择语言对');
+                    return false;
+                }else if(originLan === targetLan){
+                    $.warning('请选择不同的语言对');
+                    return false;
+                }
+                //擅长领域模态框
+                $('.beginTestModal').modal({
+                    closeViaDimmer: false,
+                    onConfirm: function (e) {
+                        //创建擅长领域
+                        //确认，判断选择条件
+                        var firstAreaEl = $('.areaWrap>span.selected'),
+                            secondAreaEl = $('.labelWrap>span.selected');
+                        if(firstAreaEl.length < 1 || secondAreaEl.length < 1){
+                            $.warning('请先选择擅长领域');
+                            return false;
+                        }
+                        var firstAreaName = firstAreaEl.attr('data-value').split(',').slice(0,1),
+                            firstAreaId = firstAreaEl.attr('data-value').split(',').slice(1);
+                        var secondAreaName = [], secondAreaId = [];
+                        secondAreaEl.toArray().forEach(function (item) {
+                            var val = $(item).attr('data-value').split(',');
+                            secondAreaName.push(val[0]);
+                            secondAreaId.push(val[1]);
+                        })
+                        var data = {
+                            originLanguageName: originLan.split(',')[0],
+                            originLanguageCode: originLan.split(',')[1],
+                            targetLuanguageName: targetLan.split(',')[0],
+                            targetLuanguageCode: targetLan.split(',')[1],
+                            domian: JSON.stringify(firstAreaName),
+                            domainId: JSON.stringify(firstAreaId),
+                            subDomain: JSON.stringify(secondAreaName),
+                            subDomianId: JSON.stringify(secondAreaId)
+                        };
+                        $('.confirmBtn')
+                            .attr('disabled','disabled')
+                            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                        //发送ajax请求
+                        __api__.getResponse({
+                            type: 'post',
+                            url: '/exam/customer/createAdepetLanguage',
+                            data: data
+                        }).then(res => {
+                            if(res.message === 'success'){
+                                $.success('创建成功');
+                                $('.beginTestModal').modal('close');
+                                $('.language-control').val('');
+                                $('.areaWrap>span.selected').removeClass('selected');
+                                $('.labelWrap').empty();
+                                $('.confirmBtn').removeAttr('disabled').html('确 认');
+                                //重新获取列表
+                                __api__.getAdeptLanguageList();
+                            }else{
+                                $.error(res.message);
+                            }
+                        })
+                    },
+                    onCancel: function (e) {}
+                })
+
+            //选择一级领域(单选)
+            }else if(target.nodeName === 'SPAN' && $(parentNode).hasClass('single')){
+                $(target).addClass('selected').siblings().removeClass('selected');
+                var pid = $(target).attr('data-pid'),
+                    targetEl = $('.labelWrap');
+                targetEl.empty();
+                //获取二级领域
+                __api__.getResponse({
+                    url: '/domain/listSub?pSpecialtyId='+pid
+                }).then(res => {
+                    var areaStr = '';
+                    if(res.message === 'success'){
+                        res.data.forEach(function(item){
+                            areaStr += '<span data-value="'+ item.fullSpecialtyName +','+ item.id +'" data-pid="'+ item.specialtyId +'">'+ item.fullSpecialtyName +'</span>';
+                        });
+                        targetEl.html(areaStr);
+                    }
+                });
+            //选择二级标签(多选)
+            }else if(target.nodeName === 'SPAN' && $(parentNode).hasClass('multi')){
+                $(target).toggleClass('selected');
+            }
+        });
+    })(jQuery);
 </script>

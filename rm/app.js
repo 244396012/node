@@ -52,7 +52,7 @@ app.use(logger('dev'));//logger
 //获取路由
 const pageRoute = require('./routes'),
       pageOrderRoute = require('./routes/orderRoute'),
-      pageInfoRoute = require('./routes/informationRoute'),
+      pageInfoRoute = require('./routes/infoRoute'),
       pageUserRoute = require('./routes/userRoute'),
       pageUserArticleRoute = require('./routes/userArticleRoute'),
       pageArticleRoute = require('./routes/articleRoute');

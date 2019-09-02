@@ -420,7 +420,23 @@ input[type=radio]{vertical-align: text-top}
 .am-checkbox.am-success .am-ucheck-checkbox:checked+.am-ucheck-icons {
   color: $baseColor;
 }
-
+.am-modal{
+  .am-modal-hd{
+    padding: 15px 0;
+    margin: 0 15px;
+    text-align: left;
+    border-bottom: 1px dashed #dedede;
+  }
+  .am-modal-bd{
+    padding: 25px;
+    border-bottom: none;
+  }
+  [data-am-modal-close]{
+    right: 12px;
+    top: 12px;
+    font-size: 30px;
+  }
+}
 .am-modal-btn.sy-btn{
   display: inline-block!important;
   border-radius: 4px!important;
@@ -436,6 +452,9 @@ input[type=radio]{vertical-align: text-top}
 }
 .am-modal-btn+.am-modal-btn{
   margin-left: 20px;
+}
+.am-popover-inner{
+  font-size: 14px;
 }
 
 .my-tip{
@@ -491,4 +510,8 @@ p.tips{
   &.orange{
     color: #f1562a;
   }
+}
+span.tips{
+  font-size: 12px;
+  color: #999;
 }
