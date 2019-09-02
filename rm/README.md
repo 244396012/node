@@ -15,7 +15,7 @@
 					
 ### personal 个人中心   ---------------- 需要登录
                                      
-### personalArticle 译员个人文章 ------- 需要登录
+### personalArticle 译员个人文章 ---- 需要登录
 
 ### shared 模版、公共组件
 
