@@ -26,7 +26,7 @@ import './server_freelancer';
 
 })(window.__api__||{}, window);
 
-// 个人中心 对外api
+// 个人中心 对外api调用
 (function (global){
 
     const __api__ = {
@@ -48,10 +48,11 @@ import './server_freelancer';
         getApplicationCode: serverPersonal.getApplicationCode,
         getAdviceList: serverPersonal.getAdviceList,
         getAppraiseList: serverPersonal.getAppraiseList,
-        getFinanceInfo: serverPersonal.getFinanceInfo,
-        getFinanceList: serverPersonal.getFinanceList,
-        judgeFinanceInfo: serverPersonal.judgeFinanceInfo,
-        getFinanceTax: serverPersonal.getFinanceTax,
+        getAccountAmount: serverPersonal.getAccountAmount,
+        getIncomeDetail: serverPersonal.getIncomeDetail,
+        judgeWithdrawLimit: serverPersonal.judgeWithdrawLimit,
+        commitWithdraw: serverPersonal.commitWithdraw,
+        getTaxRate: serverPersonal.getTaxRate,
         getUserAllInfo: serverPersonal.getUserAllInfo,
         getSafetyResult: serverPersonal.getSafetyResult,
         modifyPwd: serverPersonal.modifyPwd,

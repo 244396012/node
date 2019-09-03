@@ -77,6 +77,10 @@
 <script>
     (function ($) {
 
+        var ubase = localStorage.getItem('sy_rm_client_ubase'),
+            ubaseObj = ubase && JSON.parse(ubase);
+        if(ubaseObj.isTeam === 1)  return;
+
         //获取擅长语言
         __api__.getAdeptLanguageList();
 
@@ -91,6 +95,7 @@
             $('.originLan').append(optionStr);
             $('.targetLan').append(optionStr);
         });
+
         //获取一级领域
         __api__.getResponse({
             url: '/domain/listDomain'
@@ -179,7 +184,7 @@
                     },
                     onCancel: function (e) {}
                 });
-            //点击"进行测试"按钮，弹出领域模态框
+                //点击"进行测试"按钮，弹出领域模态框
             }else if($(target).hasClass('beginTestBtn')){
                 var originLan = $('.originLan').val(),
                     targetLan = $('.targetLan').val();
@@ -235,18 +240,19 @@
                                 $('.language-control').val('');
                                 $('.areaWrap>span.selected').removeClass('selected');
                                 $('.labelWrap').empty();
-                                $('.confirmBtn').removeAttr('disabled').html('确 认');
+
                                 //重新获取列表
                                 __api__.getAdeptLanguageList();
                             }else{
                                 $.error(res.message);
                             }
+
                         })
                     },
                     onCancel: function (e) {}
                 })
 
-            //选择一级领域(单选)
+                //选择一级领域(单选)
             }else if(target.nodeName === 'SPAN' && $(parentNode).hasClass('single')){
                 $(target).addClass('selected').siblings().removeClass('selected');
                 var pid = $(target).attr('data-pid'),
@@ -264,10 +270,11 @@
                         targetEl.html(areaStr);
                     }
                 });
-            //选择二级标签(多选)
+                //选择二级标签(多选)
             }else if(target.nodeName === 'SPAN' && $(parentNode).hasClass('multi')){
                 $(target).toggleClass('selected');
             }
         });
+
     })(jQuery);
 </script>

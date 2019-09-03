@@ -10,8 +10,8 @@
     </div>
     <div class="am-g">
         <div class="am-u-lg-3 extra sy-right" style="height: 128px">
-            <img id="headerIcon" src="<%= data.data.picturePath?data.data.picturePath:'/static/image/personal-default-head.png' %>" alt="头像">
-            <div id="upload" class="sy-hidden"></div>
+            <img src="<%= data.data.picturePath?data.data.picturePath:'/static/image/personal-default-head.png' %>" alt="头像">
+            <div class="uploadFile sy-hidden"></div>
             <div class="upload-btn sy-center" onclick="$('a.uploadify-button').click()">
                 <i class="sy-personal-icon sy-personal-icon-head"></i>
             </div>
@@ -76,9 +76,9 @@
                     <div class="item">
                         <div><i class="required">*</i>常住地址：</div>
                         <div>
-                            <select class="area-control" name="deliverprovince" id="deliverprovince" required prop="常住地址" ></select>
-                            <select class="area-control" name="delivercity" id="delivercity"></select>
-                            <select class="area-control" name="deliverarea" id="deliverarea"></select>
+                            <select class="area-control province" name="deliverprovince" id="deliverprovince" required prop="常住地址" ></select>
+                            <select class="area-control city" name="delivercity" id="delivercity"></select>
+                            <select class="area-control area" name="deliverarea" id="deliverarea"></select>
                         </div>
                     </div>
                     <div class="item">
@@ -146,7 +146,7 @@
         <div class="am-u-lg-3 extra sy-right"></div>
         <div class="am-u-lg-9 extra">
             <div class="sy-personal-cnt">
-                <form class="sy-personal-form sy-personal-base <%= data.data.nickName?'sy-hidden':'' %>"><!--未编辑时，添加class: sy-disabled-->
+                <form class="sy-personal-form sy-personal-base <%= data.data.nickName?'sy-hidden':'' %>">
                     <div class="item">
                         <div>手机：</div>
                         <div><input id="telephone" type="tel" disabled></div>
@@ -229,18 +229,18 @@
                 $('#'+prop).val(hiddenData.data[prop]);
             }
             for(var prop in hiddenData.data.userExtension){
-                var val = hiddenData.data.userExtension[prop];
-                $('#'+prop).val(val);
+                var itemDt = hiddenData.data.userExtension[prop];
                 if(prop === 'birthday'){
-                    val && $('#birthday').val(val.split(' ')[0]);
+                    $('#birthday').val(itemDt.split(' ')[0]);
                 }else if(prop === 'currencyCode'){
-                    $('#currencyType').val(val);
+                    $('#currencyType').val(itemDt);
                 }else if(prop === 'permanentAddress'){
-                    $('#deliverprovince').val(val.split(' ')[0]).change();
-                    $('#delivercity').val(val.split(' ')[1]);
-                    $('#deliverarea').val(val.split(' ')[2]);
+                    var localArr = itemDt.split(' ');
+                    $('select.province').val(localArr[0]).change();
+                    $('select.city').val(localArr[1]);
+                    $('select.area').val(localArr[2]);
                 }else if(prop === 'contactInfo'){
-                    var arr = JSON.parse(val),
+                    var arr = JSON.parse(itemDt),
                         itemStr = '';
                     for(var i = 0, len = arr.length; i<len; i++){
                         var item = arr[i];
@@ -254,6 +254,8 @@
                                 </div>`;
                     }
                     $('.addItemTarget').before(itemStr);
+                }else {
+                    $('#'+prop).val(itemDt);
                 }
             }
             $('#nationality').trigger('changed.selected.amui');

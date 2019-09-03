@@ -54,7 +54,7 @@ const articleServer = (function (global, document, $, undefined){
                 $.warning('请输入评论内容');
                 return null;
             }
-            const globalData = $('#loginUserBase').html();
+            const globalData = localStorage.getItem('sy_rm_client_ubase');
             const nickName = globalData ? JSON.parse(globalData).nickName : '';
             targetEl.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
             targetEl.setAttribute('disabled', true);
@@ -121,7 +121,7 @@ const articleServer = (function (global, document, $, undefined){
             if(localDataEl.length > 0){
                 localData = JSON.parse(localDataEl.html());
             }
-            let globalData = $('#loginUserBase').html();
+            let globalData = localStorage.getItem('sy_rm_client_ubase');
             const nickName = globalData ? JSON.parse(globalData).nickName : '';
             targetEl.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
             targetEl.setAttribute('disabled', true);
@@ -468,7 +468,7 @@ const articleServer = (function (global, document, $, undefined){
                 return null;
             }
         }
-        const user = JSON.parse($("#loginUserBase").html());
+        const user = JSON.parse(localStorage.getItem('sy_rm_client_ubase'));
         const previewData = {
             title: title.value,
             label: label.value,

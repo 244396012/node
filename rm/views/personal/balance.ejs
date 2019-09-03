@@ -76,6 +76,7 @@
             <div class="sy-pd-t-30 sy-center">
                 <button type="button"
                         disabled
+                        onclick="__api__.commitWithdraw(this)"
                         class="sy-btn sy-btn-green sy-btn-sh sy-font-md withdrawalBtn">申请提现</button>
             </div>
         </div>
@@ -128,10 +129,10 @@
 </div>
 <script type="text/javascript" src="/static/lib/pagination.js"></script>
 <script>
-$(function () {
+(function ($) {
 
-    __api__.getFinanceInfo();
-    __api__.judgeFinanceInfo();
+    __api__.getAccountAmount();
+    __api__.judgeWithdrawLimit();
 
     //显示金额
     $('.toggleTotal').on('click', function() {
@@ -145,14 +146,14 @@ $(function () {
     //计算税率
     var amountEl = document.getElementsByClassName('withdrawalAmount')[0];
     amountEl.addEventListener('input',__bundle__.throttleFn(function () {
-        __api__.getFinanceTax(this);
+        __api__.getTaxRate(this);
     }, 500), false);
 
     //全部提现
     $('.drawAll_Balance').click(function () {
         var money = $('#outMoney_Balance').attr('data-num');
         amountEl.value = money;
-        __api__.getFinanceTax(amountEl);
+        __api__.getTaxRate(amountEl);
     });
 
     //勾选协议
@@ -161,23 +162,23 @@ $(function () {
     });
 
     //收入明细
-    var listFinanceFn = __api__.getFinanceList();
+    var detailFn = __api__.getIncomeDetail();
 
     $('label.incomeFilter').on('click', function () {
         var _this = this,
             type = _this.getAttribute('data-type');
         $(_this).addClass('active').siblings().removeClass('active');
-        listFinanceFn.set({
+        detailFn.set({
             xhr : {
                 data : {
                     dateFilterStr: type,
                     page: 0,
-                    limit: listFinanceFn.o.limit
+                    limit: detailFn.o.limit
                 }
             }
         }, true);
     });
 
-});
+}(jQuery));
 
 </script>

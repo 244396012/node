@@ -3,14 +3,26 @@
         <a class="item" href="/personal/skill">文本翻译</a>
         <a class="item" href="/personal/skill/typeset">桌面排版</a>
         <a class="item" href="/personal/skill/meeting">会&nbsp;&nbsp;展</a>
-        <a class="item" href="/personal/skill/assign">外&nbsp;&nbsp;派</a>
-        <a class="item" href="/personal/skill/train">培&nbsp;&nbsp;训</a>
-        <a class="item" href="/personal/skill/device">设&nbsp;&nbsp;备</a>
-        <a class="item" href="/personal/skill/setup">搭&nbsp;&nbsp;建</a>
+        <a class="item user sy-hidden" href="/personal/skill/assign">外&nbsp;&nbsp;派</a>
+        <a class="item user sy-hidden" href="/personal/skill/train">培&nbsp;&nbsp;训</a>
+        <a class="item team sy-hidden" href="/personal/skill/device">设&nbsp;&nbsp;备</a>
+        <a class="item team sy-hidden" href="/personal/skill/setup">搭&nbsp;&nbsp;建</a>
     </div>
 </nav>
 <script>
     (function ($) {
+
+        // 1：团队，其他为个人
+        var ubase = localStorage.getItem('sy_rm_client_ubase'),
+            ubaseObj = ubase && JSON.parse(ubase);
+        if(ubaseObj.isTeam === 1){
+            $('.item.team').removeClass('sy-hidden');
+            $('.item.user').remove();
+            $('.beginTestBtn').prop('disabled', true).html('不可测试');
+        }else{
+            $('.item.user').removeClass('sy-hidden');
+            $('.item.team').remove();
+        }
 
     //添加active
         var pathname = location.pathname;
@@ -26,113 +38,115 @@
 
         setTimeout("$('.am-selected-status').html('请选择二级领域')", 1500);
 
-    //获取语言对
-        __api__.getResponse({
-            url: '/language/listAll'
-        }).then(res => {
-            var optionStr = '';
-            res.data.forEach(function(item){
-                optionStr += '<option value="'+ item.chineseName +','+ item.englishName +'">'+ item.chineseName +'</option>';
-            });
-            $('.freelancerLan').append(optionStr);
-        });
+        var targetEl = document.getElementsByClassName('resource').item(0);
+        if(targetEl){
 
-    //获取一级领域
-        __api__.getResponse({
-            url: '/domain/listDomain'
-        }).then(res => {
-            var areaStr = '';
-            res.data.forEach(function(item){
-                areaStr += '<option value="'+ item.fullSpecialtyName +','+ item.specialtyId +'">'+ item.fullSpecialtyName +'</option>';
-            });
-            $('.freelancerField_1').append(areaStr);
-        });
-
-    //获取二级领域
-        $('.freelancerField_1').change(function () {
-            var val = this.value,
-                pid = val.split(',')[1];
-            var field = $('.freelancerField_2');
-            if(!pid){
-                field.empty();
-                return false;
-            }
+            //获取语言对
             __api__.getResponse({
-                url: '/domain/listSub?pSpecialtyId='+pid
+                url: '/language/listAll'
+            }).then(res => {
+                var optionStr = '';
+                res.data.forEach(function(item){
+                    optionStr += '<option value="'+ item.chineseName +','+ item.englishName +'">'+ item.chineseName +'</option>';
+                });
+                $('.freelancerLan').append(optionStr);
+            });
+
+            //获取一级领域
+            __api__.getResponse({
+                url: '/domain/listDomain'
             }).then(res => {
                 var areaStr = '';
                 res.data.forEach(function(item){
                     areaStr += '<option value="'+ item.fullSpecialtyName +','+ item.specialtyId +'">'+ item.fullSpecialtyName +'</option>';
                 });
-                field.html(areaStr);
-                field.find('option').eq(0).prop('selected', true);
-            })
-        });
+                $('.freelancerField_1').append(areaStr);
+            });
 
-    //div.resource对象添加“click”事件委托
-        var targetEl = document.getElementsByClassName('resource').item(0);
-        targetEl && targetEl.addEventListener('click', function (e) {
-            var event = e || window.event,
-                target = event.target || event.srcElement;
-            var parentNode = target.parentNode;
-            event.preventDefault();
-            //span标签添加“selected”
-            if(target.nodeName === 'SPAN' && $(parentNode).hasClass('labels')) {
-                if ($(parentNode).hasClass('single')) {
-                    $(target).addClass('selected').siblings().removeClass('selected');
-                } else {
-                    $(target).toggleClass('selected');
-                }
-            //添加语种
-            }else if($(target).hasClass('addLanPair')) {
-                var targetTbody = $('.lanTarget'),
-                    language = $('.freelancerLan').val(),
-                    field1 = $('.freelancerField_1').val(),
-                    field2 = $('.freelancerField_2').val(); //null或[]
-                if (language === '' || field1 === '' || !field2) {
-                    $.warning('请填写语种信息');
+            //获取二级领域
+            $('.freelancerField_1').change(function () {
+                var val = this.value,
+                    pid = val.split(',')[1];
+                var field = $('.freelancerField_2');
+                if(!pid){
+                    field.empty();
                     return false;
                 }
-                var hideData = {
-                    langaugeName: language.split(',')[0],
-                    languageCode: language.split(',')[1],
-                    firstAreaName: field1.split(',')[0],
-                    firstAreaCode: field1.split(',')[1],
-                    secondAreaName: field2.reduce(function (prev, cur) {
-                        return prev+','+cur.split(',')[0]
-                    }, '').slice(1),
-                    secondAreaCode: field2.reduce(function (prev, cur) {
-                        return prev+','+cur.split(',')[1]
-                    }, '').slice(1)
-                };
-                targetTbody.append(
-                    `<tr>
+                __api__.getResponse({
+                    url: '/domain/listSub?pSpecialtyId='+pid
+                }).then(res => {
+                    var areaStr = '';
+                    res.data.forEach(function(item){
+                        areaStr += '<option value="'+ item.fullSpecialtyName +','+ item.specialtyId +'">'+ item.fullSpecialtyName +'</option>';
+                    });
+                    field.html(areaStr);
+                    field.find('option').eq(0).prop('selected', true);
+                })
+            });
+
+            //div.resource对象添加“click”事件委托
+            targetEl.addEventListener('click', function (e) {
+                var event = e || window.event,
+                    target = event.target || event.srcElement;
+                var parentNode = target.parentNode;
+                event.preventDefault();
+                //span标签添加“selected”
+                if(target.nodeName === 'SPAN' && $(parentNode).hasClass('labels')) {
+                    if ($(parentNode).hasClass('single')) {
+                        $(target).addClass('selected').siblings().removeClass('selected');
+                    } else {
+                        $(target).toggleClass('selected');
+                    }
+                    //添加语种
+                }else if($(target).hasClass('addLanPair')) {
+                    var targetTbody = $('.lanTarget'),
+                        language = $('.freelancerLan').val(),
+                        field1 = $('.freelancerField_1').val(),
+                        field2 = $('.freelancerField_2').val(); //null或[]
+                    if (language === '' || field1 === '' || !field2) {
+                        $.warning('请填写语种信息');
+                        return false;
+                    }
+                    var hideData = {
+                        langaugeName: language.split(',')[0],
+                        languageCode: language.split(',')[1],
+                        firstAreaName: field1.split(',')[0],
+                        firstAreaCode: field1.split(',')[1],
+                        secondAreaName: field2.reduce(function (prev, cur) {
+                            return prev+','+cur.split(',')[0]
+                        }, '').slice(1),
+                        secondAreaCode: field2.reduce(function (prev, cur) {
+                            return prev+','+cur.split(',')[1]
+                        }, '').slice(1)
+                    };
+                    targetTbody.append(
+                        `<tr>
                         <td>${hideData.langaugeName}</td>
                         <td>${hideData.firstAreaName}</td>
                         <td width="250">${hideData.secondAreaName}</td>
                         <td><a href="javascript:;" class="del">删 除</a></td>
                         <td class="itemData sy-hidden">${JSON.stringify(hideData)}</td>
                     </tr>`);
-                $(target).prevAll('select').val('');
-                $('.field-2').empty();
-            //添加设备
-            }else if($(target).hasClass('addDevice')){
-                var targetTbody = $('.deviceTarget'),
-                    props = $(target).parents('.labels').attr('prop');
-                var hideData = {
-                    equipName: $('select.device').val(),
-                    equipNum: $('input.device-num').val(),
-                    equipUnit: $('select.device-unit').val(),
-                    equipUnitPrice: $('input.device-price').val()
-                };
-                for(var prop in hideData){
-                    if(hideData[prop] === ''){
-                        $.warning('请填写'+ props);
-                        return false;
+                    $(target).prevAll('select').val('');
+                    $('.field-2').empty();
+                    //添加设备
+                }else if($(target).hasClass('addDevice')){
+                    var targetTbody = $('.deviceTarget'),
+                        props = $(target).parents('.labels').attr('prop');
+                    var hideData = {
+                        equipName: $('select.device').val(),
+                        equipNum: $('input.device-num').val(),
+                        equipUnit: $('select.device-unit').val(),
+                        equipUnitPrice: $('input.device-price').val()
+                    };
+                    for(var prop in hideData){
+                        if(hideData[prop] === ''){
+                            $.warning('请填写'+ props);
+                            return false;
+                        }
                     }
-                }
-                targetTbody.append(
-                    `<tr>
+                    targetTbody.append(
+                        `<tr>
                         <td>${hideData.equipName}</td>
                         <td>${hideData.equipNum}</td>
                         <td>${hideData.equipUnitPrice}</td>
@@ -140,54 +154,55 @@
                         <td><a href="javascript:;" class="del">删 除</a></td>
                         <td class="itemData sy-hidden">${JSON.stringify(hideData)}</td>
                     </tr>`);
-            //提交信息
-            }else if($(target).hasClass('confirmBtn')) {
-                var labelEl = $('form>.labels.single,form>.labels.multiple'),
-                    areaEl = $('select.province'),
-                    remark = $('textarea.remark'),
-                    tbodyEl =  $('.dataTarget');
-                var item, prop, childLen;
-                for (var i = 0, labelLen = labelEl.length; i < labelLen; i++) {
-                    item = labelEl[i];
-                    prop = $(item).attr('prop');
-                    childLen = $(item).find('span.selected');
-                    if (childLen.length < 1) {
-                        $.warning('请填写' + prop);
+                    //提交信息
+                }else if($(target).hasClass('confirmBtn')) {
+                    var labelEl = $('form>.labels.single,form>.labels.multiple'),
+                        areaEl = $('select.province'),
+                        remark = $('textarea.remark'),
+                        tbodyEl =  $('.dataTarget');
+                    var item, prop, childLen;
+                    for (var i = 0, labelLen = labelEl.length; i < labelLen; i++) {
+                        item = labelEl[i];
+                        prop = $(item).attr('prop');
+                        childLen = $(item).find('span.selected');
+                        if (childLen.length < 1) {
+                            $.warning('请填写' + prop);
+                            return false;
+                        }
+                    }
+                    if(areaEl.length > 0 && areaEl.val() === ''){
+                        $.warning('请先选择服务地区');
                         return false;
                     }
+                    if (tbodyEl.length > 0 && tbodyEl.find('tr').length === 0) {
+                        prop = tbodyEl.parents('.labels').attr('prop');
+                        $.warning('请先添加' + prop);
+                        return false;
+                    }
+                    if(remark.length > 0 && remark.val() === ''){
+                        $.warning('请填写备注信息');
+                        return false;
+                    }
+                    //ajax here
+                    __api__.freelancerCreate(target);
+                }else if($(target).hasClass('del')){
+                    $(target).parents('tr').remove();
+                    //编辑
+                }else if($(target).hasClass('edit') || $(parentNode).hasClass('edit')){
+                    $('.show-info').addClass('sy-hidden');
+                    $('.add-form').removeClass('sy-hidden');
+                    //取消
+                }else if($(target).hasClass('cancelBtn')){
+                    var info = $('.show-info');
+                    if(info.length > 0){
+                        info.removeClass('sy-hidden');
+                        $('.add-form').addClass('sy-hidden');
+                    }
+                    $('.add-form span').removeClass('selected');
+                    $('.confirmBtn').removeAttr('disabled').html('提 交');
                 }
-                if(areaEl.length > 0 && areaEl.val() === ''){
-                    $.warning('请先选择服务地区');
-                    return false;
-                }
-                if (tbodyEl.find('tr').length === 0) {
-                    prop = tbodyEl.parents('.labels').attr('prop');
-                    $.warning('请先添加' + prop);
-                    return false;
-                }
-                if(remark.length > 0 && remark.val() === ''){
-                    $.warning('请填写备注信息');
-                    return false;
-                }
-                //ajax here
-                __api__.freelancerCreate(target);
-            }else if($(target).hasClass('del')){
-                $(target).parents('tr').remove();
-            //编辑
-            }else if($(target).hasClass('edit') || $(parentNode).hasClass('edit')){
-                $('.show-info').addClass('sy-hidden');
-                $('.add-form').removeClass('sy-hidden');
-            //取消
-            }else if($(target).hasClass('cancelBtn')){
-                var info = $('.show-info');
-                if(info.length > 0){
-                    info.removeClass('sy-hidden');
-                    $('.add-form').addClass('sy-hidden');
-                }
-                $('.add-form span').removeClass('selected');
-                $('.confirmBtn').removeAttr('disabled').html('提 交');
-            }
-        }, false);
+            }, false);
+        }
 
     }(jQuery));
 </script>

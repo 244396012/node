@@ -3,46 +3,46 @@
     <div class="am-g sy-personal-hd">
         <div class="am-u-lg-6 sy-center sy-bold">基本信息</div>
         <div class="am-u-lg-6 sy-center sy-person-title">
-            <% if(data.data.nickName){ %>
+            <% if(data.data.teamName){ %>
             <span class="edit"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
             <% } %>
         </div>
     </div>
     <div class="am-g">
         <div class="am-u-lg-3 extra sy-right" style="height: 128px">
-            <img id="headerIcon" src="<%= data.data.picturePath?data.data.picturePath:'/static/image/personal-default-head.png' %>" alt="头像">
-            <div id="upload" class="sy-hidden"></div>
+            <img src="<%= data.data.headerImg?data.data.headerImg:'/static/image/personal-default-head.png' %>" alt="头像">
+            <div class="uploadFile sy-hidden"></div>
             <div class="upload-btn sy-center" onclick="$('a.uploadify-button').click()">
                 <i class="sy-personal-icon sy-personal-icon-head"></i>
             </div>
         </div>
         <div class="am-u-lg-9 extra">
             <div class="sy-personal-cnt">
-                <form class="sy-personal-form sy-personal-base">
+                <form class="sy-personal-form sy-personal-base <%= data.data.teamName?'sy-hidden':'' %>">
                     <div class="item">
                         <div><i class="required">*</i>团队名称：</div>
                         <div>
-                            <input id="nickName" type="text" required placeholder="请输入团队名称"
-                                    <%= data.data.nickName?'disabled':'' %> >
+                            <input id="teamName" type="text" required placeholder="请输入团队名称"
+                                    <%= data.data.teamName?'disabled':'' %> >
                         </div>
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>专职人数：</div>
                         <div>
-                            <input id="realName" type="number" required placeholder="请输入专职人数">
+                            <input id="fullTimeNumber" type="number" required placeholder="请输入专职人数">
+                            <span style="position: absolute;right: 10px;bottom: 6px;background: #fff">人</span>
                         </div>
                     </div>
                     <div class="item">
                         <div style="padding-left: 30px;vertical-align: bottom;line-height: 1"><i class="required">*</i>统一社会信用代码：</div>
                         <div>
-                            <input id="realName" type="text" required placeholder="请输入统一社会信用代码">
-                            <span style="position: absolute;right: 10px;bottom: 6px">人</span>
+                            <input id="unifiedSocialCreditCode" type="text" required placeholder="请输入统一社会信用代码">
                         </div>
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>纳税类型：</div>
                         <div>
-                            <select id="currencyType" required prop="纳税类型">
+                            <select id="typesOfTaxPayment" required prop="纳税类型">
                                 <option value=""></option>
                                 <option value="一般纳税人">一般纳税人</option>
                                 <option value="小规模纳税人">小规模纳税人</option>
@@ -53,7 +53,7 @@
                     <div class="item">
                         <div>发票类型：</div>
                         <div>
-                            <select id="currencyType" prop="发票类型">
+                            <select id="invoiceType" prop="发票类型">
                                 <option value="增值税专用发票">增值税专用发票</option>
                                 <option value="普通发票">普通发票</option>
                                 <option value="不开发票" selected>不开发票</option>
@@ -63,9 +63,9 @@
                     <div class="item">
                         <div><i class="required">*</i>团队所在地：</div>
                         <div>
-                            <select class="area-control" name="deliverprovince" id="deliverprovince" required prop="团队所在地" ></select>
-                            <select class="area-control" name="delivercity" id="delivercity"></select>
-                            <select class="area-control" name="deliverarea" id="deliverarea"></select>
+                            <select class="area-control province" name="deliverprovince" id="deliverprovince" required prop="团队所在地" ></select>
+                            <select class="area-control city" name="delivercity" id="delivercity"></select>
+                            <select class="area-control area" name="deliverarea" id="deliverarea"></select>
                         </div>
                     </div>
                     <div class="item">
@@ -80,51 +80,43 @@
                         </div>
                     </div>
                 </form>
-                <!--<div class="show-info">-->
-                    <!--<div class="item">-->
-                        <!--<div>昵称：</div>-->
-                        <!--<div><%= data.data.nickName %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>姓名：</div>-->
-                        <!--<div><%= data.data.userName %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>性别：</div>-->
-                        <!--<div><%= data.data.sex %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>国籍：</div>-->
-                        <!--<div><%= data.data.userExtension.nationality %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>母语：</div>-->
-                        <!--<div><%= data.data.userExtension.motherTongue %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>出生日期：</div>-->
-                        <!--<div><%= data.data.userExtension.birthday.split(' ')[0] %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>翻译年限：</div>-->
-                        <!--<div><%= data.data.userExtension.translateYear %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>常住地址：</div>-->
-                        <!--<div><%= data.data.userExtension.permanentAddress %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>币种：</div>-->
-                        <!--<div><%= data.data.userExtension.currencyName %></div>-->
-                    <!--</div>-->
-                <!--</div>-->
+                <div class="show-info <%= data.data.teamName?'':'sy-hidden' %>">
+                    <div class="item">
+                        <div>团队名称：</div>
+                        <div><%= data.data.teamName %></div>
+                    </div>
+                    <div class="item">
+                        <div>专职人数：</div>
+                        <div><%= data.data.fullTimeNumber %>人</div>
+                    </div>
+                    <div class="item">
+                        <div style="padding-left: 30px;vertical-align: bottom;line-height: 1">统一社会信用代码：</div>
+                        <div><%= data.data.unifiedSocialCreditCode %></div>
+                    </div>
+                    <div class="item">
+                        <div>纳税类型：</div>
+                        <div><%= data.data.typesOfTaxPayment %></div>
+                    </div>
+                    <div class="item">
+                        <div>发票类型：</div>
+                        <div><%= data.data.invoiceType %></div>
+                    </div>
+                    <div class="item">
+                        <div>团队所在地：</div>
+                        <div><%= data.data.location %></div>
+                    </div>
+                    <div class="item">
+                        <div>币种：</div>
+                        <div><%= data.data.currencyName %></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="am-g sy-personal-hd">
         <div class="am-u-lg-6 sy-center sy-bold">联系方式</div>
         <div class="am-u-lg-6 sy-center sy-person-title">
-            <% if(data.data.nickName){ %>
+            <% if(data.data.teamName){ %>
             <span class="edit"><i class="sy-personal-icon sy-personal-icon-edit"></i>编辑</span>
             <% } %>
         </div>
@@ -133,18 +125,18 @@
         <div class="am-u-lg-3 extra sy-right"></div>
         <div class="am-u-lg-9 extra">
             <div class="sy-personal-cnt">
-                <form class="sy-personal-form sy-personal-base"><!--未编辑时，添加class: sy-disabled-->
+                <form class="sy-personal-form sy-personal-base primaryForm <%= data.data.teamName?'sy-hidden':'' %>">
                     <div class="item">
                         <div><i class="required">*</i>主要联系人：</div>
-                        <div><input id="telephone" type="text"></div>
+                        <div><input id="primaryContactName" type="text"></div>
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>手机号码：</div>
-                        <div><input id="telephone" type="tel" disabled></div>
+                        <div><input id="primaryContactMobile" type="tel" disabled></div>
                     </div>
                     <div class="item">
                         <div>邮箱帐号：</div>
-                        <div><input id="email" type="email" placeholder="请输入邮箱地址"></div>
+                        <div><input id="primaryContactEmail" type="email" placeholder="请输入邮箱地址"></div>
                     </div>
                     <div class="item addItemTarget">
                         <div>
@@ -162,19 +154,19 @@
                         </div>
                     </div>
                 </form>
-                <form class="sy-personal-form sy-personal-base"
+                <form class="sy-personal-form sy-personal-base otherForm <%= data.data.teamName?'sy-hidden':'' %>"
                       style="border-top: 1px solid #eee">
                     <div class="item">
                         <div>其他联系人：</div>
-                        <div><input id="telephone" type="text"></div>
+                        <div><input id="otherContactName" type="text"></div>
                     </div>
                     <div class="item">
                         <div>手机号码：</div>
-                        <div><input id="telephone" type="tel"></div>
+                        <div><input id="otherContactMobile" type="tel" disabled></div>
                     </div>
                     <div class="item">
                         <div>邮箱帐号：</div>
-                        <div><input id="email" type="email" placeholder="请输入邮箱地址"></div>
+                        <div><input id="otherContactEmail" type="email" placeholder="请输入邮箱地址"></div>
                     </div>
                     <div class="item addItemTarget">
                         <div>
@@ -192,25 +184,51 @@
                         </div>
                     </div>
                 </form>
-                <!--<div class="show-info">-->
-                    <!--<div class="item">-->
-                        <!--<div>手机号码：</div>-->
-                        <!--<div><%= data.data.telephone %></div>-->
-                    <!--</div>-->
-                    <!--<div class="item">-->
-                        <!--<div>邮箱帐号：</div>-->
-                        <!--<div><%= data.data.email %></div>-->
-                    <!--</div>-->
-                    <!--<% if(data.data.userExtension.contactInfo){ %>-->
-                        <!--<% _data = JSON.parse(data.data.userExtension.contactInfo) %>-->
-                        <!--<% for(var i = 0; i<_data.length; i++) { %>-->
-                        <!--<div class="item">-->
-                            <!--<div><%= Object.keys(_data[i]) %>：</div>-->
-                            <!--<div><%= Object.values(_data[i]) %></div>-->
-                        <!--</div>-->
-                        <!--<% } %>-->
-                    <!--<% } %>-->
-                <!--</div>-->
+                <div class="show-info <%= data.data.teamName?'':'sy-hidden' %>">
+                    <div class="item">
+                        <div>主要联系人：</div>
+                        <div><%= data.data.primaryContactName %></div>
+                    </div>
+                    <div class="item">
+                        <div>手机号码：</div>
+                        <div><%= data.data.primaryContactMobile %></div>
+                    </div>
+                    <div class="item">
+                        <div>邮箱帐号：</div>
+                        <div><%= data.data.primaryContactEmail %></div>
+                    </div>
+                    <% if(data.data.primaryContactInfo){ %>
+                        <% obj = JSON.parse(data.data.primaryContactInfo) %>
+                        <% for(var i = 0; i<obj.length; i++) { %>
+                        <div class="item">
+                            <div><%= Object.keys(obj[i]) %>：</div>
+                            <div><%= Object.values(obj[i]) %></div>
+                        </div>
+                        <% } %>
+                    <% } %>
+                    <div class="item" style="border-top: 1px solid #eee"></div>
+                    <div class="item">
+                        <div>其他联系人：</div>
+                        <div><%= data.data.otherContactName %></div>
+                    </div>
+                    <div class="item">
+                        <div>手机号码：</div>
+                        <div><%= data.data.otherContactMobile %></div>
+                    </div>
+                    <div class="item">
+                        <div>邮箱帐号：</div>
+                        <div><%= data.data.otherContactEmail %></div>
+                    </div>
+                    <% if(data.data.otherContactInfo){ %>
+                        <% obj = JSON.parse(data.data.otherContactInfo) %>
+                        <% for(var i = 0; i<obj.length; i++) { %>
+                        <div class="item">
+                            <div><%= Object.keys(obj[i]) %>：</div>
+                            <div><%= Object.values(obj[i]) %></div>
+                        </div>
+                        <% } %>
+                    <% } %>
+                </div>
             </div>
         </div>
     </div>
@@ -218,7 +236,8 @@
         <div class="am-u-lg-3 extra sy-right"></div>
         <div class="am-u-lg-9 extra">
             <button onclick="__api__.commitBaseTeamInfo(this)"
-                    class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn"
+                    id="<%= data.data.id %>"
+                    class="btn btn-default sy-btn sy-btn-green sy-btn-md confirmBtn <%= data.data.teamName?'sy-hidden':'' %>"
                     style="margin-left: 140px;font-size: 14px;">提交</button>
         </div>
     </div>
@@ -229,7 +248,7 @@
 <script type="text/javascript" src="/static/lib/area.js"></script>
 <script src="/static/lib/Huploadify.js"></script>
 <script>
-$(function() {
+(function($) {
 
     laydate.render({ elem: '.birthDay' });
     new PCAS("deliverprovince", "delivercity", "deliverarea");
@@ -241,31 +260,28 @@ $(function() {
     $('div.information').on('click', function (e) {
         var event = e || window.event,
             target = event.target || event.srcElement;
-    //编辑时，填充已提交信息
+        //编辑时，填充已提交信息
         if($(target).hasClass('edit')){
-            var hiddenEl = $('.hiddenData'),
-                targetDiv = $(target).parents('.am-g').next('.am-g');
-            var hiddenData = hiddenEl.html() && JSON.parse(hiddenEl.html());
-            for(var prop in hiddenData.data){
-                $('#'+prop).val(hiddenData.data[prop]);
-            }
-            for(var prop in hiddenData.data.userExtension){
-                var val = hiddenData.data.userExtension[prop];
-                $('#'+prop).val(val);
-                if(prop === 'birthday'){
-                    val && $('#birthday').val(val.split(' ')[0]);
-                }else if(prop === 'currencyCode'){
-                    $('#currencyType').val(val);
-                }else if(prop === 'permanentAddress'){
-                    $('#deliverprovince').val(val.split(' ')[0]).change();
-                    $('#delivercity').val(val.split(' ')[1]);
-                    $('#deliverarea').val(val.split(' ')[2]);
-                }else if(prop === 'contactInfo'){
-                    var arr = val && JSON.parse(val),
-                        itemStr = '';
-                    for(var i = 0, len = arr.length; i<len; i++){
-                        var item = arr[i];
-                        itemStr += `
+            var targetDiv = $(target).parents('.am-g').next('.am-g'),
+                isFill = $('#teamName').val();
+            if(!isFill){
+                var hiddenEl = $('.hiddenData').html(),
+                    hiddenData = hiddenEl && JSON.parse(hiddenEl);
+                for(var prop in hiddenData.data){
+                    var itemDt = hiddenData.data[prop];
+                    if(prop === 'currencyCode'){
+                        $('#currencyType').val(itemDt);
+                    }else if(prop === 'location'){
+                        var localArr = itemDt.split(' ');
+                        $('select.province').val(localArr[0]).change();
+                        $('select.city').val(localArr[1]);
+                        $('select.area').val(localArr[2]);
+                    }else if(prop === 'primaryContactInfo' || prop === 'otherContactInfo'){
+                        var dataArr = itemDt && JSON.parse(itemDt),
+                            itemStr = '';
+                        for(var i = 0, len = dataArr.length; i<len; i++){
+                            var item = dataArr[i];
+                            itemStr += `
                                 <div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
                                     <div>${Object.keys(item)}：</div>
                                     <div>
@@ -273,15 +289,21 @@ $(function() {
                                         <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
                                     </div>
                                 </div>`;
+                        }
+                        if(prop === 'primaryContactInfo'){
+                            $('.primaryForm').find('.addItemTarget').before(itemStr);
+                        }else{
+                            $('.otherForm').find('.addItemTarget').before(itemStr);
+                        }
+                    }else {
+                        $('#'+prop).val(itemDt);
                     }
-                    $('.addItemTarget').before(itemStr);
                 }
             }
-            $('#nationality').trigger('changed.selected.amui');
             targetDiv.find('form').removeClass('sy-hidden');
             targetDiv.find('div.show-info').addClass('sy-hidden');
             $('.confirmBtn').removeClass('sy-hidden');
-    //添加联系方式
+        //添加联系方式
         }else if($(target).hasClass('addItemBtn')){
             var targetForm =  $(target).parents('form'),
                 targetItem = $(target).parents('.addItemTarget'),
@@ -309,11 +331,11 @@ $(function() {
                         <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
                     </div>
                 </div>`);
-    //删除item
+        //删除item
         }else if($(target).hasClass('delItemBtn')){
             var delItem = $(target).parents('.addItem');
             delItem.remove();
         }
     });
-});
+}(jQuery));
 </script>

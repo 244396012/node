@@ -84,7 +84,7 @@
 <% } %>
 <!-- 母版页script，主要功能：给当前页添加active、设置接单等 -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+(function ($) {
 
     //给header、aside导航添加“active”
     var pathname = location.pathname,
@@ -104,8 +104,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     //设置“暂不接稿”
-    var orderBtn = document.getElementById('receiptOrder_Header');
-    orderBtn && orderBtn.addEventListener('click', function () {
+    var receiptBtn = document.querySelector('.receiptOrderBtn');
+    receiptBtn.addEventListener('click', function () {
         var _this = this,
             status = _this.classList.contains('off') ? 0:1;
         __api__.getResponse({
@@ -128,16 +128,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }, false);
 
     //“个人中心”、“关于我们”下拉框
-    var navEntry = $('.nav_about_Header')[0],
-        navDropDown = $('.nav_dropDown_Header')[0],
-        userEntry = $('#personalEntry_Header')[0],
-        userDropDown = $('.dropDown_Header')[0],
+    var navEntry = document.querySelector('.nav_about_Header'),
+        navDropDown = document.querySelector('.nav_dropDown_Header'),
+        userEntry = document.querySelector('.personalEntry'),
+        userDropDown = document.querySelector('.dropDown_Header'),
         timer = null;
     navEntry.onmousemove = userEntry.onmousemove = function (){
         var _this = this;
         clearTimeout(timer);
         timer = window.setTimeout(function (){
-            _this.id === 'personalEntry_Header'
+            _this.classList.contains('personalEntry')
                 ? userDropDown.classList.add('transition')
                 : navDropDown.classList.add('transition');
         },100);
@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     navEntry.onmouseleave = userEntry.onmouseleave = function (){
         var _this = this;
         timer = window.setTimeout(function (){
-            _this.id === 'personalEntry_Header'
+            _this.classList.contains('personalEntry')
                 ? userDropDown.classList.remove('transition')
                 : navDropDown.classList.remove('transition');
         },300);
@@ -161,15 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add('transition');
     }
 
-    //去工作台，跳转到PM项目系统
-    var plat = document.getElementById('workPlat_Header');
-    plat && plat.addEventListener('click', function (e) {
-        var event = e || window.event;
-        event.preventDefault();
-        location.href = 'http://192.168.0.6:3010?tk='+localStorage.getItem('sy_rm_client_access_token');
-    }, false);
-
-}, false);
+})(jQuery);
 </script>
 <!-- 其他页面引入的script -->
 <%- script %>

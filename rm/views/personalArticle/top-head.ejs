@@ -22,3 +22,20 @@
         </div>
     </div>
 </div>
+<script>
+    (function ($) {
+
+        var t = localStorage.getItem('sy_rm_client_access_token'),
+            u = localStorage.getItem('sy_rm_client_ud');
+        //跳转到我的主页、我的文章”，阻止默认行为，url添加参数
+        $('a.myHomePage').click(function (e) {
+            e.preventDefault();
+            location.href = '/personalArticle?t='+ t +'&u=' + u;
+        });
+        $('a.myHomeArticle').click(function (e) {
+            e.preventDefault();
+            location.href = '/personalArticle/list?t='+ t +'&u=' + u;
+        });
+
+    }(jQuery))
+</script>

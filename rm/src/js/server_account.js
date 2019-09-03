@@ -31,7 +31,9 @@ import './modal';
             return false;
         }
         //手机号、邮箱验证
-        if(!(/^1[1-9][0-9]{9}$/.test(account) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(account))){
+        const regEmail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
+            regTel = /^1[1-9][0-9]{9}$/;
+        if(!(regTel.test(account) || regEmail.test(account))){
             $.warning('请输入正确的手机号/邮箱');
             return false;
         }
@@ -84,8 +86,9 @@ import './modal';
             $.warning('请输入长度为6-20的密码');
             return false;
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this)
+            .attr('disabled','disabled')
+            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             baseUrl: loginUrl,
@@ -105,8 +108,7 @@ import './modal';
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('注 册');
+            $(_this).removeAttr('disabled').html('注 册');
         })
     };
 // 个人/团队用户登录
@@ -121,8 +123,7 @@ import './modal';
                 return false;
             }
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             baseUrl: baseUrl,
@@ -144,8 +145,7 @@ import './modal';
                 ? $.error('用户名和密码不匹配')
                 : $.error(err.responseJSON.error);
         }).finally(() => {
-            $(_this).removeAttr('disabled');
-            $(_this).html('登 录');
+            $(_this).removeAttr('disabled').html('登 录');
         }).then(resLog => {
             //登录成功，本地存储token
             if(resLog.access_token){
@@ -162,9 +162,20 @@ import './modal';
                         name: $('#account').val()
                     }
                 }).then(res => {
-                    if(res.name){
-                        localStorage.setItem('sy_rm_client_ud',res.principal.user.id);
-                        document.cookie = "sy_rm_client_ud="+ res.principal.user.id + ";expires=" + new Date(moreDate);
+                    const user = res.principal.user;
+                    if(user.id){
+                        const baseStr = {
+                            account: user.account,
+                            userCode: user.userCode,
+                            nickName: user.nickName,
+                            phone: user.telephone,
+                            picture: user.picturePath,
+                            receipt: user.userExtension.receipt,
+                            isTeam: user.userExtension.wheatherTeam
+                        };
+                        localStorage.setItem('sy_rm_client_ubase', JSON.stringify(baseStr));
+                        localStorage.setItem('sy_rm_client_ud', user.id);
+                        document.cookie = "sy_rm_client_ud="+ user.id + ";expires=" + new Date(moreDate);
                         setTimeout(() => {
                             //若存在重定向，则登录成功后跳转
                             if(getQueryString('redirect')){

@@ -282,18 +282,28 @@
 <script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script src="/static/lib/Huploadify.js"></script>
 <script>
-    $(function () {
+    (function ($) {
 
-        laydate.render({ elem: '.graduateTime', type: 'month' });
-        laydate.render({ elem: '.workStartTime', type: 'month' });
-        laydate.render({ elem: '.workEndTime', type: 'month' });
-        laydate.render({ elem: '.projectStartTime', type: 'month' });
-        laydate.render({ elem: '.projectEndTime', type: 'month' });
+        var ubase = localStorage.getItem('sy_rm_client_ubase'),
+            ubaseObj = ubase && JSON.parse(ubase);
+        if(ubaseObj.isTeam === 1) {
+            $('.resume-item.degree').remove();
+            $('.resume-item.work').remove();
+            $('.resume-item.project').remove();
+            $('.resume-item.label').remove();
+        }else{
+            laydate.render({ elem: '.graduateTime', type: 'month' });
+            laydate.render({ elem: '.workStartTime', type: 'month' });
+            laydate.render({ elem: '.workEndTime', type: 'month' });
+            laydate.render({ elem: '.projectStartTime', type: 'month' });
+            laydate.render({ elem: '.projectEndTime', type: 'month' });
+        }
 
-        //获取简历信息
-        __api__.getPageResume();
         //初始化领域、公司
         __api__.getResumeBaseInfo();
+
+        //获取简历信息
+        __api__.getResumeInfo();
 
         //选择语种，切换证书
         $('.languageList').change(function () {
@@ -426,7 +436,8 @@
             $(_this).removeAttr('data-len-pass');
             $(_this).next().html(`<span>${len}</span>/300`);
         }, 500));
-    });
+
+    }(jQuery));
 
     //点击上传按钮前，先判断空值，再初始化证书类型
     function beforeUpload(_this, type) {

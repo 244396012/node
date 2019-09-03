@@ -3,8 +3,8 @@
         <div class="sy-personal-info">
             <img class="sy-personal-head headIcon_AsideU" src="/static/image/personal-default-head.png" alt="头像">
             <div class="sy-personal-name">
-                <h3 class="sy-font-lg nickName_AsideU">--</h3>
-                <span class="sy-font-md account_AsideU">--</span>
+                <h3 class="sy-font-lg nickName_AsideU"> --</h3>
+                <span class="sy-font-md account_AsideU"> --</span>
             </div>
         </div>
         <div class="sy-personal-item sy-font-md">
@@ -26,7 +26,7 @@
         <li class="sy-user-title">个人中心</li>
         <li><a href="/personal/">信息概览</a></li>
         <li><a href="/personal/baseInfo" class="myBaseInfo">基本信息</a></li>
-        <li><a href="/personal/resume">我的简历</a></li>
+        <li><a href="/personal/resume" class="myResume">我的简历</a></li>
         <li><a href="/personal/skill">技能测试</a></li>
         <li><a href="/personal/identification">认证中心</a></li>
         <li><a href="/personalArticle/" class="myHomePage">我的主页</a></li>
@@ -45,6 +45,44 @@
 </aside>
 <script>
     (function () {
+
+        function getEl(string){
+            return document.querySelector(string);
+        }
+
+        //跳转到“(团队、个人)基本信息、我的主页”，阻止默认行为，url添加参数
+        var t = localStorage.getItem('sy_rm_client_access_token'),
+            u = localStorage.getItem('sy_rm_client_ud'),
+            baseData = JSON.parse(localStorage.getItem('sy_rm_client_ubase'));
+
+        baseData.isTeam === 1 && (getEl('a.myResume').innerHTML = '技能证书');
+
+        //设置名称、账号、图片等信息
+        getEl('.account_AsideU').innerHTML = baseData.account?baseData.account:' --';
+        getEl('.nickName_AsideU').innerHTML = baseData.nickName?baseData.nickName:' --';
+        if(baseData.picture){
+            getEl('.headIcon_AsideU').setAttribute('src', baseData.picture);
+            getEl('.headIcon_Header').setAttribute('src', baseData.picture);
+        }
+
+        getEl('a.myBaseInfo').onclick = function (e) {
+            e.preventDefault();
+            if(baseData.isTeam === 1){
+                location.href = '/personal/teamInfo?t='+ t +'&u=' + u;//1,团队
+            }else{
+                location.href = '/personal/baseInfo?t='+ t +'&u=' + u;//0,个人
+            }
+        };
+        getEl('a.myHomePage').onclick = function (e) {
+            e.preventDefault();
+            location.href = '/personalArticle?t='+ t +'&u=' + u;
+        };
+        //添加userCode参数
+        getEl('a.myAppraise').onclick = function(e){
+            e.preventDefault();
+            location.href = '/personal/appraise?uc=' + baseData.userCode;
+        };
+
         //滑动时，固定左侧“个人中心”导航栏
         var aside = document.querySelector('#userMenuAside'),
             scroll = 0;
