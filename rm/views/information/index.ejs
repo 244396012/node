@@ -11,9 +11,11 @@
     </div>
 </div>
 <script>
-    __api__.getGoodArticle();
-
-    $('.loadMoreBtn_Speaker')[0].addEventListener('click', function () {
+    (function () {
         __api__.getGoodArticle();
-    }, false);
+
+        $('.loadMoreBtn_Speaker')[0].addEventListener('click', function () {
+            __api__.getGoodArticle();
+        }, false);
+    }())
 </script>

@@ -17,6 +17,7 @@ html,body{
 .personal.index{
   min-height: 716px;
 }
+.personal.identification,
 .personal.information,
 .personal.advice,
 .personal.balance,
@@ -35,13 +36,14 @@ html,body{
   min-height: 736px;
 }
 
-#userMenuAside,#mainSection{
-  margin: 10px 0;
+header{
+  margin-bottom: 10px;
 }
 
 #userMenuAside{
   float: left;
   width: 200px;
+  padding-top: 1px;
   margin-right: 20px;
   *+ul{
     margin: 0;
@@ -167,8 +169,10 @@ html,body{
   width: 980px;
   padding: 20px;
   padding-top: 10px;
+  margin: 1px 0;
   background: #fff;
   outline: 1px solid #EEEEEE;
+  word-break: break-all;
   .sy-personal-hd{
     margin-top: 1rem;
     padding: 1rem 0;
@@ -411,6 +415,7 @@ html,body{
       .img-item{
         display: inline-block;
         position: relative;
+        vertical-align: top;
         width: 120px;
         margin: 0 10px 10px 0;
         &:hover{
@@ -430,6 +435,7 @@ html,body{
           width: 100%;
           height: 90px;
           border: 1px solid #dedede;
+          cursor: pointer;
         }
         .delete-bg{
           display: none;
@@ -525,6 +531,7 @@ html,body{
     td{
       padding: 12px 0;
       border: none;
+      border-top: none!important;
     }
     td:first-child{
       width: 220px;
@@ -816,6 +823,10 @@ html,body{
   }
   //基本信息
   .personal.information{
+    .am-selected-status{
+      padding-left: 6px;
+      font-size: 14px;
+    }
     img{
       width: 128px;
       height: 128px;
@@ -1022,6 +1033,24 @@ html,body{
       }
     }
   }
+  .preTestSet{
+    .fileUploadContent .box{
+      border: none;
+    }
+    .uploadFileBt{
+      display: none;
+    }
+    .uploadBts{
+      height: 0!important;
+    }
+    .selectFileBt{
+      background: #41CCA6!important;
+      padding: 5px 15px!important;
+      position: absolute;
+      right: 170px;
+      top: 84px;
+    }
+  }
   .personal.skill{
     padding: 1.5rem 0 3rem 0;
     .language-pair{
@@ -1152,7 +1181,7 @@ html,body{
                 &:hover{
                   opacity: .8;
                 }
-                &+a{
+                &+*{
                   margin-left: 30px;
                 }
               }
@@ -1357,7 +1386,7 @@ html,body{
         color: #666;
       }
       &.greenbg{
-        margin-left: 15px;
+        margin-left: 10px;
         color: #fff;
         background: $baseColor;
         &+.field{
@@ -1578,16 +1607,23 @@ html,body{
               }
             }
           }
+          &.empty:hover{
+            background: none;
+          }
           &>td{
             padding: 20px 0;
             color: #333;
             border-bottom: 1px solid #eee;
             &:first-child{
+              a.statusEl{
+                color: #000;
+              }
               &>div{
                 width: 630px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                cursor: pointer;
                 &>a{
                   margin: 0 5px;
                   color: $baseColor;
@@ -1650,142 +1686,130 @@ html,body{
   //结算中心
   .personal.balance{
     padding: 1.5rem 0;
-    .account-info{
-      padding: 30px 0;
-      p{
-        margin: 0;
-        color: $baseColorDeep;
-        font-size: 26px;
+    table{
+      margin-bottom: 0;
+    }
+
+    .fileUploadContent {
+      padding: 0!important;
+      .uploadBts{
+        display: none;
       }
-      span{
-        font-size: 14px;
+      .box{
+        display: none;
+        margin-top: 0;
+        padding: 0 0 0 104px!important;
+        border: none;
       }
-      .eye-icon{
-        vertical-align: -4px;
+      &>img{
+        width: 120px;
+        margin: 5px 0 5px 114px;
       }
     }
-    .draw-cash{
-      position: relative;
-      padding: 10px 30px;
-      margin-bottom: 20px;
-      border: 1px solid #eee;
-      .draw-add{
-        width: 100%;
-        display: table;
-        &>div{
-          display: table-cell;
-          .tip{
-            margin: 0;
-            margin-left: 115px;
-            color: #F1562A;
-            font-size: 12px;
-          }
-          label{
-            &.am-radio{
-              margin-left: 0px;
-              margin-right: 5px;
-            }
-            &>input{width: 0}
-            &.drawAll_Balance{
-              margin-left: 5px;
-              cursor: pointer;
-              font-size: 12px;
-              color: $baseColorDeep;
-            }
-            &+ a{
-              vertical-align: 0px;
-              font-size: 12px;
-              color: #555;
-              &:hover{
-                color: $baseColor;
-              }
-            }
-          }
-
-          span{
-            display: inline-block;
-            width: 100px;
-            margin-right: 10px;
-            text-align: right;
-          }
-          input{
-            width: 210px;
-            padding: 5px 10px;
-            outline: none;
-            border: 1px solid #BFBFBF;
-            border-radius: 2px;
-            &:focus{
-              border-color: $baseColor;
-            }
-          }
-          div{
-            padding: 10px 0;
-          }
-        }
-        &>div:first-child{
-          width: 480px;
-        }
-        &>div{
-          vertical-align: middle;
+    .detail{
+      color: $baseColorDeep;
+      cursor: pointer;
+    }
+    .balance-form{
+      th,td{
+        vertical-align: middle;
+      }
+      button{
+        height: 34px;
+        line-height: 32px;
+        border-radius: 2px;
+      }
+    }
+    .income-detail{
+      .am-modal-dialog{
+        width: 960px;
+      }
+    }
+    .apply-detail{
+      .sy-btn{
+        border-radius: 2px;
+        &+.sy-btn{
+          margin-left: 20px;
         }
       }
-      .draw-schedule{
-        padding: 2rem 0 3rem;
-        .progress{
-          position: relative;
-          margin-top: 2.2rem;
-          .step{
-            display: inline-block;
-            position: relative;
-            z-index: 1;
-            width: 210px;
-            color: #BFBFBF;
-            p{
+      .am-modal-dialog{
+        padding-bottom: 30px;
+      }
+      .draw-cash{
+        position: relative;
+        padding: 10px 30px;
+        .draw-add{
+          width: 100%;
+          &>div{
+            .tip{
               margin: 0;
-              margin-top: 5px;
+              margin-left: 115px;
+              color: #F1562A;
               font-size: 12px;
+            }
+            label{
+              &.am-radio{
+                margin-left: 0px;
+                padding-left: 0px;
+                &+.am-radio{
+                  margin-left: 10px;
+                }
+              }
+              &>input{
+                width: 18px;
+                margin-left: 0;
+                margin-right: -5px;
+                float: none;
+              }
+              &.drawAll{
+                margin-left: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                color: $baseColorDeep;
+              }
+              & + a{
+                vertical-align: 0px;
+                font-size: 12px;
+                color: #555;
+                &:hover{
+                  color: $baseColor;
+                }
+              }
             }
             span{
               display: inline-block;
-              width: 26px;
-              height: 26px;
-              line-height: 26px;
-              font-size: 14px;
-              background: #fff;
-              border: 1px solid #BFBFBF;
-              border-radius: 50%;
+              width: 100px;
+              margin-right: 10px;
+              text-align: right;
             }
-            &.done{
-              color: $baseColor;
-              span{
+            input{
+              width: 210px;
+              padding: 5px 10px;
+              outline: none;
+              border: 1px solid #BFBFBF;
+              border-radius: 2px;
+              &:focus{
                 border-color: $baseColor;
               }
+              &[readonly]{
+                width: 128px;
+                &+button{
+                  height: 31px;
+                  line-height: 30px;
+                  padding: 0 10px;
+                  background: $baseColorDeep;
+                  border-radius: 2px;
+                }
+              }
+            }
+            div{
+              padding: 8px 0;
             }
           }
-          .line{
-            position: absolute;
-            z-index: 0;
-            width: 420px;
-            height: 1px;
-            left: 50%;
-            top: 50%;
-            margin-left: -210px;
-            margin-top: -13px;
-            background: #BFBFBF;
+          &>div{
+            vertical-align: middle;
           }
         }
-      }
-      .mask{
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 99;
-        background: rgba(0,0,0,.6);
-        color: #fff;
-        text-align: center;
-        line-height: 165px;
       }
     }
     .income-detail{
@@ -1813,6 +1837,83 @@ html,body{
         }
       }
     }
+    .account-info{
+      padding: 30px 0;
+      p{
+        margin: 0;
+        color: $baseColorDeep;
+        font-size: 26px;
+      }
+      span{
+        font-size: 14px;
+      }
+      em{
+        display: block;
+        font-style: normal;
+        color: #999;
+      }
+      .eye-icon{
+        vertical-align: -4px;
+      }
+      button{
+        width: 100px;
+        height: 34px;
+        line-height: 32px;
+        padding: 0;
+        border-radius: 2px;
+        &:hover{
+          opacity: .85;
+        }
+        &.active{
+          background: $baseColor;
+          color: #fff;
+        }
+        &.waiting{
+          color: #F1562A;
+          background: #fff;
+          border-color: #F1562A;
+        }
+        &.done{
+          background: $baseColorDeep;
+          color: #fff;
+        }
+      }
+    }
+    .cash-filter{
+      display: inline-block;
+      &>a{
+        display: inline-block;
+        width: 60px;
+        height: 24px;
+        line-height: 22px;
+        text-align: center;
+        border: 1px solid #BFBFBF;
+        border-radius: 2px;
+        color: #333;
+        font-size: 12px;
+        &+a{
+          margin-left: 5px;
+        }
+        &:hover{
+          color: $baseColorDeep;
+          border-color: $baseColorDeep;
+        }
+        &.active{
+          background: $baseColorDeep;
+          border-color: $baseColorDeep;
+          color: #fff;
+        }
+        &:target{
+          color: red;
+        }
+      }
+    }
+    .hide{
+      display: none;
+      &:target{
+        display: block;
+      }
+    }
   }
   //安全设置
   .personal.safety{
@@ -1828,6 +1929,7 @@ html,body{
         }
         button{
           width: 122px;
+          padding: 0 20px;
           background: $baseColorDeep;
         }
       }
@@ -2044,6 +2146,7 @@ html,body{
             height: 90px;
             margin-right: 10px;
             border: 1px solid #eee;
+            cursor: pointer;
           }
         }
       }

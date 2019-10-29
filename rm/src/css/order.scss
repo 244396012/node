@@ -6,6 +6,33 @@
 //左侧列表
   .content-left{
     width: 860px;
+    &.extra{
+      width: 100%;
+      section.cnt>.item>.detail>div:nth-child(1){
+        width: 20%;
+      }
+      section.cnt>.item>.detail>div:nth-child(2){
+        width: 10%;
+      }
+      section.cnt>.item>.detail>div:nth-child(3){
+        width: 28%;
+      }
+      section.cnt>.item>.detail>div:nth-child(4){
+        width: 10%;
+      }
+      section.cnt>.item>.detail>div:nth-child(5){
+        width: 22%;
+      }
+      section.cnt>.item>.detail>div:nth-child(6){
+        width: 10%;
+      }
+      a.download{
+        color: #1AC3D4;
+        &:hover{
+          color: #37d4cd;
+        }
+      }
+    }
     nav.nav{
       font-size: 0;
       &>.nav{
@@ -65,6 +92,22 @@
       }
     }
     section.cnt{
+      &.extra{
+        padding-top: 20px;
+        &>.item>.detail{
+          padding: 0 50px;
+        }
+        &>.item>.detail>div{
+          width: auto!important;
+          &:last-child{
+            color: $baseColor;
+            font-weight: bold;
+          }
+          em{
+            font-weight: normal;
+          }
+        }
+      }
       &>.item{
         margin-top: 18px;
         border: 1px solid #eee;
@@ -180,7 +223,7 @@
   //右侧
   .content-right{
     width: 320px;
-    .empty{ height: 40px; }
+    .h-40{ height: 40px; }
     .detail{
       border: 1px solid #EEEEEE;
       font-size: 14px;
@@ -244,5 +287,4 @@
     }
 
   }
-
 }

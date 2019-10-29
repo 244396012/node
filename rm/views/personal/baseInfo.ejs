@@ -12,9 +12,12 @@
         <div class="am-u-lg-3 extra sy-right" style="height: 128px">
             <img src="<%= data.data.picturePath?data.data.picturePath:'/static/image/personal-default-head.png' %>" alt="头像">
             <div class="uploadFile sy-hidden"></div>
-            <div class="upload-btn sy-center" onclick="$('a.uploadify-button').click()">
+            <div class="upload-btn sy-center"
+                 data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
+                 onclick="$('a.uploadify-button').click()">
                 <i class="sy-personal-icon sy-personal-icon-head"></i>
             </div>
+            <p class="tips sy-orange" style="margin-top: 5px;padding-right: 12px">* 图片大小不超过3M</p>
         </div>
         <div class="am-u-lg-9 extra">
             <div class="sy-personal-cnt">
@@ -22,8 +25,13 @@
                     <div class="item">
                         <div><i class="required">*</i>昵称：</div>
                         <div>
-                            <input id="nickName" type="text"
-                                   required prop="昵称" placeholder="快给自己想一个拉风的名字吧！>_<"
+                            <input id="nickName"
+                                   type="text"
+                                   required
+                                   autocomplete="off"
+                                   prop="昵称"
+                                   placeholder="快给自己想一个拉风的名字吧！>_<"
+                                   value="<%= data.data.nickName?data.data.nickName:'' %>"
                                     <%= data.data.nickName?'disabled':'' %> >
                             <p class="tips">* 昵称可由中文、字母和数字组合，长度4-20位，确认后不能修改</p>
                         </div>
@@ -31,23 +39,25 @@
                     <div class="item">
                         <div>姓名：</div>
                         <div>
-                            <input id="realName" type="text" placeholder="请输入真实姓名">
+                            <input id="realName" type="text" placeholder="请输入真实姓名" autocomplete="off"
+                                    <%= data.data.userExtension && data.data.userExtension.certificatePassed >= 1 ?'disabled':'' %> >
                         </div>
                     </div>
                     <div class="item">
                         <div>性别：</div>
                         <div>
                             <select id="sex">
-                                <option value=""></option>
                                 <option value="男">男</option>
                                 <option value="女">女</option>
                             </select>
                         </div>
                     </div>
                     <div class="item">
-                        <div><i class="required">*</i>国籍：</div>
+                        <div><i class="required">*</i>国家/地区：</div>
                         <div>
-                            <select id="nationality" required data-am-selected="{searchBox: 1}"></select>
+                            <select name="areaOther" id="areaOther" style="position: absolute;left: -9999px"></select>
+                            <select name="areaSandbar" id="areaSandbar" style="width: 187px"></select>
+                            <select name="areaNationality" id="areaNationality" style="width: 188px"></select>
                         </div>
                     </div>
                     <div class="item">
@@ -57,14 +67,13 @@
                     <div class="item">
                         <div>出生日期：</div>
                         <div>
-                            <input id="birthday" type="text" class="am-form-field birthDay" placeholder="请选择出生日期"/>
+                            <input id="birthday" type="text" class="am-form-field birthDay" autocomplete="off" placeholder="请选择出生日期"/>
                         </div>
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>翻译年限：</div>
                         <div>
                             <select id="translateYear" required prop="翻译年限">
-                                <option value=""></option>
                                 <option value="1年以内">1年以内</option>
                                 <option value="1-3年">1-3年</option>
                                 <option value="3-5年">3-5年</option>
@@ -107,8 +116,10 @@
                         <div><%= data.data.sex %></div>
                     </div>
                     <div class="item">
-                        <div>国籍：</div>
-                        <div><%= data.data.userExtension.nationality %></div>
+                        <div>国家/地区：</div>
+                        <div><%= data.data.userExtension.nationality.split(' ')[1]
+                                    ? data.data.userExtension.nationality.split(' ')[1]
+                                    : data.data.userExtension.nationality.split(' ')[0] %></div>
                     </div>
                     <div class="item">
                         <div>母语：</div>
@@ -116,7 +127,7 @@
                     </div>
                     <div class="item">
                         <div>出生日期：</div>
-                        <div><%= data.data.userExtension.birthday.split(' ')[0] %></div>
+                        <div><%= data.data.userExtension.birthday && data.data.userExtension.birthday.split(' ')[0] %></div>
                     </div>
                     <div class="item">
                         <div>翻译年限：</div>
@@ -149,11 +160,20 @@
                 <form class="sy-personal-form sy-personal-base <%= data.data.nickName?'sy-hidden':'' %>">
                     <div class="item">
                         <div>手机：</div>
-                        <div><input id="telephone" type="tel" disabled></div>
+                        <div><input id="telephone"
+                                    type="tel"
+                                    autocomplete="off"
+                                    placeholder="请输入手机号"
+                                    value="<%= data.data.telephone ? data.data.telephone:'' %>"
+                                    <%= data.data.telephone ? 'disabled':'' %> ></div>
                     </div>
                     <div class="item">
                         <div>邮箱：</div>
-                        <div><input id="email" type="email" placeholder="请输入邮箱地址"></div>
+                        <div><input id="email" type="email"
+                                    autocomplete="off"
+                                    placeholder="请输入邮箱地址"
+                                    value="<%= data.data.userExtension && data.data.userExtension.bindEmail>0 ? data.data.email:'' %>"
+                                    <%= data.data.userExtension && data.data.userExtension.bindEmail>0?'disabled':'' %> ></div>
                     </div>
                     <div class="item addItemTarget">
                         <div>
@@ -166,12 +186,12 @@
                             </select>
                         </div>
                         <div>
-                            <input type="text" class="extra otherContactPut" placeholder="请输入联系方式">
+                            <input type="text" class="extra otherContactPut" autocomplete="off" placeholder="请输入联系方式">
                             <button type="button" class="sy-btn sy-btn-default sy-btn-sm addItemBtn">添加</button>
                         </div>
                     </div>
                 </form>
-                <div class="show-info <%= data.data.nickName?'':'sy-hidden' %>">
+                <div class="show-info <%= data.data.nickName ? '':'sy-hidden' %>">
                     <div class="item">
                         <div>手机号码：</div>
                         <div><%= data.data.telephone %></div>
@@ -202,15 +222,23 @@
         </div>
     </div>
     <div class="hiddenData sy-hidden"><%= JSON.stringify(data) %></div>
+    <% } else{ %>
+    <p style="line-height: 200px;text-align: center;color: #999"><%= JSON.stringify(data) %></p>
     <% } %>
 </div>
 <script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script type="text/javascript" src="/static/lib/area.js"></script>
 <script src="/static/lib/Huploadify.js"></script>
 <script>
-(function($) {
+(function($, window, document) {
 
     laydate.render({ elem: '.birthDay' });
+
+    new PCAS("areaOther", "areaSandbar", "areaNationality");
+
+    $('select#areaOther').val('其它').change();
+    $('select#areaNationality').val('中国大陆');
+
     new PCAS("deliverprovince", "delivercity", "deliverarea");
 
     //初始化
@@ -223,42 +251,48 @@
     //编辑时，填充已提交信息
         if($(target).hasClass('edit')){
             var hiddenEl = $('.hiddenData'),
-                targetDiv = $(target).parents('.am-g').next('.am-g');
+                targetDiv = $(target).parents('.am-g').next('.am-g'),
+				isFill = $('#realName').val();
             var hiddenData = JSON.parse(hiddenEl.html());
-            for(var prop in hiddenData.data){
-                $('#'+prop).val(hiddenData.data[prop]);
-            }
-            for(var prop in hiddenData.data.userExtension){
-                var itemDt = hiddenData.data.userExtension[prop];
-                if(prop === 'birthday'){
-                    $('#birthday').val(itemDt.split(' ')[0]);
-                }else if(prop === 'currencyCode'){
-                    $('#currencyType').val(itemDt);
-                }else if(prop === 'permanentAddress'){
-                    var localArr = itemDt.split(' ');
-                    $('select.province').val(localArr[0]).change();
-                    $('select.city').val(localArr[1]);
-                    $('select.area').val(localArr[2]);
-                }else if(prop === 'contactInfo'){
-                    var arr = JSON.parse(itemDt),
-                        itemStr = '';
-                    for(var i = 0, len = arr.length; i<len; i++){
-                        var item = arr[i];
-                        itemStr += `
-                                <div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
-                                    <div>${Object.keys(item)}：</div>
-                                    <div>
-                                        <input type="text" class="extra" value="${Object.values(item)}" readonly>
-                                        <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
-                                    </div>
-                                </div>`;
-                    }
-                    $('.addItemTarget').before(itemStr);
-                }else {
-                    $('#'+prop).val(itemDt);
-                }
-            }
-            $('#nationality').trigger('changed.selected.amui');
+			if(!isFill){
+				for(var prop in hiddenData.data){
+					$('#'+prop).val(hiddenData.data[prop]);
+				}
+				for(var prop in hiddenData.data.userExtension){
+					var itemDt = hiddenData.data.userExtension[prop];
+					if(prop === 'birthday'){
+						$('#birthday').val(itemDt && itemDt.split(' ')[0]);
+					}else if(prop === 'currencyCode'){
+						$('#currencyType').val(itemDt);
+					}else if(prop === 'nationality' && itemDt.indexOf(' ') > -1){
+					    var nationArr = itemDt.split(' ');
+                        $('select#areaSandbar').val(nationArr[0]).change();
+                        $('select#areaNationality').val(nationArr[1]);
+                    }else if(prop === 'permanentAddress'){
+						var localArr = itemDt.split(' ');
+						$('select.province').val(localArr[0]).change();
+						$('select.city').val(localArr[1]);
+						$('select.area').val(localArr[2]);
+					}else if(prop === 'contactInfo'){
+						var arr = itemDt && JSON.parse(itemDt) || [],
+							itemStr = '';
+						for(var i = 0, len = arr.length; i<len; i++){
+							var item = arr[i];
+							itemStr += `
+									<div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
+										<div>${Object.keys(item)}：</div>
+										<div>
+											<input type="text" class="extra" value="${Object.values(item)}" readonly>
+											<button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
+										</div>
+									</div>`;
+						}
+						$('.addItemTarget').before(itemStr);
+					}else {
+						$('#'+prop).val(itemDt);
+					}
+				}
+			}
             targetDiv.find('form').removeClass('sy-hidden');
             targetDiv.find('div.show-info').addClass('sy-hidden');
             $('.confirmBtn').removeClass('sy-hidden');
@@ -268,7 +302,7 @@
                 conTypeVal = $('.otherContact').val(),
                 conPutVal = $('.otherContactPut').val();
             if(conTypeVal === '' || conPutVal.trim() === ''){
-                $.warning('请先填写联系方式');
+                $.warning('请输入联系方式');
                 return false;
             }
             var items = $('.addItem');
@@ -295,5 +329,5 @@
             delItem.remove();
         }
     });
-}(jQuery));
+}(jQuery, window, document));
 </script>

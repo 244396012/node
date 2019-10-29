@@ -6,7 +6,11 @@
 <!--翻译题-->
     <div class="transing">
         <div class="am-g warn">
-            <div class="am-u-lg-9 sy-font-md tip-txt tipTxt"></div>
+            <div class="am-u-lg-9 sy-font-md tip-txt tipTxt">
+                翻译题，请将下面原文翻译成对应译文；</br>
+                翻译过程中若有其他事情需要处理，请及时点击保存按钮，请于开始测试起24小时内提交；</br>
+                请勿使用机器翻译，一经发现，立即封号
+            </div>
             <div class="am-u-lg-3 sy-center tip-time">
                 <b>剩余时间</b>
                 <span class="time">--:--:--</span>
@@ -49,14 +53,12 @@
 </div>
 <script>
     (function ($) {
+        var getQuery = __bundle__.getQueryString;
 
-        $('.tipTxt').html(__bundle__.promptTxt.skillTestingTrans);
-
-        //获取翻译题
-        var id = __bundle__.getQueryString('id');
+        var id = getQuery('id');
         __api__.createTransTest(id);
 
-    })(jQuery);
+    })(jQuery)
 
     //刷新页面时弹出提醒
     window.onbeforeunload = function (event) {

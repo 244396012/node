@@ -10,13 +10,13 @@
 
 import { baseRMUrl, loginUrl} from "./interceptor";
 import { getResponse } from "./asyncAjax";
-import { countDown, getQueryString } from "./utils";
-import promptTxt from './promptTxt';
+import { countDown, clearLocalData, throttleFn } from "./utils";
 import './modal';
 
-
 const personalServer = (function (window, document, $, undefined) {
+
     'use strict';
+
     /*
     * 匹配后端，格式化时间格式
     * */
@@ -29,16 +29,11 @@ const personalServer = (function (window, document, $, undefined) {
 
 //退出账号
     $('.userLogoutBtn').click(() => {
-        localStorage.removeItem('sy_rm_client_ud');
-        localStorage.removeItem('sy_rm_client_ubase');
-        localStorage.removeItem('sy_rm_client_access_token');
-        localStorage.removeItem('sy_rm_client_choice_test');
-        localStorage.removeItem('sy_rm_client_choice_test_no');
-        localStorage.removeItem('sy_rm_client_choice_test_id');
+        clearLocalData();
         location.href = '/login';
     });
 
-    const pathname = location.pathname;
+    const pathname = window.location.pathname;
 /*
 *
 * ------------------------ 分割线
@@ -55,10 +50,10 @@ const personalServer = (function (window, document, $, undefined) {
                 fileTypeExts: '*.jpg;*.png;*.jpeg;*.gif',
                 fileObjName: 'multipartFile',
                 formData: {
-                    userId: localStorage.getItem('sy_rm_client_ud')
+                    userId: sessionStorage.getItem('sy_rm_client_ud')
                 },
-                token: 'bearer '+localStorage.getItem('sy_rm_client_access_token'),
-                fileSizeLimit: 1024,
+                token: 'bearer '+sessionStorage.getItem('sy_rm_client_access_token'),
+                fileSizeLimit: 3*1024,
                 uploader: __api__.baseRMUrl + '/userExtension/uploadHeaderImg',
                 onUploadStart: function () {
                     $.loading('正在上传');
@@ -66,9 +61,9 @@ const personalServer = (function (window, document, $, undefined) {
                 onUploadComplete: function(file, res){
                     const data = JSON.parse(res);
                     if(data.message === 'success'){
-                        const baseDt = JSON.parse(localStorage.getItem('sy_rm_client_ubase'));
+                        const baseDt = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase'));
                         baseDt.picture = data.data;
-                        localStorage.setItem('sy_rm_client_ubase',JSON.stringify(baseDt));
+                        sessionStorage.setItem('sy_rm_client_ubase',JSON.stringify(baseDt));
                         setTimeout('location.reload(true)', 500);
                     }
                 },
@@ -80,18 +75,9 @@ const personalServer = (function (window, document, $, undefined) {
             });
         }, 1000);
         //团队页面，不需要获取国籍、语言对
-        if(pathname.includes('/teamInfo')) return null;
-        //获取国籍
-        getResponse({
-            type: 'post',
-            url: '/userExtension/listNationality'
-        }).then(res => {
-            let nationStr = "";
-            res.data.forEach(function (item){
-                nationStr += `<option value="${item.nationName}">${item.nationName}</option>`;
-            });
-            $('#nationality').html(nationStr);
-        });
+        if(pathname.includes('/teamInfo')) {
+            return null;
+        }
         //获取语言对
         getResponse({
             url: '/language/listAll'
@@ -116,25 +102,30 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }
         const currencyEl = $('#currencyType'),
-            birthday = $('#birthday').val(),
-            address = $('#deliverprovince').val()+' '+$('#delivercity').val()+' '+$('#deliverarea').val();
-        const userId = localStorage.getItem('sy_rm_client_ud'),
+            birthday = $('#birthday').val();
+        const userId = sessionStorage.getItem('sy_rm_client_ud'),
             data = {
                 sex: $('#sex').val(),
                 email: $('#email').val(),
+                telephone: $('#telephone').val(),
                 motherTogue: $('#motherTogue').val(),
-                nationality: $('#nationality').val(),
+                nationality: $("#areaSandbar").val()+' '+$('#areaNationality').val(),
                 nickName: $('#nickName').val(),
                 realName: $('#realName').val(),
                 tranlateYear: $('#translateYear').val(),
                 birthday: birthday?(birthday+' 00:00:00'):'',
-                permanentAddress: address,
+                permanentAddress: $('#deliverprovince').val()+' '+$('#delivercity').val()+' '+$('#deliverarea').val(),
                 currencyCode: currencyEl.val(),
                 currencyName: currencyEl.find('option:selected').text(),
                 userId: userId
             };
-        if(data['nickName'].length < 4 || data['nickName'].length > 20){
+        const regNickName = /^[\u0391-\uFFE5a-z0-9]+$/gi; //只能输入汉字和英文字母、数字
+        if((data['nickName'].length < 4 || data['nickName'].length > 20)
+        && regNickName.test(data['nickName'])){
             $.warning('请填写正确的昵称');
+            return false;
+        }else if(data['telephone'] !== '' && !/^1[1-9][0-9]{9}$/.test(data['telephone'])){
+            $.warning('请填写正确的手机');
             return false;
         }else if(data['email'] !== '' && !/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(data['email'])){
             $.warning('请填写正确的邮箱');
@@ -156,12 +147,9 @@ const personalServer = (function (window, document, $, undefined) {
             url: '/userExtension/addBasicInfo',
             data: data
         }).then(res => {
-            if(res.message === 'success'){
-                $.success('信息提交成功');
-                location.reload();
-            }else{
-                $.error(res.message);
-            }
+            res.message === 'success'
+                ? $.success('保存成功')
+                : $.error(res.message);
             $(_this).removeAttr('disabled').html('提交');
             return new Promise(resolve => {
                 resolve(res);
@@ -173,13 +161,26 @@ const personalServer = (function (window, document, $, undefined) {
                 data: { userId: userId }
             }).then(res => {
                 if(res.message === 'success' && !res.data){
-                    setTimeout(() => {
-                        $.toolinfo({
-                            href: '<a class="sy-modal-href sy-btn sy-btn-green sy-btn-sm" href="/personal/resume">去完善</a>',
-                            close: '下次再说',
-                            txt: '完善简历后，才能进行译员资格测试！'
-                        });
-                    }, 1000);
+                    const elStr = `<div class="am-modal am-modal-confirm confirmResume" data-am-modal="{closeViaDimmer: false}">
+                                        <div class="am-modal-dialog" style="width: 360px;">
+                                            <div class="am-modal-hd">提 示</div>
+                                            <div class="am-modal-bd">为了更好接单，请完善您的简历！</div>
+                                            <div class="am-modal-footer" style="margin: 1rem 0 2rem">
+                                                <span class="am-modal-btn sy-btn sy-btn-green sy-btn-sm" data-am-modal-confirm>去完善</span>
+                                                <span class="am-modal-btn sy-btn sy-btn-white sy-btn-sm" data-am-modal-cancel>下次再说</span>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                    $('body').append(elStr);
+                    $('.confirmResume').modal({
+                        closeViaDimmer: false,
+                        onConfirm: function (e) {
+                            location.href = '/personal/resume'
+                        },
+                        onCancel: function (e) {
+                            location.reload(true);
+                        }
+                    })
                 }else{
                     location.reload(true);
                 }
@@ -198,8 +199,7 @@ const personalServer = (function (window, document, $, undefined) {
                 return false;
             }
         }
-        const currencyEl = $('#currencyType');
-        const address = $('select.province').val()+' '+$('select.city').val()+' '+$('select.area').val(),
+        const currencyEl = $('#currencyType'),
             data = {
                 id: _this.id,
                 teamName: $('#teamName').val(),
@@ -207,7 +207,7 @@ const personalServer = (function (window, document, $, undefined) {
                 unifiedSocialCreditCode: $('#unifiedSocialCreditCode').val(),
                 typesOfTaxPayment: $('#typesOfTaxPayment').val(),
                 invoiceType: $('#invoiceType').val(),
-                location: address,
+                location: $('select.province').val()+' '+$('select.city').val()+' '+$('select.area').val(),
                 currencyCode: currencyEl.val(),
                 currencyName: currencyEl.find('option:selected').text(),
                 primaryContactName: $('#primaryContactName').val(),
@@ -255,7 +255,7 @@ const personalServer = (function (window, document, $, undefined) {
             data: JSON.stringify(data)
         }).then(res => {
             if(res.message === 'success'){
-                $.success('信息提交成功');
+                $.success('保存成功');
                location.reload();
             }else{
                 $.error(res.message);
@@ -271,8 +271,8 @@ const personalServer = (function (window, document, $, undefined) {
 * */
 //初始化页面数据
     function getResumeBaseInfo() {
-        const userId = localStorage.getItem('sy_rm_client_ud'),
-            token = localStorage.getItem('sy_rm_client_access_token');
+        const userId = sessionStorage.getItem('sy_rm_client_ud'),
+            token = sessionStorage.getItem('sy_rm_client_access_token');
         //获取语言对
         getResponse({
             url: '/userExtension/listAllCertificateType'
@@ -280,20 +280,14 @@ const personalServer = (function (window, document, $, undefined) {
             if(res.message === 'success'){
                 let str_b = '', str_k = '', str_p = '';
                 res.data.forEach(item => {
-                    if(item.type.includes('C')){//笔译
-                        str_b += `<option 
-                                    value="${item.languageAbb}"
-                                    data="${item.certifcateName}">${item.languageAbb}</option>`;
+                    if(item.type.includes('T')){//笔译
+                        str_b += `<option  value="${item.languageAbb}" data="${item.certifcateName}">${item.languageAbb}</option>`;
                     }
                     if(item.type.includes('HZ')){//口译
-                        str_k += `<option 
-                                    value="${item.languageAbb}"
-                                    data="${item.certifcateName}">${item.languageAbb}</option>`;
+                        str_k += `<option  value="${item.languageAbb}" data="${item.certifcateName}">${item.languageAbb}</option>`;
                     }
-                    if(item.type.includes('T')){//培训
-                        str_p += `<option 
-                                    value="${item.languageAbb}"
-                                    data="${item.certifcateName}">${item.languageAbb}</option>`;
+                    if(item.type.includes('C')){//培训
+                        str_p += `<option  value="${item.languageAbb}" data="${item.certifcateName}">${item.languageAbb}</option>`;
                     }
                 });
                 str_b += `<option value="其他">其他</option>`;
@@ -345,7 +339,7 @@ const personalServer = (function (window, document, $, undefined) {
                     userId: userId
                 },
                 token: 'Bearer ' + token,
-                fileSizeLimit: 1024,
+                fileSizeLimit: 3*1024,
                 uploader: __api__.baseRMUrl + '/userExtension/addSkillInfo',
                 onUploadStart: function () {
                     const targetEl = $('.resume-item.skill'),
@@ -380,7 +374,7 @@ const personalServer = (function (window, document, $, undefined) {
     }
 //根据userId获取简历信息
     function getResumeInfo() {
-        const userId = localStorage.getItem('sy_rm_client_ud');
+        const userId = sessionStorage.getItem('sy_rm_client_ud');
         getResponse({
             url: '/userExtension/findResumeByUserId',
             data: { userId: userId }
@@ -391,35 +385,35 @@ const personalServer = (function (window, document, $, undefined) {
                 const degreeDiv = $('div.degree');
                 if(res.data.educationList.length > 0){
                     res.data.educationList.forEach(item => {
-                        degreeStr += `
-                            <div class="info-item">
-                                <div class="item">
-                                    <div>毕业院校：</div>
-                                    <div><span>${item.schoolType}</span>${item.graduatedSchoolName}</div>
-                                </div>
-                                <div class="item">
-                                    <div>专业：</div>
-                                    <div>${item.major}</div>
-                                </div>
-                                <div class="item">
-                                    <div>学历：</div>
-                                    <div>${item.degree}</div>
-                                </div>
-                                <div class="item">
-                                    <div>毕业时间：</div>
-                                    <div>${deFormatTime(item.graduatedDate)}</div>
-                                </div>
-                                <div class="operation sy-font-md">
-                                    <div class="sy-hidden">${JSON.stringify(item)}</div>
-                                    <a class="sy-edit" href="javascript:;">编辑</a>
-                                    <a class="sy-delete" href="javascript:;" data-del="deleteEducationInfo" data-u-id="${item.id}">删除</a>
-                                </div>
-                            </div>`
+                        if(item.graduatedSchoolName){
+                            degreeStr += `
+                                <div class="info-item">
+                                    <div class="item">
+                                        <div>毕业院校：</div>
+                                        <div><span>${item.schoolType}</span>${item.graduatedSchoolName}</div>
+                                    </div>
+                                    <div class="item">
+                                        <div>专业：</div>
+                                        <div>${item.major}</div>
+                                    </div>
+                                    <div class="item">
+                                        <div>学历：</div>
+                                        <div>${item.degree}</div>
+                                    </div>
+                                    <div class="item">
+                                        <div>毕业时间：</div>
+                                        <div>${deFormatTime(item.graduatedDate)}</div>
+                                    </div>
+                                    <div class="operation sy-font-md">
+                                        <div class="sy-hidden">${JSON.stringify(item)}</div>
+                                        <a class="sy-edit" href="javascript:;">编辑</a>
+                                        <a class="sy-delete" href="javascript:;" data-del="deleteEducationInfo" data-u-id="${item.id}">删除</a>
+                                    </div>
+                                </div>`
+                        }
                     });
-                    degreeDiv.find('.add-form').addClass('sy-hidden');
-                }else{
-                    degreeDiv.find('.add-form').removeClass('sy-hidden');
                 }
+                !degreeStr && degreeDiv.find('.add-form').removeClass('sy-hidden');
                 degreeDiv.find('.show-info').html(degreeStr);
                 //技能证书
                 if(res.data.userSkillList.length >= 0){
@@ -514,21 +508,23 @@ const personalServer = (function (window, document, $, undefined) {
                 }
                 projectDiv.find('.show-info').html(projectStr);
                 //个性标签和擅长领域
+                const labelData = res.data.userExtension.individualization,
+                    areaData = res.data.userExtension.area;
                 let labelStr = '', areaStr = '', dataDiv = '';
                 const labelDiv = $('div.label');
-                if(res.data.userExtension.individualization || res.data.userExtension.area){
-                    const individualArr = res.data.userExtension.individualization && res.data.userExtension.individualization.split(',') || [],
-                        areaArr = res.data.userExtension.area && res.data.userExtension.area.split(',') || [];
+                if(labelData || areaData){
+                    const individualArr = labelData && labelData.split(',') || [],
+                        areaArr = areaData && areaData.split(',') || [];
                     individualArr.forEach(item => {
-                        labelStr += `<span>${item}</span>`;
+                        item && (labelStr += `<span>${item}</span>`);
                     });
                     labelStr = `<div class="label-item labelWrapper">${labelStr}</div>`;
                     areaArr.forEach(item => {
                         areaStr += `<span>${item}</span>`;
                     });
                     areaStr = `<div class="label-item">${areaStr}</div>`;
-                    dataDiv = `<div class="sy-hidden individual">${res.data.userExtension.individualization}</div>
-                               <div class="sy-hidden expert">${res.data.userExtension.area}</div>`;
+                    dataDiv = `<div class="sy-hidden individual">${labelData}</div>
+                               <div class="sy-hidden expert">${areaData}</div>`;
                     labelDiv.find('.edit').removeClass('sy-hidden');
                     labelDiv.find('.add-form').addClass('sy-hidden');
                     labelDiv.find('.show-info').removeClass('sy-hidden');
@@ -572,7 +568,7 @@ const personalServer = (function (window, document, $, undefined) {
             }
         });
         data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        data.userId = localStorage.getItem('sy_rm_client_ud');
+        data.userId = sessionStorage.getItem('sy_rm_client_ud');
         $(_this).attr('disabled','disabled');
         $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
         let url = '';
@@ -625,7 +621,7 @@ const personalServer = (function (window, document, $, undefined) {
             data: {
                 area: areaArr.join(','),
                 individualization: individualArr.join(','),
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             }
         }).then(res => {
             if(res.message === 'success'){
@@ -655,6 +651,7 @@ const personalServer = (function (window, document, $, undefined) {
                     }).then(res => {
                         if(res.message === 'success' && res.data){
                             $.success('删除成功');
+                            getResumeBaseInfo();
                             getResumeInfo();
                         }else{
                             $.error(res.message);
@@ -708,10 +705,11 @@ const personalServer = (function (window, document, $, undefined) {
         getResponse({
             url: '/exam/customer/listAdeptLanguages'
         }).then(res => {
-            // console.log(res);
             if(res.message === 'success'){
                 let resStr = "",
                     { data } = res;
+                $('.am-g.skillTips').removeClass('sy-hidden');
+                data.length > 0 && $('.skillTips').remove();
                 data.forEach(item => {
                     let tabStr = '', operateStr = '';
                     //格式化：语言对
@@ -742,7 +740,7 @@ const personalServer = (function (window, document, $, undefined) {
                                             ${fileStr}
                                             <button type="button" 
                                                 id="${item.id}"
-                                                class="sy-btn sy-btn-green sy-btn-sh fileBtn"
+                                                class="sy-btn sy-btn-green sy-btn-sh fileBtn showFileProp"
                                                 data-am-popover="{content: '仅支持doc、docx和pdf格式的文件，大小3M以内', trigger: 'hover'}"
                                                 >重新上传</button>
                                         </td></tr>
@@ -758,29 +756,20 @@ const personalServer = (function (window, document, $, undefined) {
                                 <tr><td class="sy-font-md">上传你曾经做的相关文档并申请绿色通道，工作人员会第一时间与你取得联系</td></tr>
                                 <tr><td><button type="button" 
                                                 id="${item.id}"
-                                                class="sy-btn sy-btn-green sy-btn-sh fileBtn"
+                                                class="sy-btn sy-btn-green sy-btn-sh fileBtn showFileProp"
                                                 data-am-popover="{content: '仅支持doc、docx和pdf格式的文件，大小3M以内', trigger: 'hover'}"
                                                 >上传文档</button></td></tr>
                             `;
                         }
+                //未通过 已通过 测试中 评审中
                     }else{//exam：非绿色通道
                         let [selectStatus, selectBtn, tranStatus, tranBtn] = ["", "", "", ""];
                         item.cuLevelList.forEach(em => {
                         // ******* 选择题 *******
                             if(em.levelType === 'select'){
-                                //测试状态
-                                if(em.passedStatue === '未测试'){
+                                //测试状态、按钮是否显示
+                                if(em.isEnableExam){
                                     selectStatus = `<span class="notest">未测试</span>`;
-                                }else if(em.passedStatue === '未通过'){
-                                    selectStatus = `
-                                        <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
-                                        <span class="tip">预计下次测试时间为${em.nextExamTime}</span>
-                                    `;
-                                }else{
-                                    selectStatus = `<span>${em.passedStatue}</span>`;
-                                }
-                                //按钮是否显示
-                                if(em.isEnableExam && !item.examState){
                                     selectBtn = `<button type="button" 
                                                          class="sy-btn sy-btn-green sy-btn-sh"
                                                          onclick="$.skillTest({
@@ -788,51 +777,78 @@ const personalServer = (function (window, document, $, undefined) {
                                                             txt: __bundle__.promptTxt.skillChoice,
                                                             href: 'test/choice?id=${em.id}'
                                                          });">开始测试</button>`;
-                                }else if(!em.isEnableExam && em.examState === '测试中'){
-                                    selectBtn = `<button type="button" 
+                                }else{
+                                    if(em.examState === '未通过'){
+                                        selectStatus = `
+                                            <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
+                                            <span class="tip">预计下次测试时间为${em.nextExamTime}</span>
+                                        `;
+                                    }else if(em.examState === '已通过'){
+                                        selectStatus = `<span>你已经通过选择题测试</span>`;
+                                    }else if(em.examState === '测试中'){
+                                        selectStatus = `<span>测试中</span>`;
+                                        /*
+                                        selectBtn = `<button type="button"
                                                          class="sy-btn sy-btn-green sy-btn-sh"
                                                          onclick="location.href='skill/test/choice?id=${em.id}'">继续测试</button>`;
+                                        */
+                                    }
                                 }
                         // ******* 翻译题 *******
                             }else{
-                                //测试状态
-                                if(em.passedStatue === '未测试'){
-                                    tranStatus = `<span class="notest">未测试</span>`;
-                                }else if(em.passedStatue === '未通过'){
-                                    tranStatus = `
-                                        <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
-                                        <span class="tip">预计下次测试时间为${em.nextExamTime}</span>
-                                    `;
-                                }else{
-                                    tranStatus = `
-                                        <span>${em.passedStatue}</span>
-                                        <span class="level">等级：<i>${em.level}</i></span>
-                                    `;
+                                let propStr = '';
+                                if(em.examLevelUpConditionView){
+                                    propStr += `处理${em.examLevelUpConditionView.qualityGrade}订单超过${em.examLevelUpConditionView.wordsCount}字数就可以升级了`;
                                 }
-                                //按钮显示测试等级
-                                let tranBtnTxt = '开始测试';
-                                em.nextExamLevel !== '初级' && (tranBtnTxt = em.nextExamLevel+'测试');
-                                //按钮是否显示
-                                if(!em.isEnableExam && !item.examState){
-                                    tranBtn = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
-                                }else if(em.isEnableExam && !item.examState){
-                                    tranBtn = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh"
+                                //测试状态、按钮是否显示
+                                tranStatus = `<span class="${em.passedStatue === '未测试'?'notest':''}">${em.passedStatue}</span>`;
+                                if(em.isEnableExam){
+                                    if(em.level){
+                                        tranStatus += `<span class="level">
+                                                            等级：<i class="showLevelProp"
+                                                                    data-am-popover="{content:'${propStr}', trigger:'hover'}">P${em.level}</i>
+                                                        </span>`;
+                                    }
+                                    tranBtn = `<button type="button" 
+                                                       class="sy-btn sy-btn-green sy-btn-sh"
                                                        onclick="$.skillTest({
                                                             title: '翻译题说明',
                                                             txt: __bundle__.promptTxt.skillTranslation,
-                                                            href: 'test/translation?id=${em.id}'
-                                                       });">${tranBtnTxt}</button>`;
-                                }else if(!em.isEnableExam && em.examState === '测试中'){
-                                    tranBtn = `<button type="button" 
-                                                       class="sy-btn sy-btn-green sy-btn-sh"
-                                                       onclick="location.href='skill/test/translation?id=${em.id}'">继续测试</button>`;
+                                                            href: 'test/translation?id=${em.id}&o=${encodeURI(em.originLanguageName)}&t=${encodeURI(em.targetLanguageName)}'
+                                                       });">${em.nextExamLevel}测试</button>`;
+                                }else{
+                                    if(em.passedStatue !== '未测试'){
+                                        tranStatus = `<span>${em.passedStatue}</span>
+                                                      <span class="level">
+                                                            等级：<i class="showLevelProp"
+                                                                     data-am-popover="{content:'${propStr}', trigger:'hover'}">P${em.level}</i></span>`;
+                                    }
+                                    if(!em.examState){
+                                        tranBtn = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
+                                    }else if(em.examState === '未通过'){
+                                        // <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
+                                        tranStatus = `<span>很遗憾，未通过</span>
+                                                      <span class="tip">预计下次测试时间为${em.nextExamTime}</span>`;
+                                    }else if(em.examState === '已通过'){
+                                        tranStatus += ``;
+                                    }else if(em.examState === '测试中'){
+                                        tranStatus = `<span>测试中</span>`;
+                                        tranBtn = `<button type="button" 
+                                                           class="sy-btn sy-btn-green sy-btn-sh"
+                                                           onclick="location.href='skill/test/translation?id=${em.id}'">继续测试</button>`;
+                                    }else if(em.examState === '评审中'){
+                                        if(em.passedStatue === '未测试'){
+                                            tranStatus = `<span>${em.auditState}</span>`;
+                                        }else{
+                                            tranStatus += `<span>${em.auditState}</span>`;
+                                        }
+                                    }
                                 }
                             }
                         });
                         tabStr = `
                             <tr><td>选择题 ${selectStatus} ${selectBtn}</td></tr>
-                            <tr><td>翻译题 ${tranStatus} ${tranBtn}</td></tr>
-                        `;
+                            <tr><td>翻译题 ${tranStatus} ${tranBtn}</td></tr>`;
                     }
                     //为true，可删除
                     if(item.isEnableCancle){
@@ -860,8 +876,9 @@ const personalServer = (function (window, document, $, undefined) {
                                         ${operateStr}
                                     </div>`;
                 });
-                $('.languageCnt').html(res.data.length > 0 ? resStr : `<div class="bg"></div>`);
-                $('.fileBtn').popover();
+                $('.languageCnt').html(res.data.length > 0 ? resStr : `<div class="empty"></div>`);
+                $('.showFileProp').popover();
+                $('.showLevelProp').popover();
             }else{
                 $.error(res.message);
             }
@@ -929,14 +946,14 @@ const personalServer = (function (window, document, $, undefined) {
                     questionStr = '';
                 if(res.message === 'success'){
                     const data = res.data.questions,
-                        isLocal = localStorage.getItem('sy_rm_client_choice_test_id');
+                        isLocal = sessionStorage.getItem('sy_rm_client_choice_test_id');
                     if(!isLocal || isLocal !== id){
-                        localStorage.setItem('sy_rm_client_choice_test', JSON.stringify(data));
-                        localStorage.setItem('sy_rm_client_choice_test_no', 0);
-                        localStorage.setItem('sy_rm_client_choice_test_id', id);
+                        sessionStorage.setItem('sy_rm_client_choice_test', JSON.stringify(data));
+                        sessionStorage.setItem('sy_rm_client_choice_test_no', 0);
+                        sessionStorage.setItem('sy_rm_client_choice_test_id', id);
                     }
-                    let no = +localStorage.getItem('sy_rm_client_choice_test_no'),
-                        questions = JSON.parse(localStorage.getItem('sy_rm_client_choice_test'));
+                    let no = +sessionStorage.getItem('sy_rm_client_choice_test_no'),
+                        questions = JSON.parse(sessionStorage.getItem('sy_rm_client_choice_test'));
                     questions[no].domain.forEach(item => {
                         filedStr += `<span class="sy-font-sm label">${item}</span>`;
                     });
@@ -983,18 +1000,18 @@ const personalServer = (function (window, document, $, undefined) {
                                 $.warning('测试时间已到');
                                 clearInterval(countDown);
                                 setTimeout(function () {
-                                    localStorage.removeItem('sy_rm_client_choice_test');
-                                    localStorage.removeItem('sy_rm_client_choice_test_no');
-                                    localStorage.removeItem('sy_rm_client_choice_test_id');
+                                    sessionStorage.removeItem('sy_rm_client_choice_test');
+                                    sessionStorage.removeItem('sy_rm_client_choice_test_no');
+                                    sessionStorage.removeItem('sy_rm_client_choice_test_id');
                                     location.href = '/personal/skill';
                                 },1500);
                                 return false;
                             }
                         },1000);
                     }else{
-                        localStorage.removeItem('sy_rm_client_choice_test');
-                        localStorage.removeItem('sy_rm_client_choice_test_no');
-                        localStorage.removeItem('sy_rm_client_choice_test_id');
+                        sessionStorage.removeItem('sy_rm_client_choice_test');
+                        sessionStorage.removeItem('sy_rm_client_choice_test_no');
+                        sessionStorage.removeItem('sy_rm_client_choice_test_id');
                         location.href = '/personal/skill';
                     }
                 })
@@ -1023,24 +1040,26 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             let filedStr = '',
                 questionStr = '';
-            let oldNo = +localStorage.getItem('sy_rm_client_choice_test_no'),
-                questions = JSON.parse(localStorage.getItem('sy_rm_client_choice_test'));
+            let oldNo = +sessionStorage.getItem('sy_rm_client_choice_test_no'),
+                questions = JSON.parse(sessionStorage.getItem('sy_rm_client_choice_test'));
+            const fieldEl = $('.field');
             if(res.message === 'success'){
-                localStorage.setItem('sy_rm_client_choice_test_no', oldNo+1);
+                sessionStorage.setItem('sy_rm_client_choice_test_no', oldNo+1);
                 //确认交卷
-                let curNo = +localStorage.getItem('sy_rm_client_choice_test_no');
+                let curNo = +sessionStorage.getItem('sy_rm_client_choice_test_no');
                 if(curNo === 10){
                     confirmPageSkill(_this, recordId).then(res => {
                         if(res.message === 'success'){
                             $.success('提交成功');
-                            localStorage.removeItem('sy_rm_client_choice_test');
-                            localStorage.removeItem('sy_rm_client_choice_test_no');
-                            localStorage.removeItem('sy_rm_client_choice_test_id');
+                            sessionStorage.removeItem('sy_rm_client_choice_test');
+                            sessionStorage.removeItem('sy_rm_client_choice_test_no');
+                            sessionStorage.removeItem('sy_rm_client_choice_test_id');
                             getChoiceResult(recordId);
                         }else{
                             $.error(res.message);
                         }
                     });
+                    fieldEl.empty();
                     return null;
                 }
                 questions[curNo].domain.forEach(item => {
@@ -1059,7 +1078,7 @@ const personalServer = (function (window, document, $, undefined) {
                         <li data-answer="d" data-answer-id="${questions[curNo].answerId}">${questions[curNo]['D:']}</li>
                     </ol>`;
                 $(_this).prevAll().remove();
-                $('.field').html(filedStr);
+                fieldEl.html(filedStr);
                 $('.currPage').html(`${curNo+1}/10`);
                 $('.choiceTest').prepend(questionStr);
             }else{
@@ -1078,28 +1097,27 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 let resultStr = '';
-                if(res.data.examResult === '不合格'){
+                const {data} = res;
+                if(data.adChoiceResult.examResult === '不合格'){
                     resultStr = `<div class="am-g sy-center result no-pass">
                                     <div class="bg"></div>
                                     <div class="tip">
                                         <p>很遗憾，你的测试未通过</p>
-                                        <p>正确率：${res.data.examOverview}</p>
-                                        <p class="sy-orange">请过段时间再来试试吧！</p>
-                                        <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">返回</a>
+                                        <p>正确率：${data.adChoiceResult.examOverview}</p>
+                                        <p class="sy-orange">请在${data.adChoiceResult.examTimes===1?'24h':'30天'}后参加第${data.adChoiceResult.examTimes+1}次测试！</p>
+                                        <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">确认</a>
                                     </div>
                                 </div>`;
                 }else{
                     resultStr = `<div class="am-g sy-center sy-font-md result pass">
                                     <div class="bg"></div>
-                                    <div class="tip">
-                                        Congratulations! 你已经通过选择题测试，</br>
-                                        现在可以进行翻译能力测试！
-                                    </div>
-                                    <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">前往翻译题测试</a>
+                                    <div class="tip">恭喜，您的测试已通过，您现在可以进行翻译题测试了。</div>
+                                    <a class="sy-btn sy-btn-default sy-btn-sh" href="/personal/skill">返回我的技能</a>
+                                    <a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill/test/translation?id=${data.trans.id}">前往翻译题测试</a>
                                 </div>`;
                 }
-                $('.choiceTest').remove();
-                $('.choiceWrap').after(resultStr);
+                $('.choiceTitle').html('选择题测试');
+                $('.choiceWrap').after(resultStr).empty();
             }else{
                 $.error(res.message);
             }
@@ -1119,20 +1137,32 @@ const personalServer = (function (window, document, $, undefined) {
             data: { id: id }
         }).then(res => {
             if(res.message === 'success'){
-                $('.originTxt').html(res.data.questions[0].question);
-                $('.targetTxt').val(res.data.questions[0].answer && res.data.questions[0].answer);
+                const { data } = res;
+                let origin = data.cuLevle.originLanguageName.slice(0,1),
+                    target = data.cuLevle.targetLanguageName.slice(0,1),
+                    domainStr = '';
+                if(data.cuLevle.subDomain){
+                    const domainArr = JSON.parse(data.cuLevle.subDomain).slice(0,3) || [];
+                    domainStr = domainArr.reduce((prev, item) => {
+                        prev += `<span class="sy-font-sm label">${item}</span>`;
+                        return prev;
+                    }, '');
+                }
+                $('.shortLan').html(origin+'译'+target).after(domainStr).before(`<span style="color: #F1572A">（${data.cuLevle.nextExamLevel}）</span>`);
+                $('.originTxt').html(data.questions[0].question);
+                $('.targetTxt').val(data.questions[0].answer && data.questions[0].answer);
                 $('.tempBtn,.confirmBtn').attr({
-                    'data-rid': res.data.recordId,
-                    'data-aid': res.data.questions[0].answerId
+                    'data-rid': data.recordId,
+                    'data-aid': data.questions[0].answerId
                 });
                 return new Promise(resolve => {
-                    resolve(res.data.recordId);
+                    resolve(data.recordId);
                 })
             }else{
                 $.error(res.message);
                 setTimeout(()=>{
                   location.href = '/personal/skill';
-                }, 1500);
+                }, 1000);
             }
         }).then(recordId => {
             //获取翻译剩余时间
@@ -1143,19 +1173,22 @@ const personalServer = (function (window, document, $, undefined) {
                     let time = result.data.remainTime/1000;
                     let countDown = setInterval(function(){
                         time --;
-                        let hour = parseInt(time / 3600) > 9 ? parseInt(time / 3600) : '0'+parseInt(time / 3600),
-                            minute = parseInt(time / (60*24)) > 9 ? parseInt(time / (60*24)) : '0'+parseInt(time / (60*24)),
-                            second = parseInt(time % 60) > 9 ? parseInt(time % 60) : '0'+parseInt(time % 60);
+                        let h = parseInt(time / 3600),
+                            m = parseInt((time - h * 60 * 60) / 60),
+                            s = parseInt((time - h * 60 * 60 - m * 60));
+                        let hour = h > 9 ? h : '0'+h,
+                            minute = m > 9 ? m : '0'+m,
+                            second = s ? s : '0'+s;
                         countDownEl.html(hour +':'+ minute +':'+ second);
                         if(hour === '00' && minute === '00' && second === '00'){
                             $.warning('测试时间已到');
                             clearInterval(countDown);
                             setTimeout(function () {
                                 location.href = '/personal/skill';
-                            },1500);
+                            },1000);
                             return false;
                         }
-                    },1000);
+                    },1000)
                 }else{
                     location.href = '/personal/skill';
                 }
@@ -1192,18 +1225,15 @@ const personalServer = (function (window, document, $, undefined) {
                     if(res.message === 'success'){
                         $('.transing').remove();
                         let resultStr = `<div class="am-g sy-center result result-tip">
-                                        <img src="/static/image/gongzhonghao.jpg" alt="公众号">
-                                        <div class="sy-font-sm">译多多公众号</div>
-                                        <div class="tip">
-                                            <p>你的译文已经提交，工作人员将在3-5个工作日内完成审核。</p>
-                                            <p>请关注<span class="sy-orange">数译网</span>RM微信公众号及时获知测试结果。</p>
-                                            <label class="am-checkbox am-success">
-                                                <input type="checkbox" value="" data-am-ucheck> 请通过短信告知我翻译结果
-                                            </label>
-                                            <p><a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">返回</a></p>
-                                        </div>
-                                    </div>`;
-                        $('.positionEl').after(resultStr);
+                                            <img src="/static/image/gongzhonghao.jpg" alt="公众号">
+                                            <div class="sy-font-sm">啄语公众号</div>
+                                            <div class="tip">
+                                                <p>您的翻译题已经提交，工作人员会在3~5个工作日内审核。</p>
+                                                <p>请关注<span class="sy-orange">啄语公众号</span>！</p>
+                                                <p><a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">确认</a></p>
+                                            </div>
+                                        </div>`;
+                        $('.positionEl').html('翻译题测试').after(resultStr);
                     }else{
                         $.error(res.message);
                     }
@@ -1223,62 +1253,83 @@ const personalServer = (function (window, document, $, undefined) {
         getResponse({
             url: '/userExtension/findResumeByUserId',
             data: {
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             }
         }).then(res => {
+            const identyForm = $('.identyForm'),
+                cardEl = $('.certificateType');
             if(res.message === 'success'){
+                const baseinfo = res.data.userExtension || {};
+                if(baseinfo.nationality.includes('中国大陆')){
+                    cardEl.html('<option value="身份证">身份证</option>')
+                }else{
+                    $('.cardTip').remove();
+                    cardEl.html(`<option value="港澳通行证">港澳通行证</option>
+                                <option value="往来台湾通行证">往来台湾通行证</option>
+                                <option value="护照">护照</option>`);
+                }
                 //身份信息
                 let identifyStr = '';
-                const identifyDiv = $('div.identify');
-                if(res.data.userExtension.certificateNum){
-                    const identy = res.data.userExtension;
+                if(baseinfo.certificateNum){
+                    const idEdit = baseinfo.certificateType.includes('身份证') ? '' : `<a class="sy-edit" href="javascript:;">编辑</a>`;
                     identifyStr += `
                             <div class="info-item">
                                 <div class="item">
                                     <div>真实姓名：</div>
-                                    <div>${identy.realName}</div>
+                                    <div>${baseinfo.realName}</div>
                                 </div>
                                 <div class="item">
                                     <div>证件类型：</div>
-                                    <div>${identy.certificateType}</div>
+                                    <div>${baseinfo.certificateType}</div>
                                 </div>
                                 <div class="item">
                                     <div>证件号码：</div>
-                                    <div class="certificateNum">${identy.certificateNumFuzzy}</div>
-                                    <div class="certificateNum sy-hidden" style="padding: 0 1rem;">${identy.certificateNum}</div>
+                                    <div class="certificateNum">${baseinfo.certificateNumFuzzy}</div>
+                                    <div class="certificateNum sy-hidden" style="padding: 0 1rem;">${baseinfo.certificateNum}</div>
                                 </div>
                                 <div class="item" style="padding-left: 152px;padding-top: 1rem;">
                                     <button type="button" 
                                             class="btn btn-default sy-btn sy-btn-green sy-btn-sh sy-font-md showIDCard" 
                                             style="background: #00BDC5;">查看完整信息</button>
                                 </div>
+                                <div class="operation sy-font-md">
+                                    <div class="sy-hidden syHiddenData">${JSON.stringify({cardId: baseinfo.certificateNum})}</div>
+                                    ${idEdit}
+                                </div>
                             </div>`;
-                    $('.realName').val(identy.realName);
-                    $('.identifyId').val(identy.certificateNum);
-                    identifyDiv.find('.identy-no').remove();
-                    identifyDiv.find('.add-form').remove();
+                    $('.realName').val(baseinfo.realName);
+                    $('.teamName').val(res.data.nickName);
+                    $('.teamBankName').val(baseinfo.realName).attr('data-name', baseinfo.realName);
+                    $('.identifyId').val(baseinfo.certificateNum);
+                    $('span.identy').addClass('identy-yes').html('已认证');
+                    identyForm.next().html(identifyStr);
+                    baseinfo.certificateType.includes('身份证') && identyForm.remove();
                 }else{
-                    identifyDiv.find('.identy-yes').remove();
+                    identyForm.removeClass('sy-hidden');
                 }
-                identifyDiv.find('.show-info').html(identifyStr);
                 //结算方式
-                let bankPayStr = '', aliPayStr = '', paypalStr = "";
                 const payDiv = $('div.pay');
-                if(res.data.settleList.length > 0){
-                    let isShowBankForm = true,
-                        isSHowAlipayForm = true,
-                        isSHowPaypalForm = true;
-                    res.data.settleList.forEach(item => {
-                        if(item.settleDefault === 1){
+                const settleList = res.data.settleList;
+                settleList.length > 0 && $('span.settle').addClass('identy-yes').html('已认证');
+                //结算方式（个人）
+                if(!baseinfo.wheatherTeam){
+                    payDiv.find('.identifyUser').removeClass('sy-hidden');
+                    payDiv.find('.identifyTeam').remove();
+                    let bankPayStr = '', aliPayStr = '', paypalStr = "";
+                    if(settleList.length > 0){
+                        let isShowBankForm = true,
+                            isSHowAlipayForm = true,
+                            isSHowPaypalForm = true;
+                        settleList.forEach(item => {
                             $('input[name=payWay]').each(function() {
                                 if(this.value === item.selttleName){
-                                    this.setAttribute('checked', true);
+                                    this.removeAttribute('disabled');
+                                    item.settleDefault === 1 && this.setAttribute('checked', true);
                                 }
-                            })
-                        }
-                        if(item.selttleName === '支付宝'){
-                            isSHowAlipayForm = false;
-                            aliPayStr += `
+                            });
+                            if(item.selttleName === '支付宝'){
+                                isSHowAlipayForm = false;
+                                aliPayStr += `
                                 <div class="info-item">
                                     <div class="item">
                                         <div>支付宝账号：</div>
@@ -1291,16 +1342,16 @@ const personalServer = (function (window, document, $, undefined) {
                                     </div>
                                      <div class="item">
                                         <div>证件类型：</div>
-                                        <div><span>${res.data.userExtension.certificateType}</span></div>
+                                        <div><span>${baseinfo.certificateType}</span></div>
                                     </div>
                                     <div class="operation sy-font-md">
                                         <div class="sy-hidden syHiddenData">${JSON.stringify(item)}</div>
                                         <a class="sy-edit" href="javascript:;">编辑</a>
                                     </div>
                                 </div>`;
-                        }else if(item.selttleName === '银行卡'){
-                            isShowBankForm = false;
-                            bankPayStr += `
+                            }else if(item.selttleName === '银行卡'){
+                                isShowBankForm = false;
+                                bankPayStr += `
                                 <div class="info-item">
                                     <div class="item">
                                         <div>银行卡号：</div>
@@ -1320,9 +1371,9 @@ const personalServer = (function (window, document, $, undefined) {
                                         <a class="sy-edit" href="javascript:;">编辑</a>
                                     </div>
                                 </div>`;
-                        }else {
-                            isSHowPaypalForm = false;
-                            paypalStr += `
+                            }else {
+                                isSHowPaypalForm = false;
+                                paypalStr += `
                                 <div class="info-item">
                                     <div class="item">
                                         <div>Paypal账号：</div>
@@ -1335,25 +1386,74 @@ const personalServer = (function (window, document, $, undefined) {
                                     </div>
                                      <div class="item">
                                         <div>证件类型：</div>
-                                        <div><span>${res.data.userExtension.certificateType}</span></div>
+                                        <div><span>${baseinfo.certificateType}</span></div>
                                     </div>
                                     <div class="operation sy-font-md">
                                         <div class="sy-hidden syHiddenData">${JSON.stringify(item)}</div>
                                         <a class="sy-edit" href="javascript:;">编辑</a>
                                     </div>
                                 </div>`;
-                        }
-                    });
-                    payDiv.find('.identy-no').remove();
-                    !isShowBankForm && $('.bankForm').addClass('sy-hidden');
-                    !isSHowAlipayForm && $('.alipayForm').addClass('sy-hidden');
-                    !isSHowPaypalForm && $('.PaypalForm').addClass('sy-hidden');
-                }else{
-                    payDiv.find('.identy-yes').remove();
+                            }
+                        });
+                        !isShowBankForm && $('.bankForm').addClass('sy-hidden');
+                        !isSHowAlipayForm && $('.alipayForm').addClass('sy-hidden');
+                        !isSHowPaypalForm && $('.PaypalForm').addClass('sy-hidden');
+                    }
+                    payDiv.find('.bankPay').html(bankPayStr);
+                    payDiv.find('.aliPay').html(aliPayStr);
+                    payDiv.find('.Paypal').html(paypalStr);
+                }else{//结算方式（团队）
+                    payDiv.find('.identifyTeam').removeClass('sy-hidden');
+                    payDiv.find('.identifyUser').remove();
+                    let teamPayStr = '';
+                    if(settleList.length > 0){
+                        let teamForm = $('.teamForm');
+                        settleList.forEach(item => {
+                            let isCard = item.certificateType === '身份证'
+                                ? `<div class="item">
+                                       <div>证件号码：</div>
+                                       <div>${baseinfo.certificateNum}</div>
+                                   </div>` : '';
+                            let isEdit = item.certificateType !== '身份证'
+                                ? '<a class="sy-edit" href="javascript:;">编辑</a>' : '';
+                            item.certificateType === '身份证' && teamForm.remove();
+                            teamPayStr += `
+                                <div class="info-item">
+                                     <div class="item">
+                                        <div>团队名称：</div>
+                                        <div>${res.data.nickName}</div>
+                                     </div>
+                                     <div class="item">
+                                        <div>证件类型：</div>
+                                        <div>${item.certificateType}</div>
+                                     </div>
+                                     ${isCard}
+                                     <div class="item">
+                                        <div>开户人姓名：</div>
+                                        <div>${item.realName}</div>
+                                     </div>
+                                     <div class="item">
+                                        <div>银行卡号：</div>
+                                        <div>${item.settleAccount}</div>
+                                    </div>
+                                    <div class="item">
+                                        <div>开户银行：</div>
+                                        <div>${item.bankDeposit}</div>
+                                    </div>
+                                    <div class="item">
+                                        <div>开户支行：</div>
+                                        <div>${item.bankBranch}</div>
+                                    </div>
+                                    <div class="operation sy-font-md">
+                                        <div class="sy-hidden syHiddenData">${JSON.stringify(item)}</div>
+                                        ${isEdit}
+                                    </div>
+                                </div>`;
+                        });
+                        teamForm.addClass('sy-hidden');
+                    }
+                    payDiv.find('.teamPay').html(teamPayStr);
                 }
-                payDiv.find('.bankPay').html(bankPayStr);
-                payDiv.find('.aliPay').html(aliPayStr);
-                payDiv.find('.Paypal').html(paypalStr);
             }
         })
     }
@@ -1373,26 +1473,24 @@ const personalServer = (function (window, document, $, undefined) {
                 data[el.className] = el.value;
             }
         }
-        if(!/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(data.identifyId)){
+        if(data['certificateType'].includes('身份证') && !/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(data['identifyId'])){
             $.warning('请输入正确的身份证号码');
             return false;
         }
-        data.userId = localStorage.getItem('sy_rm_client_ud');
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        data.userId = sessionStorage.getItem('sy_rm_client_ud');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             url: '/userExtension/identityUser',
             data: data
         }).then(res => {
-            if(res.message === 'success' && res.data){
+            if(res.message === 'success'){
                 $.success('身份验证通过');
                 getIdentyResult();
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('提交');
         })
     });
 //银行卡结算
@@ -1419,10 +1517,9 @@ const personalServer = (function (window, document, $, undefined) {
             $.warning('请输入正确的银行卡号');
             return false;
         }
-        data.userId = localStorage.getItem('sy_rm_client_ud');
+        data.userId = sessionStorage.getItem('sy_rm_client_ud');
         data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             url: '/userExtension/setSettleByBank',
@@ -1434,8 +1531,7 @@ const personalServer = (function (window, document, $, undefined) {
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('保存');
         })
     });
 //支付宝结算
@@ -1456,10 +1552,9 @@ const personalServer = (function (window, document, $, undefined) {
                 }
             }
         }
-        data.userId = localStorage.getItem('sy_rm_client_ud');
+        data.userId = sessionStorage.getItem('sy_rm_client_ud');
         data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             url: '/userExtension/setSettleByAlipay',
@@ -1471,8 +1566,7 @@ const personalServer = (function (window, document, $, undefined) {
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('保存');
         })
     });
 //paypal结算
@@ -1496,8 +1590,7 @@ const personalServer = (function (window, document, $, undefined) {
         data.defaultOrNot = '';
         data.paypalAccount = $('.PaypalCode').val();
         data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             url: '/finance/setSettleWayByPaypal',
@@ -1509,8 +1602,7 @@ const personalServer = (function (window, document, $, undefined) {
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('保存');
         })
     });
 //设置默认结算方式
@@ -1538,6 +1630,48 @@ const personalServer = (function (window, document, $, undefined) {
             })
         }
     });
+//团队结算
+    $('.setTeamBankPayBtn').on('click', function() {
+        const _this = this,
+            parentFrom = $(_this).parents('.add-form'),
+            requiredEles = parentFrom.find('input[required],select[required]');
+        for(let i = 0; i < requiredEles.length; i++){
+            const el = requiredEles[i];
+            if(el.value.trim() === ''){
+                el.focus();
+                $.warning($(el).attr('placeholder'));
+                return false;
+            }
+        }
+        const idCard = parentFrom.find('.teamCardType').val() === '身份证' ? parentFrom.find('.identifyId').val():'';
+        const data = {
+            "bankBranch": parentFrom.find('.teamBankBranch').val(),
+            "bankNum": parentFrom.find('.teamBankNo').val(),
+            "bankOfDeposit": parentFrom.find('.teamBankDeposit').val(),
+            "idNum": idCard,
+            "idType": parentFrom.find('.teamCardType').val(),
+            "nameOfTheAccountOpener": parentFrom.find('.teamBankName').val(),
+            "id": $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):''
+        };
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        getResponse({
+            type: 'post',
+            url: '/team/setTeamSettleWay',
+            data: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        }).then(res => {
+            if(res.message === 'success'){
+                $.success('保存成功');
+                getIdentyResult();
+            }else{
+                $.error(res.message);
+            }
+            $(_this).removeAttr('disabled').html('保存');
+        })
+    });
+
 /*
 *
 * ------------------------ 分割线
@@ -1549,7 +1683,7 @@ const personalServer = (function (window, document, $, undefined) {
         getResponse({
             url: '/userExtension/findResumeByUserId',
             data: {
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             }
         }).then(res => {
             if(res.message === 'success'){
@@ -1593,8 +1727,7 @@ const personalServer = (function (window, document, $, undefined) {
             $.warning('两次输入新密码不一致');
             return false;
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'put',
             baseUrl: loginUrl,
@@ -1607,15 +1740,14 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 $.success('密码修改成功，请重新登录');
-                localStorage.removeItem('sy_rm_client_access_token');
+                sessionStorage.removeItem('sy_rm_client_access_token');
                 setTimeout(() => {
                     location.href = '/login';
                 },1500);
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('保存');
         })
     }
 //获取手机验证码
@@ -1630,6 +1762,7 @@ const personalServer = (function (window, document, $, undefined) {
         getResponse({
             url: '/userExtension/sendCode',
             data: {
+                validateCodeType: '4',
                 telephone: sMobile
             }
         }).then(res => {
@@ -1732,7 +1865,7 @@ const personalServer = (function (window, document, $, undefined) {
             data: {
                 email: email,
                 verifyCode: $('#emailCode').val(),
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             }
         }).then(res => {
             if(res.message === 'success'){
@@ -1758,7 +1891,7 @@ const personalServer = (function (window, document, $, undefined) {
             type: 'post',
             url: '/userExtension/generatedInvitationCode',
             data: {
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             }
         }).then(res => {
             if(res.message === 'success'){
@@ -1827,50 +1960,59 @@ const personalServer = (function (window, document, $, undefined) {
 *       消息通知
 *
 * */
-//获取消息通知，type默认为1（订单消息）
-    function getPageMessage (type = 1){
-        const GetMessage = new ChPaging("#pagination",{
+//获取消息通知，type默认为0（订单消息）
+    function getPageMessage (type = '0'){
+        $.loading('获取数据...');
+        let GetMessage = new ChPaging("#pagination",{
             limit: 10,
             viewOpt : [10,20,50],
             xhr : {//与jq的ajax方法属性值相似。不同点:不能设置success回调
                 url : baseRMUrl + '/notice/noticeList',
                 data : {
-                    noticeType: '',
-                    status: type,
+                    noticeType: type,//1-其他消息 0-订单消息
                     pageNo: 0,
                     pageSize: 10
                 }
             },
-            //0-其他消息 1-订单消息
-            xhrSuccess : function(res){//ajax中的success回调
-                return {data : res, count : res.data.totalElements}
-            },
             operationReady(param){//操作翻页执行前准备钩子
-                const setType = $('.mgFilter>label.active').attr('data-type');
                 GetMessage.set({//重置请求参数
                     xhr : {
                         data : {
-                            status: setType,
                             pageNo: param.current-1,
                             pageSize: param.limit
                         }
                     }
-                }, false);
+                });
+            },
+            xhrSuccess : function(res){//ajax中的success回调
+                return {data: res, count: res.data.totalElements}
             },
             operationCallback (msg, res){//处理数据
+                $('.my-loading').remove();
                 if(res.message === 'success'){
+                    const data = res.data.content;
                     let mesStr = "", strArr = [];
-                    res.data.content.forEach(item => {
-                        let repStr = item.content.replace('{', `<a href="/">`).replace('}','</a>');
+                    data.forEach(item => {
+                        let isHref = '';
+                        if(item.url){
+                            isHref = `<div class="readMsg" 
+                                           data-url="${item.url}"
+                                           data-mid="${item.id}"
+                                           data-status="${item.status}">${item.content}</div>`
+                        }else{
+                            isHref = `<div class="readMsg"
+                                           data-mid="${item.id}"
+                                           data-status="${item.status}">${item.content}</div>`
+                        }
                         mesStr = `
                             <tr class="${item.status === 0 ? 'will' : ''}">
-                                <td><div>${repStr}</div></td>
-                                <td class="time">${item.publishTime}</td>
+                                <td>${isHref}</td>
+                                <td class="time">${item.publishTime?item.publishTime:'--'}</td>
                             </tr>`;
                         strArr.push(mesStr);
                     });
                     let resultStr = strArr.join('');
-                    resultStr = res.data.content.length > 0 ? resultStr : `<tr class="empty"><td colspan="2">暂无消息</td></tr>`;
+                    resultStr = data.length > 0 ? resultStr : `<tr class="empty"><td colspan="2"><div class="empty"></div></td></tr>`;
                     $('table.mgList>tbody').html(resultStr);
                 }else{
                     $.error(res.message);
@@ -1905,7 +2047,7 @@ const personalServer = (function (window, document, $, undefined) {
                 const { data: { content } } = res;
                 let listStr = "";
                 content.forEach(function (item) {
-                    var imgStr = "",
+                    let imgStr = "",
                         imgArr = JSON.parse(item.feedbackAttatch);
                     imgArr.forEach(function (src) {
                         imgStr += `<img src="${src}" title="点击查看大图" alt="">`;
@@ -1920,12 +2062,12 @@ const personalServer = (function (window, document, $, undefined) {
                 if(content.length > 0){
                     moreBtn.removeClass('sy-hidden');
                 }else{
-                    $.warning('暂无更多反馈');
+                    res.data.totalElements > 0 && $.warning('暂无更多反馈');
                     moreBtn.addClass('sy-hidden');
                     return null;
                 }
                 if(res.data.totalElements === 0){
-                    listStr = `<p style="padding-left: 20px;color: #999;font-size: 14px">暂无反馈</p>`;
+                    listStr = `<div class="empty"></div>`;
                 }
                 container.append(listStr);
                 moreBtn.attr('data-page', page);
@@ -1944,14 +2086,16 @@ const personalServer = (function (window, document, $, undefined) {
         let moreBtn = $(".appraiseLoadMoreBtn"),
             pageEl = $('.appraisePageNo'),
             pageNo = +pageEl.val();
+        $.loading('获取数据...');
         getResponse({
             url: '/orderAndComment/getMyOrderComments',
             data: {
-                pageNo: pageNo,
+                pageNo: pageNo-1,
                 pageSize: pagesize,
                 level: level
             }
         }).then(res => {
+            $('.my-loading').remove();
             if(res.message === 'success'){
                 let bodyStr = "", listArr = [];
                 pageNo += 1;
@@ -2023,11 +2167,12 @@ const personalServer = (function (window, document, $, undefined) {
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
                 }else if(res.data.totalCount !== 0 && res.data.results.length === 0){
-                    $.warning('暂无更多评价');
+                    $.warning('暂无更多数据');
                     moreBtn.addClass('sy-hidden');
                     return null;
-                }else if(res.data.totalCount === 0){
-                    bodyStr = `<p class="empty">暂无评价</p>`;
+                }
+                if(res.data.totalCount === 0){
+                    bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
                 pageEl.val(pageNo);
@@ -2045,42 +2190,400 @@ const personalServer = (function (window, document, $, undefined) {
 *       结算中心
 *
 * */
-//获取账户金额
-    function getAccountAmount() {
-        getResponse({
-            url: '/finance/getFinanceInfo'
-        }).then(res => {
-            if(res.message === 'success' && res.data){
-                $('#remainMoney_Balance').html(res.data.accountBalance);
-                $('#outMoney_Balance')
-                    .attr('data-num',res.data.withdrawBalance)
-                    .html(res.data.withdrawBalance);
-                $('#totalMoney_Balance')
-                    .attr('data-num',res.data.totalBalance)
-                    .html(res.data.totalBalance);
+
+    function formatMoneyType (type){
+        switch (type.toLowerCase()){
+            case 'cny': return '人民币';
+            case 'usd': return '美元';
+            case 'eur': return '欧元';
+            case 'gbp': return '英镑';
+            default: return '';
+        }
+    }
+    
+    function formatMoneyShort(type) {
+        switch (type.toLowerCase()){
+            case 'cny': return '￥';
+            case 'usd': return '＄';
+            case 'eur': return '€';
+            case 'gbp': return '￡';
+            default: return '';
+        }
+    }
+    
+    function getJudgeResult() {
+        const judge = JSON.parse($('.judgeStr').text() || '{}');
+        let result = '';
+        if(judge.certificateType === '身份证'){ //大陆
+            const activeEl = $('.cashFilter>a.active');
+            if(activeEl[0].className.includes('CNY')){//人民币结算
+                if(judge.ageReuire){//18-60周岁
+                    result = '社保51';
+                }else{//非18-60周岁
+                    result = '云账户';
+                }
+            } else { //非人民币结算
+                result = 'paypal';
+            }
+        }else{//非大陆
+            if(judge.currencyCode.toLowerCase() === 'cny'){//人民币结算
+                result = '云账户';
+            } else { //非人民币结算
+                result = 'PayPal';
+            }
+        }
+        return {
+            result: result,
+            billingType: judge.billingType
+        }
+    }
+
+
+//获取收入明细
+    function getIncomeDetail(filter = '三个月'){
+
+        const userinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
+
+        const income = new ChPaging("#incomePagination",{
+            limit: 10,
+            viewOpt : [10,20,50],
+            xhr : {//与jq的ajax方法属性值相似。不同点:不能设置success回调
+                url : baseRMUrl + '/financeNew/accountDetail',
+                data : {
+                    filterStr: filter,
+                    userCode: userinfo.userCode,
+                    pageNo: 0,
+                    pageSize: 10
+                }
+            },
+            xhrSuccess : function(res){//ajax中的success回调
+                if(res.message === 'success'){
+                    return {data: res, count : res.data.totalCount}
+                }
+            },
+            operationReady(param){//操作翻页执行前准备钩子
+                const type = $('.incomeFilter.active').attr('data-type');
+                income.set({//重置请求参数
+                    xhr : {
+                        data : {
+                            filterStr: type,
+                            pageNo: param.current-1,
+                            pageSize: param.limit
+                        }
+                    }
+                })
+            },
+            operationCallback (msg, res){
+                if(res.message === 'success'){
+                    let mesStr = '',
+                        dataList = res.data.results;
+                    const moneyType = formatMoneyType,
+                        moneyShort = formatMoneyShort;
+                    dataList.forEach(item => {
+                        mesStr += `<tr>
+                                      <td>${item.gmtCreate}</td>
+                                      <td>${moneyShort(item.currencyCode)+item.amount}</td>
+                                      <td>${moneyType(item.currencyCode)}</td>
+                                      <td>${item.bank} - ${item.account}</td>
+                                      <td>${item.exchangeType} ${item.taskNo ? '【'+item.taskNo+'】':''}</td>
+                                   </tr>`;
+                    });
+                    $('tbody.incomeFinanceList').html(dataList.length > 0 ? mesStr:`<tr class="empty"><td colspan="4">暂无明细</td></tr>`);
+                }else{
+                    $.error(res.message);
+                }
             }
         });
+        return income;
     }
+
+//获取账户金额、提现条件
+    function initAccount() {
+
+        const userinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
+
+        function formatPayState(state) {
+            switch (+state){
+                case 0: return '待审核';
+                case 1: return '已提交';
+                case 3: return '已提交';
+                case 2: return '发放成功';
+            }
+        }
+
+        function formatMoneyMap(type) {
+            switch (type){
+                case 'CNY': return 'cNYThisMonthAlreadyCashout';
+                case 'USD': return 'uSDThisMonthAlreadyCashout';
+                case 'EUR': return 'eURThisMonthAlreadyCashout';
+                case 'GBP': return 'gBPThisMonthAlreadyCashout';
+            }
+        }
+
+        /*
+         * 绑定click事件
+         * */
+
+        //切换币种，显示余额
+        $('.cashFilter').on('click', function (e) {
+            const target = e.target;
+            //显示/隐藏金额
+            if(target.nodeName === 'A'){
+                const judge = JSON.parse($('.judgeStr').text() || '{}'),
+                    judgeBtn = $('.accountPrev>button');
+                const tarCls = target.classList[0];
+                $(target).addClass('active').siblings().removeClass('active');
+                $('.accountItem.'+tarCls).removeClass('sy-hidden').siblings('.accountItem').addClass('sy-hidden');
+                judgeBtn.removeAttr('disabled').html('申请提现');
+
+                const stateMap = judge.cashStateHashMap;
+                //首先判断每个币种，是否还有提现未完成的操作
+                if(Object.keys(stateMap || {}).length === 0){
+                    //若不存在，无需判断
+
+                }else {
+                    //若存在，判断处于提现状态
+                    if(stateMap[tarCls] >= 0 ){
+                        judgeBtn.prop('disabled', true).html(formatPayState(stateMap[tarCls]));
+                        if(stateMap[tarCls] === 2){
+                            if(!judge[formatMoneyMap(tarCls)]){
+                                judgeBtn.removeAttr('disabled').html('申请提现');
+                            }else{
+                                judgeBtn.prop('disabled', true).html('发放成功');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        //申请提现，根据judge判断，弹哪个结算框
+        $('.accountPrev>button').on('click', function (e) {
+            const cashTypeEl = $('.cashFilter>a.active');
+            if(cashTypeEl.length < 1){
+                $.warning('暂时无法操作');
+                return null
+            }
+            const cashElCls = cashTypeEl[0].classList[0],
+                tarTypeEl = $('.accountItem.'+cashElCls);
+
+            if(cashTypeEl.length < 1 && tarTypeEl.length < 1){
+                $.warning('请选择币种');
+                return null
+            }
+            const judge = getJudgeResult(),
+                drawInfo = JSON.parse(cashTypeEl.attr('data') || '{}');
+            if(!judge.billingType){
+                switch (judge.result.toLowerCase()){
+                    case 'paypal':
+                        $.cashOut_paypal(drawInfo);
+                        break;
+                    case '社保51':
+                        $.cashOut_cny(drawInfo);
+                        break;
+                    case '云账户':
+                        $.cashOutOther_cny(drawInfo);
+                        break;
+                }
+            }else if(judge.billingType === '非全日制'){
+                $.cashOut_fulltime(drawInfo);
+            }else if(judge.billingType === '校企合作'){
+                $.cashOut_cooperation(drawInfo);
+            }
+
+            // 确认提现
+            $('.confirmCashOut').on('click', function (e) {
+
+                const _this = this;
+                const payWay = $('input[name="payWay"]:checked'),
+                    payNum = $('.drawAmount').val(),
+                    payPwd = $('.drawPwd').val(),
+                    drawImgEl = $('.drawImg');
+                const userinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
+                if(payWay.length < 1 || !payNum.trim() || !payPwd.trim()){
+                    $.warning('请先填写信息');
+                    return null
+                }
+                if(drawImgEl[0] && !drawImgEl[0].value){
+                    $.warning('请先上传凭证');
+                    return null
+                }
+                $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                getResponse({
+                    type: 'POST',
+                    url: '/financeNew/applyCashWithdrawal',
+                    headers: {
+                        "Content-Type": 'application/json'
+                    },
+                    data: JSON.stringify({
+                        amount: payNum,
+                        currencyCode: drawInfo.type,
+                        currencyName: drawInfo.typeName,
+                        fileUrls: drawImgEl[0] ? drawImgEl.val() : '',
+                        payType: payWay[0].value,
+                        settlePassword: payPwd,
+                        settleType: judge.billingType?judge.billingType:judge.result,
+                        userCode: userinfo.userCode
+                    })
+                }).then(res => {
+                    if(res.message === 'success'){
+                        $.success('申请成功');
+                        setTimeout('location.reload()', 1000);
+                    }else{
+                        $.error(res.message);
+                    }
+                    $(_this).removeAttr('disabled').html('申请提现');
+                })
+
+            })
+        });
+
+        //提现条件：是否为大陆，是否进行身份认证，身份认证方式，结算币种，是否在18-60之间，是否为首次提现，是否进行结算认证，结算方式以及当前默认结算方式
+        getResponse({
+            url: '/financeNew/judge'
+        }).then(res => {
+            if(res.message === 'success'){
+                $('.personal.balance').append(`<div class="judgeStr sy-hidden">${JSON.stringify(res.data)}</div>`);
+            }
+            return new Promise(resolve => {
+                resolve(res);
+            })
+        }).then(() => {
+            //账户金额
+            getResponse({
+                url: '/financeNew/listPersonAccountSummary',
+                data: { userCode: userinfo.userCode }
+            }).then(res => {
+                const initEl = $('.accountInit'),
+                    cashFilterEl = $('.cashFilter'),
+                    prevEl = $('.accountPrev');
+                if(res.message === 'success'){
+                    const { data } = res;
+                    cashFilterEl.empty();
+                    if(data.cNY_Balance){
+                        initEl.remove();
+                        cashFilterEl.append(`<a href="javascript:;" class="CNY" 
+                                            data='{"type":"CNY", "typeName": "人民币", "total":"${data.cNY_Withdrawable}"}'>人民币</a>`);
+                        prevEl.before(` <div class="am-u-lg-9 accountItem sy-hidden CNY">
+                                        <div class="am-u-lg-4">
+                                            <p class="remainMoney_Balance">${'￥'+data.cNY_Balance}</p>
+                                            <span>账户余额</span>
+                                            <em class="sy-font-sm">（内含有锁红包：${'￥'+data.redBagLocked}）</em>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="outMoney_Balance" 
+                                               data-num="${data.cNY_Withdrawable}">${'￥'+data.cNY_Withdrawable}</p>
+                                            <span>可提现</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="totalMoney_Balance" 
+                                               data-num="${data.cNY_TotalIncome}">${'￥'+data.cNY_TotalIncome}</p>
+                                            <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
+                                        </div>
+                                     </div>`);
+                    }
+                    if(data.uSD_Balance){
+                        initEl.remove();
+                        cashFilterEl.append(`<a href="javascript:;" class="USD"
+                                            data='{"type":"USD", "typeName": "美元", "total":"${data.uSD_Withdrawable}"}'>美元</a>`);
+                        prevEl.before(` <div class="am-u-lg-9 accountItem sy-hidden USD">
+                                        <div class="am-u-lg-4">
+                                            <p class="remainMoney_Balance">${'＄'+data.uSD_Balance}</p>
+                                            <span>账户余额</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="outMoney_Balance" 
+                                               data-num="${data.uSD_Withdrawable}">${'＄'+data.uSD_Withdrawable}</p>
+                                            <span>可提现</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="totalMoney_Balance" 
+                                               data-num="${data.uSD_TotalIncome}">${'＄'+data.uSD_TotalIncome}</p>
+                                            <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
+                                        </div>
+                                     </div>`);
+                    }
+                    if(data.eUR_Balance){
+                        initEl.remove();
+                        cashFilterEl.append(`<a href="javascript:;" class="EUR"
+                                            data='{"type":"EUR", "typeName": "欧元", "total":"${data.eUR_Withdrawable}"}'>欧元</a>`);
+                        prevEl.before(` <div class="am-u-lg-9 accountItem sy-hidden EUR">
+                                        <div class="am-u-lg-4">
+                                            <p class="remainMoney_Balance">${'€'+data.eUR_Balance}</p>
+                                            <span>账户余额</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="outMoney_Balance" 
+                                               data-num="${data.eUR_Withdrawable}">${'€'+data.eUR_Withdrawable}</p>
+                                            <span>可提现</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="totalMoney_Balance" 
+                                               data-num="${data.eUR_TotalIncome}">${'€'+data.eUR_TotalIncome}</p>
+                                            <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
+                                        </div>
+                                     </div>`);
+                    }
+                    if(data.gBP_Balance){
+                        initEl.remove();
+                        cashFilterEl.append(`<a href="javascript:;" class="GBP"
+                                            data='{"type":"GBP", "typeName": "英镑", "total":"${data.gBP_Withdrawable}"}'>英镑</a>`);
+                        prevEl.before(` <div class="am-u-lg-9 accountItem sy-hidden GBP">
+                                        <div class="am-u-lg-4">
+                                            <p class="remainMoney_Balance">${'￡'+data.gBP_Balance}</p>
+                                            <span>账户余额</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="outMoney_Balance" 
+                                               data-num="${data.gBP_Withdrawable}">${'￡'+data.gBP_Withdrawable}</p>
+                                            <span>可提现</span>
+                                        </div>
+                                        <div class="am-u-lg-4">
+                                            <p class="totalMoney_Balance" 
+                                               data-num="${data.gBP_TotalIncome}">${'￡'+data.gBP_TotalIncome}</p>
+                                            <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
+                                        </div>
+                                     </div>`);
+                    }
+                    !$('.accountInit')[0] && prevEl.removeClass('sy-hidden');
+                    $('.cashFilter>a').eq(0).addClass('active').click();
+                    $('.accountItem').eq(0).removeClass('sy-hidden');
+                    prevEl.find('button').removeClass('sy-hidden')
+                }
+            })
+        })
+    }
+
 //获取税率
-    function getTaxRate(_this) {
-        let val = _this.value;
-        const tipEl = $('.drawAll_Balance').next('p');
-        if(val.trim() === ''){
+    function getTaxRate(_this, config) {
+        let tipEl = $(_this).next().next('.tip');
+        const judge = getJudgeResult();
+        if(_this.value.trim() === ''){
             $.warning('请输入提现金额');
+            tipEl.html('');
             return null;
         }
+        if(+_this.value < 50){
+            $.warning('可提现金额需不得小于50');
+            _this.value = '';
+            return null;
+        }
+        if(+_this.value > +config.total){
+            $.warning('最多可提现'+config.total);
+            _this.value = config.total;
+        }
         getResponse({
-            url: '/finance/calCashWithdrawalAmount',
+            url: '/financeNew/calCashWithdrawalAmount',
             data: {
-                cashWithDrawalBalance: val,
-                payType: $('.withdrawalType').val()
+                cashWithDrawalBalance: _this.value,
+                payType: judge.result
             }
         }).then(res => {
             tipEl.html('');
             if(res.message === 'success'){
                 let { data } = res, tipStr = '';
                 if(data.payType === '社保51' || data.payType === '云账户'){
-                    tipStr = `平台代缴¥${data.taxation.toFixed(2)}税费（费率：${data.rate*100}%）`;
+                    tipStr = `*平台代缴¥${data.taxation}税费（费率：${data.rate*100}%）`;
                 } else {
                     tipStr = res.data.message;
                 }
@@ -2090,159 +2593,6 @@ const personalServer = (function (window, document, $, undefined) {
             }
         })
     }
-//申请提现
-    //1.判断提现条件
-    function judgeWithdrawLimit() {
-        getResponse({
-            url: '/finance/judge'
-        }).then(res => {
-            if(res.message === 'success'){
-                const {data} = res;
-                if(!(data.certificatePassed && data.settleCertificatePassed)){
-                    $.toolinfo({
-                        href: '<a class="sy-modal-href sy-btn sy-btn-green sy-btn-sm" href="/personal/identification">去认证</a>',
-                        close: '下次再说',
-                        txt: '提现前，请先完成身份和结算认证'
-                    });
-                }
-                !data.bank && $('.am-radio.bankCheck').remove();
-                !data.alipay && $('.am-radio.alipayCheck').remove();
-                !data.paypal && $('.am-radio.paypalCheck').remove();
-                if(data.ageReuire){
-                    $('.ageTrue').removeClass('sy-hidden');
-                    $('.ageFalse').remove();
-                    $('.paypalCheck').remove();
-                    $('.withdrawalType').val('社保51');
-                }else{
-                    $('.ageFalse').removeClass('sy-hidden');
-                    $('.ageTrue').remove();
-                    $('.withdrawalType').val('云账户');
-                }
-                if(!data.mainlandOrNot){
-                    $('.drawAll_Balance').next('p').html('会依法缴纳税费，请以实际到账为准');
-                    $('.withdrawalType').val('其他');
-                }
-            }
-        });
-        getWithdrawProgress();
-    }
-    //2.确认提现
-    function commitWithdraw(btn) {
-        const _this = btn;
-        const payWay = $('input[name=payWay]:checked').val(),
-            amount = $('.withdrawalAmount').val(),
-            password = $('.withdrawalPwd').val(),
-            payType = $('.withdrawalType').val();
-        const data = {
-            amount: amount,
-            payType: payType,
-            settleType: payWay,
-            settlePassword: password
-        };
-        for(let prop in data){
-            if(!data[prop] || data[prop].trim() === ''){
-                $.warning('请填写相关信息');
-                return null;
-            }
-        }
-        data.defaultOrNot = 0;
-        _this.setAttribute('disabled', true);
-        _this.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
-        getResponse({
-            type: 'post',
-            url: '/finance/applyCashout',
-            data: data
-        }).then(res => {
-            res.message === 'success'
-                ? $.success('申请提现成功')
-                : $.error(res.message);
-            _this.removeAttribute('disabled');
-            _this.innerHTML = '申请提现';
-            return new Promise(resolve => {
-                resolve(res);
-            })
-        }).then(comp => {
-            if(comp){
-                getWithdrawProgress();
-                getAccountAmount();
-                getIncomeDetail();
-            }
-        })
-    }
-//获取提现进度
-    function getWithdrawProgress() {
-        const date = new Date().getDate();
-        if(date < 16 || date > 20){
-            $('.drawCash').append(`<div class="mask">非结算申请时间段</div>`);
-            return null;
-        }
-        getResponse({
-            url: '/finance/getCashwithdrawalProgress'
-        }).then(res => {
-            if(res.message ==='success'){
-                if(res.data.alreadyWithdrawal){
-                    $('.drawCash').append(`<div class="mask">当月结算申请已提交</div>`);
-                }
-            }
-        })
-    }
-//获取收入明细
-    function getIncomeDetail(filter = ''){
-        const finance = new ChPaging("#pagination",{
-            limit: 10,
-            viewOpt : [10,20,50],
-            xhr : {//与jq的ajax方法属性值相似。不同点:不能设置success回调
-                url : baseRMUrl + '/finance/listFinanceDetail',
-                data : {
-                    dateFilterStr: filter,
-                    desc: 'desc',
-                    sort: 'sort',
-                    page: 0,
-                    limit: 10
-                }
-            },
-            xhrSuccess : function(res){//ajax中的success回调
-                return {data : res, count : res.data.totalElements}
-            },
-            operationReady(param){//操作翻页执行前准备钩子
-                const type = $('label.incomeFilter.active').attr('data-type');
-                finance.set({//重置请求参数
-                    xhr : {
-                        data : {
-                            dateFilterStr: type,
-                            page: param.current-1,
-                            limit: param.limit
-                        }
-                    }
-                });
-            },
-            operationCallback (msg, res){
-                if(res.message === 'success'){
-                    let mesStr = '',
-                        dataList = res.data.content;
-                    dataList.forEach(item => {
-                        let explain = '';
-                        if(item.changeType === '申请提现'){
-                            explain = `${item.changeType} - ${item.settleNo}`;
-                        }else{
-                            explain = `${item.changeType} - ${item.taskNo}`;
-                        }
-                        mesStr += `<tr>
-                                      <td>${item.gmtCreate}</td>
-                                      <td>${item.amount}</td>
-                                      <td>${item.settleType} - ${item.account}</td>
-                                      <td>${explain}</td>
-                                   </tr>`;
-                    });
-                    $('tbody.financeList').html(dataList.length > 0 ? mesStr:`<tr class="empty"><td colspan="4">暂无明细</td></tr>`);
-                }else{
-                    $.error(res.message);
-                }
-            }
-        });
-        return finance;
-    }
-
     /*
     *
     * ------------------------ 分割线
@@ -2258,10 +2608,10 @@ const personalServer = (function (window, document, $, undefined) {
                 $('.sy-progress>div').css('width', res.data+'%');
                 $('.sy-progress-txt').html(res.data.toFixed(0)+'%');
                 if(res.data === 0){
-                    const token = localStorage.removeItem('sy_rm_client_access_token'),
-                        uid = localStorage.removeItem('sy_rm_client_ud');
+                    const token = sessionStorage.getItem('sy_rm_client_access_token'),
+                        uid = sessionStorage.getItem('sy_rm_client_ud');
                     $.toolinfo({
-                        href: `<a class="sy-modal-href sy-btn sy-btn-green sy-btn-sm" href="/baseInfo?t=${token}&u=${uid}">去完善</a>`,
+                        href: `<a class="sy-modal-href sy-btn sy-btn-green sy-btn-sm" href="/personal/baseInfo?t=${token}&u=${uid}">去完善</a>`,
                         close: '下次再说',
                         txt: '请及时完善你的基本信息！'
                     });
@@ -2272,7 +2622,7 @@ const personalServer = (function (window, document, $, undefined) {
         getResponse({
             url: '/userExtension/findResumeByUserId',
             data: {
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             }
         }).then(res => {
             if(res.message === 'success'){
@@ -2316,11 +2666,14 @@ const personalServer = (function (window, document, $, undefined) {
                     }
                 }).then(res => {
                     if(res.success){
-                        const {data} = res;
-                        $('#orderStatus_doing').html(data.taskNumIng);
-                        $('#orderStatus_waiting').html(data.taskNumNoConfirmed);
-                        $('#orderStatus_done').html(data.taskNumEnd);
-                        $('#orderStatus_font').html(data.transWorkNum);
+                        const { data } = res;
+                        $('.orderStatus_doing').attr('href', '/order/#10');
+                        $('.orderStatus_doing>span').html(data.taskNumIng);
+                        $('.orderStatus_waiting').attr('href', '/order/#20');
+                        $('.orderStatus_waiting>span').html(data.taskNumNoConfirmed);
+                        $('.orderStatus_done').attr('href', '/order/#25');
+                        $('.orderStatus_done>span').html(data.taskNumEnd);
+                        $('.orderStatus_font').html(data.transWorkNum);
                     }
                 })
             }
@@ -2455,10 +2808,8 @@ const personalServer = (function (window, document, $, undefined) {
         getApplicationCode,
         getAdviceList,
         getAppraiseList,
-        getAccountAmount,
+        initAccount,
         getIncomeDetail,
-        judgeWithdrawLimit,
-        commitWithdraw,
         getTaxRate,
         getUserAllInfo,
         getSafetyResult,

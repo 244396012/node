@@ -3,13 +3,39 @@
 * author: zy
 * date: 2019/04/20
 * */
+
+//清除本地数据
+export function clearLocalData() {
+    sessionStorage.removeItem('sy_rm_client_ud');
+    sessionStorage.removeItem('sy_rm_client_ubase');
+    sessionStorage.removeItem('sy_rm_client_access_token');
+    sessionStorage.removeItem('sy_rm_client_choice_test');
+    sessionStorage.removeItem('sy_rm_client_choice_test_no');
+    sessionStorage.removeItem('sy_rm_client_choice_test_id');
+}
+
+//随机生成12位字符串
+export function guid() {
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+    return (S4() + S4() + S4());
+}
+//判断是否为guid格式
+export function isGuidFormat(guid) {
+    const reg = new RegExp(/^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/);
+    if (reg.test(guid)) {
+        return true;
+    }
+    return false;
+}
 //滑动解锁插件
 export function dragSlide() {
-    let slideBox = $('#slide_box')[0];
-    let slideXbox = $('#slide_xbox')[0];
-    let btn = $('#slideBtn')[0];
-    let slideBoxWidth = slideBox.offsetWidth;
-    let btnWidth = btn.offsetWidth;
+    let slideBox = $('#slide_box')[0],
+        slideXbox = $('#slide_xbox')[0],
+        btn = $('#slideBtn')[0],
+        slideBoxWidth = slideBox.offsetWidth,
+        btnWidth = btn.offsetWidth;
     //pc端
     btn.ondragstart = function () {
         return false;
@@ -36,7 +62,7 @@ export function dragSlide() {
             } else {
                 objX = slideBoxWidth;
                 $('#slide_xbox').html('验证通过<div id="slideBtn"><i class="am-icon-check" style="color: #41cca6;"></i></div>');
-                $('#slideBtn').attr('data-pass',true);
+                __api__.sid = guid();
             }
             $('#slide_xbox').width(objX + 'px');
             document.onmousemove = null;
@@ -70,7 +96,7 @@ export function countDown(el) {
             $(el).removeAttr('disabled').html('获取验证码');
             return false;
         }
-    },1000);
+    }, 1000);
 }
 //获取url参数
 export function getQueryString(name) {
@@ -106,6 +132,15 @@ export function throttleFn(fn, delay) {
         }, delay);
     };
 }
+//隐藏手机号、邮箱
+export function hiddenAccount(str) {
+    if(str.includes('@')){//邮箱  123456@qq.com
+        return str.replace(/(\w{1})(\w+)/, '$1****')
+    }
+    //手机号 13900000000
+    return str.replace(/(\d{3})(\d{4})/, '$1****')
+}
+
 //数组去重（hash）
 Array.prototype.unique = function () {
     const newArr = [],
@@ -118,3 +153,40 @@ Array.prototype.unique = function () {
     });
     return newArr;
 };
+
+//socket连接
+export function connectSocket(url, callback) {
+
+    let isConnected = null;
+    let stompClient = null,
+        userId = sessionStorage.getItem('sy_rm_client_ud');
+
+    function connect() {
+        const socket = new SockJS(url);
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            clearInterval(isConnected);
+            stompClient.subscribe('/topic/sendMessage/'+userId, function (res) {
+                if(res.body){
+                    callback(res.body);
+                }
+            });
+        }, function (err) {
+            clearInterval(isConnected);
+            isConnected = setInterval(() => {
+                connect()
+            }, 5000);
+        })
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        console.log("Disconnected");
+    }
+
+    connect();
+}
+
+

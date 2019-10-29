@@ -12,19 +12,29 @@
     <meta name="author" content="zhaoyong">
     <meta name="robots" content="index, follow">
     <meta name="keywords" content="404">
+    <link rel="stylesheet" href="/static/lib/amazeui.min.css">
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/index.css">
     <style>
         html,body{height: 100%;background: #FCFCFC;text-align: center}
         div.error{width: 700px;height: 500px;position: absolute;left: 50%;top: 35%;margin: -200px 0 0 -350px;}
-        p{margin-bottom: 4em;color: #888}
-        a{display: inline-block;padding: .7em 2em;text-decoration: none;font-size: 14px;color: #41cca6;border: 1px solid #41cca6;border-radius: 4px;}
-        a:hover{background: #41cca6;color: #fff}
+        div.error p{margin-bottom: 4em;color: #888}
+        div.error a{display: inline-block;padding: .7em 2em;text-decoration: none;font-size: 14px;color: #41cca6;border: 1px solid #41cca6;border-radius: 4px;}
+        div.error a:hover{background: #41cca6;color: #fff}
     </style>
 </head>
 <body>
+<div class="wrapper">
+    <% include header.ejs %>
     <div class="error">
         <img src="/static/image/404.png" alt="404">
         <p>对不起，你访问的页面走失了~~</p>
         <a class="back" href="/">返回首页</a>
     </div>
+</div>
 </body>
+<script type="text/javascript" src="/static/lib/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="/static/lib/amazeui.min.js"></script>
+<script type="text/javascript" src="/public/js/bundle.js"></script>
+<script type="text/javascript" src="/public/js/webservice.js"></script>
 </html>

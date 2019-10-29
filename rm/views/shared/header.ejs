@@ -27,7 +27,7 @@
             <div class="am-u-sm-5 sy-right nav-login hasLogin sy-hidden">
                 <a class="receiptOrderBtn nav-item nav-order off" href="javascript:void(0);">可接单</a>
                 <a class="nav-item nav-message" href="/personal/message">
-                    消息通知<span class="nav-message-props sy-center">0</span>
+                    消息通知<span class="nav-message-props sy-center messageProps"></span>
                 </a>
                 <a class="nav-item nav-personal personalEntry" href="javascript:;">
                     个人中心<img class="headIcon_Header" src="/static/image/personal-default-head.png" alt=" ">
@@ -42,3 +42,90 @@
         </div>
     </div>
 </header>
+<!-- 母版页header script，主要功能：给当前页添加active、设置接单等 -->
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    (function ($) {
+
+        function getEl(string){
+            return document.querySelector(string);
+        }
+
+        //给header、aside导航添加“active”
+        var pathname = location.pathname,
+            navItems = $('.nav_AsideU a, .nav_Header>a.nav-item');
+        for(var i = 0, len = navItems.length; i<len; i++){
+            var item = navItems[i],
+                href = $(item).attr('href');
+            if(pathname === href){
+                $(item).addClass('active');
+                break;
+            }else if((href !== '/' && href !== '/personal/') && pathname.indexOf(href) > -1){
+                $('.nav_AsideU,.nav_Header').find('a[href="'+ href +'"]').addClass('active');
+                break;
+            }else if(pathname === '/personal/teamInfo'){
+                $('a.myBaseInfo').addClass('active');
+            }
+        }
+
+        //设置“暂不接稿”
+        var receiptBtn = getEl('.receiptOrderBtn');
+        receiptBtn.addEventListener('click', function () {
+            var _this = this,
+                status = _this.classList.contains('off') ? 1:0;
+            __api__.getResponse({
+                url: '/userExtension/openCloseReceipt',
+                data: { receiptStatus: status }
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('设置成功');
+                    if(_this.classList.contains('off')){
+                        _this.classList.add('on');
+                        _this.classList.remove('off');
+                    }else{
+                        _this.classList.add('off');
+                        _this.classList.remove('on');
+                    }
+                }else{
+                    $.error(res.message);
+                }
+            });
+        }, false);
+
+        //“个人中心”、“关于我们”下拉框
+        var navEntry = getEl('.nav_about_Header'),
+            navDropDown = getEl('.nav_dropDown_Header'),
+            userEntry = getEl('.personalEntry'),
+            userDropDown = getEl('.dropDown_Header'),
+            timer = null;
+        navEntry.onmousemove = userEntry.onmousemove = function (){
+            var _this = this;
+            clearTimeout(timer);
+            timer = window.setTimeout(function (){
+                _this.classList.contains('personalEntry')
+                    ? userDropDown.classList.add('transition')
+                    : navDropDown.classList.add('transition');
+            },100);
+        }
+        navEntry.onmouseleave = userEntry.onmouseleave = function (){
+            var _this = this;
+            timer = window.setTimeout(function (){
+                _this.classList.contains('personalEntry')
+                    ? userDropDown.classList.remove('transition')
+                    : navDropDown.classList.remove('transition');
+            },300);
+        }
+        navDropDown.onmouseleave = userDropDown.onmouseleave = function (){
+            var _this = this;
+            timer = window.setTimeout(function (){
+                _this.classList.remove('transition');
+            },300);
+        }
+        navDropDown.onmousemove = userDropDown.onmousemove = function (){
+            clearTimeout(timer);
+            this.classList.add('transition');
+        }
+
+    })(jQuery);
+}, false);
+</script>

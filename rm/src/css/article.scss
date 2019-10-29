@@ -7,6 +7,7 @@
 .article_page{
   overflow: auto;
   padding: 20px 0;
+  word-break: break-all;
   span.edit,
   span.delete{
     float: right;
@@ -397,10 +398,20 @@
               line-height: 24px;
               padding: 0 10px;
               margin-bottom: 4px;
-              margin-left: 10px;
               border-radius: 10px;
               background: #FFB11A;
               font-family: -webkit-pictograph;
+            }
+            &>span.domain{
+              display: inline-block;
+              height: 22px;
+              line-height: 24px;
+              color: $baseColor;
+              background: #fff;
+              border-radius: 11px;
+              font-size: 14px;
+              padding: 0 10px;
+              margin: 0 10px;
             }
           }
         }

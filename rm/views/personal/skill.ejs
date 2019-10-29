@@ -1,7 +1,7 @@
 <% include skill_nav.ejs %>
 <div class="preTestSet">
     <div class="personal skill">
-        <div class="am-g">
+        <div class="am-g sy-hidden skillTips">
             <div class="am-u-lg-9 sy-bold sy-font-lg">您还未做任何的语言选择，请选择您最擅长的语言，开始接单接到手软之旅~</div>
         </div>
         <div class="am-g">
@@ -18,7 +18,7 @@
         </div>
         <div class="am-g">
             <div class="am-u-lg-12 language-cnt languageCnt">
-                <div class="bg"></div>
+                <div class="empty"></div>
             </div>
         </div>
         <div class="uploadFile sy-hidden"></div>
@@ -43,7 +43,7 @@
         </div>
     </div>
     <div class="am-modal am-modal-confirm skill-modal fileModal">
-        <div class="am-modal-dialog" style="width: 540px;">
+        <div class="am-modal-dialog" style="width: 560px;">
             <div class="am-modal-hd">上传文档
                 <span class="tips sy-font-md"> 上传曾翻译的相关文档，请静待工作人员审核</span>
                 <a href="javascript: void(0)"
@@ -53,31 +53,27 @@
             <div class="am-modal-bd sy-font-md sy-left">
                 <input class="multipleFile sy-hidden" type="file" multiple>
                 <div class="before-upload">
-                    上传文档：
-                    <input type="text" class="sy-input" placeholder="请选择文件"
-                           onclick="$('.multipleFile').click()">
-                    <button type="button"
-                            onclick="$('.multipleFile').click()"
-                            class="sy-btn sy-btn-green sy-btn-sm selectFileBtn">选择文件</button>
+                    上传文档：<input type="text" class="sy-input"
+                                    onclick="$('.selectFileBt').click()"
+                                    readonly placeholder="请选择文件" >
                 </div>
                 <div style="padding-left: 76px;padding-top: 5px;">
                     <p class="tips sy-orange">* 上传1~3篇文档即可</p>
-                    <div class="files filesList">
-
-                    </div>
                 </div>
+                <div id="fileUploadContent" class="fileUploadContent"></div>
             </div>
             <div class="am-modal-footer" style="margin: 1rem 0 2rem">
-                <span class="sy-btn sy-btn-green sy-btn-sm confirmBtn" data-am-modal-confirm>确 认</span>
+                <span class="sy-btn sy-btn-green sy-btn-sm confirmBtn confirmFile" data-am-modal-confirm>确 认</span>
                 <span class="am-modal-btn sy-btn sy-btn-white sy-btn-sm" data-am-modal-cancel>取 消</span>
             </div>
         </div>
     </div>
 </div>
+<script src="/static/lib/fileUpload/js/fileUpload.js"></script>
 <script>
     (function ($) {
 
-        var ubase = localStorage.getItem('sy_rm_client_ubase'),
+        var ubase = sessionStorage.getItem('sy_rm_client_ubase'),
             ubaseObj = ubase && JSON.parse(ubase);
         if(ubaseObj.isTeam === 1)  return;
 
@@ -107,84 +103,63 @@
             $('.areaWrap').html(areaStr);
         });
 
-        //文件上传，判断文件大小、格式和数量
-        $('.multipleFile').change(function (e) {
-            var _this = this,
-                files = _this.files;
-            if(files.length > 3){
-                alert('文件数量超过限制');
-                _this.value = '';
-                return false;
-            }
-            var fileStr = '';
-            for(var i = 0, len = files.length; i<len; i++){
-                var file = files[i];
-                if(!/\.(doc|docx|pdf)$/.test(file.name)){
-                    alert(file.name+'文件格式不符合');
-                    _this.value = '';
-                    return false;
-                }else if((file.size/1024)*3 > 1024*3){
-                    alert(file.name+'文件大小超过3M');
-                    _this.value = '';
-                    return false;
+        //上传文档
+        $("#fileUploadContent").initUpload({
+            'method': 'post',
+            'fileName': 'multipartFile',
+            "uploadUrl":__api__.baseRMUrl+ "/exam/customer/applyGreenChannel",//上传文件信息地址
+            "fileType":['doc','docx','pdf'],//文件类型限制，默认不限制
+            "isHiddenUploadBt":false,//是否隐藏上传按钮
+            "isHiddenCleanBt":true,//是否隐藏清除按钮
+            "isAutoClean":true,//是否上传完成后自动清除
+            "maxFileNumber":3,//文件个数限制，为整数
+            "ismultiple":true,//是否允许多选
+            "size":3*1024, //文件大小 3M
+            "autoCommit":false,//是否自动上传
+            "beforeUpload":function (opt) {//在上传前执行的函数
+                var fileBtn = $('.confirmFile');
+                opt.formData = {
+                    id: fileBtn.attr('id')
                 }
-                fileStr += `
-                    <div class="file-item" data-index="${i}">${file.name}
-                        <a href="javascript:;"
-                           class="sy-orange delFile"
-                           onclick="this.parentNode.remove()" >删除</a>
-                    </div>
-                `;
+                fileBtn.attr('disabled', 'disabled').html('上传中');
+            },
+            "onUpload":function (opt, data) {//在上传后执行的函数
+                if(data.message === 'success'){
+                    $.success('上传成功');
+                    $('.fileModal').modal('close');
+                    __api__.getAdeptLanguageList();
+                }else{
+                    $.error(data.message);
+                }
+                $('.confirmFile').removeAttr('disabled').html('确 认');
             }
-            $('.filesList').html(fileStr);
         });
 
         // div.preTestSet 添加click事件委托
         $('.preTestSet').click(function (e) {
             var target = e.target,
                 parentNode = target.parentNode;
-            //上传文件模态框
+            //上传文档
             if($(target).hasClass('fileBtn')) {
+                //打开模态框，先删除文件
+                var delEl = $('.iconfont.icon-shanchu');
+                for(var i = delEl.length-1; i>=0; i-- ){
+                    delEl[i].click()
+                }
+                $('.confirmFile').attr('id', target.id);
                 $('.fileModal').modal({
                     closeViaDimmer: false,
-                    onConfirm: function (e) {
-                        //上传文件
-                        var files = $('.multipleFile')[0].files,
-                            indexEl = $('.file-item');
-                        var fd = new FormData();
-                        fd.append("id", target.id);
-                        for(var i = 0, len = indexEl.length; i<len; i++){
-                            var idx = indexEl[i].dataset.index;
-                            fd.append("multipartFile", files[idx]);
-                        }
-                        if(indexEl.length < 1){
+                    onConfirm: function (ev) {
+                        var fileItem = $('.fileItem');
+                        if(fileItem.length < 1){
                             $.warning('请先选择文件');
                             return false;
                         }
-                        $.loading('上传中...');
-                        $('.fileModal button[data-am-modal-confirm]')
-                            .attr('disabled','disabled')
-                            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
-                        $.ajax({
-                            url:  __api__.baseRMUrl + '/exam/customer/applyGreenChannel',
-                            type: "POST",
-                            data: fd,
-                            processData: false,
-                            contentType: false,
-                            success: function (res) {
-                                $('.my-loading').remove();
-                                if(res.message === 'success'){
-                                    $.success('上传成功');
-                                    setTimeout('location.reload()', 1000);
-                                }else{
-                                    $.error(res.message);
-                                }
-                            }
-                        });
+                        $('.fileUploadBtn').click();
                     },
-                    onCancel: function (e) {}
+                    onCancel: function (ev) {}
                 });
-                //点击"进行测试"按钮，弹出领域模态框
+            //点击"进行测试"按钮，弹出领域模态框
             }else if($(target).hasClass('beginTestBtn')){
                 var originLan = $('.originLan').val(),
                     targetLan = $('.targetLan').val();
@@ -198,7 +173,7 @@
                 //擅长领域模态框
                 $('.beginTestModal').modal({
                     closeViaDimmer: false,
-                    onConfirm: function (e) {
+                    onConfirm: function (ev) {
                         //创建擅长领域
                         //确认，判断选择条件
                         var firstAreaEl = $('.areaWrap>span.selected'),
@@ -209,6 +184,8 @@
                         }
                         var firstAreaName = firstAreaEl.attr('data-value').split(',').slice(0,1),
                             firstAreaId = firstAreaEl.attr('data-value').split(',').slice(1);
+                        var originLan = $('.originLan').val(),
+                            targetLan = $('.targetLan').val();
                         var secondAreaName = [], secondAreaId = [];
                         secondAreaEl.toArray().forEach(function (item) {
                             var val = $(item).attr('data-value').split(',');
@@ -225,9 +202,7 @@
                             subDomain: JSON.stringify(secondAreaName),
                             subDomianId: JSON.stringify(secondAreaId)
                         };
-                        $('.confirmBtn')
-                            .attr('disabled','disabled')
-                            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                        $('.confirmBtn').attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
                         //发送ajax请求
                         __api__.getResponse({
                             type: 'post',
@@ -240,13 +215,11 @@
                                 $('.language-control').val('');
                                 $('.areaWrap>span.selected').removeClass('selected');
                                 $('.labelWrap').empty();
-
-                                //重新获取列表
                                 __api__.getAdeptLanguageList();
                             }else{
                                 $.error(res.message);
                             }
-
+                            $('.confirmBtn').removeAttr('disabled').html('确 认');
                         })
                     },
                     onCancel: function (e) {}

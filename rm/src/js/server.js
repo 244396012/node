@@ -5,13 +5,15 @@
 * author：zhaoyong
 *
 * */
-import { baseUrl, loginUrl, baseRMUrl, basePMUrl } from './interceptor';
+import { baseUrl, loginUrl, baseRMUrl, basePMUrl,orderApi } from './interceptor';
 import { getResponse } from "./asyncAjax";
 import './server_account';
 import serverArticle from './server_article';
 import serverPersonal from './server_personal';
 import serverOrder from './server_order';
 import './server_freelancer';
+import './activity';
+import './index';
 
 //url 对外api接口
 (function (api, global) {
@@ -20,6 +22,7 @@ import './server_freelancer';
     api.loginUrl = loginUrl;
     api.baseRMUrl = baseRMUrl;
     api.basePMUrl = basePMUrl;
+    api.orderApi = orderApi;
     api.getResponse = getResponse;
 
     global.__api__ = api;
@@ -48,10 +51,8 @@ import './server_freelancer';
         getApplicationCode: serverPersonal.getApplicationCode,
         getAdviceList: serverPersonal.getAdviceList,
         getAppraiseList: serverPersonal.getAppraiseList,
-        getAccountAmount: serverPersonal.getAccountAmount,
+        initAccount: serverPersonal.initAccount,
         getIncomeDetail: serverPersonal.getIncomeDetail,
-        judgeWithdrawLimit: serverPersonal.judgeWithdrawLimit,
-        commitWithdraw: serverPersonal.commitWithdraw,
         getTaxRate: serverPersonal.getTaxRate,
         getUserAllInfo: serverPersonal.getUserAllInfo,
         getSafetyResult: serverPersonal.getSafetyResult,
@@ -74,10 +75,12 @@ import './server_freelancer';
 // 订单中心 对外api
 (function (api, global) {
 
+    api.receiveOrder = serverOrder.receiveOrder;
     api.getOrderStatusNum = serverOrder.getOrderStatusNum;
-    api.getOrderListPage_1 = serverOrder.getOrderListPage_1;
-    api.getOrderListPage_2 = serverOrder.getOrderListPage_2;
-    api.getOrderPage_2_WaitNum = serverOrder.getOrderPage_2_WaitNum;
+    api.getOrderService = serverOrder.getOrderService;
+    api.getOrderBook = serverOrder.getOrderBook;
+    api.getOrderDtp = serverOrder.getOrderDtp;
+    api.getOrderOther = serverOrder.getOrderOther;
 
     global.__api__ = api;
 

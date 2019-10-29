@@ -48,7 +48,7 @@ routes.get('/',function (req, res) {
 //关于我们
 routes.get('/about/', function (req, res){
     res.render('about/index', {
-        mark: 'about',
+        mark: 'aboutExtra',
         title: '啄语 | 关于我们',
         layout: 'shared/layout'
     });
@@ -69,6 +69,13 @@ routes.get('/about/clause', function (req, res){
         layout: 'shared/layout'
     });
 });
-
+//隐私条款
+routes.get('/about/secret', function (req, res){
+    res.render('about/secret', {
+        mark: 'about',
+        title: '啄语 | 隐私条款',
+        layout: 'shared/layout'
+    });
+});
 
 module.exports = routes;

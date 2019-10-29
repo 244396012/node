@@ -23,7 +23,7 @@
 <% } else if(mark === 'order') { %>
     <link rel="stylesheet" href="/public/css/index.css">
     <link rel="stylesheet" href="/public/css/order.css">
-<% } else if(mark === 'about') { %>
+<% } else if(mark === 'about' || mark === 'aboutExtra') { %>
     <link rel="stylesheet" href="/public/css/index.css">
     <link rel="stylesheet" href="/public/css/about.css">
 <% } else if(mark === 'account') { %>
@@ -63,7 +63,7 @@
         <%- body %>
     <% } %>
     </section>
-    <% if(mark === 'index' || mark === 'activity' || mark === 'information' || mark === 'order') {%>
+    <% if(mark === 'index' || mark === 'activity' || mark === 'information' || mark === 'order' || mark === 'aboutExtra') {%>
         <!--首页、活动页、文章信息、订单中心用该模版样式-->
         <% include footer.ejs %>
     <% } else { %>
@@ -82,87 +82,6 @@
 <!-- 每日签到 -->
 <script async type="text/javascript" src="/static/lib/signOn.js"></script>
 <% } %>
-<!-- 母版页script，主要功能：给当前页添加active、设置接单等 -->
-<script>
-(function ($) {
-
-    //给header、aside导航添加“active”
-    var pathname = location.pathname,
-        navItems = $('.nav_AsideU a, .nav_Header>a.nav-item');
-    for(var i = 0, len = navItems.length; i<len; i++){
-        var item = navItems[i],
-            href = $(item).attr('href');
-        if(pathname === href){
-            $(item).addClass('active');
-            break;
-        }else if((href !== '/' && href !== '/personal/') && pathname.indexOf(href) > -1){
-            $('.nav_AsideU,.nav_Header').find('a[href="'+ href +'"]').addClass('active');
-            break;
-        }else if(pathname === '/personal/teamInfo'){
-            $('a.myBaseInfo').addClass('active');
-        }
-    }
-
-    //设置“暂不接稿”
-    var receiptBtn = document.querySelector('.receiptOrderBtn');
-    receiptBtn.addEventListener('click', function () {
-        var _this = this,
-            status = _this.classList.contains('off') ? 0:1;
-        __api__.getResponse({
-            url: '/userExtension/openCloseReceipt',
-            data: { receiptStatus: status }
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('设置成功');
-                if(_this.classList.contains('off')){
-                    _this.classList.add('on');
-                    _this.classList.remove('off');
-                }else{
-                    _this.classList.add('off');
-                    _this.classList.remove('on');
-                }
-            }else{
-                $.error(res.message);
-            }
-        });
-    }, false);
-
-    //“个人中心”、“关于我们”下拉框
-    var navEntry = document.querySelector('.nav_about_Header'),
-        navDropDown = document.querySelector('.nav_dropDown_Header'),
-        userEntry = document.querySelector('.personalEntry'),
-        userDropDown = document.querySelector('.dropDown_Header'),
-        timer = null;
-    navEntry.onmousemove = userEntry.onmousemove = function (){
-        var _this = this;
-        clearTimeout(timer);
-        timer = window.setTimeout(function (){
-            _this.classList.contains('personalEntry')
-                ? userDropDown.classList.add('transition')
-                : navDropDown.classList.add('transition');
-        },100);
-    }
-    navEntry.onmouseleave = userEntry.onmouseleave = function (){
-        var _this = this;
-        timer = window.setTimeout(function (){
-            _this.classList.contains('personalEntry')
-                ? userDropDown.classList.remove('transition')
-                : navDropDown.classList.remove('transition');
-        },300);
-    }
-    navDropDown.onmouseleave = userDropDown.onmouseleave = function (){
-        var _this = this;
-        timer = window.setTimeout(function (){
-            _this.classList.remove('transition');
-        },300);
-    }
-    navDropDown.onmousemove = userDropDown.onmousemove = function (){
-        clearTimeout(timer);
-        this.classList.add('transition');
-    }
-
-})(jQuery);
-</script>
 <!-- 其他页面引入的script -->
 <%- script %>
 </html>

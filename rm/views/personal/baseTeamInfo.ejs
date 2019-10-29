@@ -12,9 +12,12 @@
         <div class="am-u-lg-3 extra sy-right" style="height: 128px">
             <img src="<%= data.data.headerImg?data.data.headerImg:'/static/image/personal-default-head.png' %>" alt="头像">
             <div class="uploadFile sy-hidden"></div>
-            <div class="upload-btn sy-center" onclick="$('a.uploadify-button').click()">
+            <div class="upload-btn sy-center"
+                 data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
+                 onclick="$('a.uploadify-button').click()">
                 <i class="sy-personal-icon sy-personal-icon-head"></i>
             </div>
+            <p class="tips sy-orange" style="margin-top: 5px;padding-right: 12px">* 图片大小不超过3M</p>
         </div>
         <div class="am-u-lg-9 extra">
             <div class="sy-personal-cnt">
@@ -22,7 +25,11 @@
                     <div class="item">
                         <div><i class="required">*</i>团队名称：</div>
                         <div>
-                            <input id="teamName" type="text" required placeholder="请输入团队名称"
+                            <input id="teamName"
+                                   type="text"
+                                   required
+                                   placeholder="请输入团队名称"
+                                   value="<%= data.data.teamName?data.data.teamName:'' %>"
                                     <%= data.data.teamName?'disabled':'' %> >
                         </div>
                     </div>
@@ -43,7 +50,6 @@
                         <div><i class="required">*</i>纳税类型：</div>
                         <div>
                             <select id="typesOfTaxPayment" required prop="纳税类型">
-                                <option value=""></option>
                                 <option value="一般纳税人">一般纳税人</option>
                                 <option value="小规模纳税人">小规模纳税人</option>
                                 <option value="其他">其他</option>
@@ -128,7 +134,8 @@
                 <form class="sy-personal-form sy-personal-base primaryForm <%= data.data.teamName?'sy-hidden':'' %>">
                     <div class="item">
                         <div><i class="required">*</i>主要联系人：</div>
-                        <div><input id="primaryContactName" type="text"></div>
+                        <div><input id="primaryContactName" type="text"
+                                    <%= data.data.userExtension && data.data.userExtension.certificatePassed >=1 ?'disabled':'' %> ></div>
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>手机号码：</div>
@@ -158,11 +165,11 @@
                       style="border-top: 1px solid #eee">
                     <div class="item">
                         <div>其他联系人：</div>
-                        <div><input id="otherContactName" type="text"></div>
+                        <div><input id="otherContactName" type="text" placeholder="请输入其他联系人"></div>
                     </div>
                     <div class="item">
                         <div>手机号码：</div>
-                        <div><input id="otherContactMobile" type="tel" disabled></div>
+                        <div><input id="otherContactMobile" type="tel" placeholder="请输入手机号码"></div>
                     </div>
                     <div class="item">
                         <div>邮箱帐号：</div>
@@ -242,6 +249,8 @@
         </div>
     </div>
     <div class="hiddenData sy-hidden"><%= JSON.stringify(data) %></div>
+    <% } else{ %>
+    <p style="line-height: 200px;text-align: center;color: #999"><%= JSON.stringify(data) %></p>
     <% } %>
 </div>
 <script type="text/javascript" src="/static/lib/laydate.min.js"></script>
@@ -263,7 +272,7 @@
         //编辑时，填充已提交信息
         if($(target).hasClass('edit')){
             var targetDiv = $(target).parents('.am-g').next('.am-g'),
-                isFill = $('#teamName').val();
+                isFill = $('#unifiedSocialCreditCode').val();
             if(!isFill){
                 var hiddenEl = $('.hiddenData').html(),
                     hiddenData = hiddenEl && JSON.parse(hiddenEl);
@@ -277,7 +286,7 @@
                         $('select.city').val(localArr[1]);
                         $('select.area').val(localArr[2]);
                     }else if(prop === 'primaryContactInfo' || prop === 'otherContactInfo'){
-                        var dataArr = itemDt && JSON.parse(itemDt),
+                        var dataArr = itemDt && JSON.parse(itemDt) || [],
                             itemStr = '';
                         for(var i = 0, len = dataArr.length; i<len; i++){
                             var item = dataArr[i];
@@ -310,7 +319,7 @@
                 conTypeVal = targetItem.find('.otherContact').val(),
                 conPutVal = targetItem.find('.otherContactPut').val();
             if(conTypeVal === '' || conPutVal.trim() === ''){
-                $.warning('请先填写联系方式');
+                $.warning('请输入联系方式');
                 return false;
             }
             var items = targetForm.find('.addItem');

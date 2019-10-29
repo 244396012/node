@@ -23,8 +23,29 @@ const articleServer = (function (global, document, $, undefined){
         let event = e || global.event,
             targetEl = event.target || event.srcElement;
         if(targetEl.nodeType !== 1) return;
-        //添加“点赞”功能
-        if(targetEl.nodeName === 'I' && $(targetEl).hasClass('icon-thumbs')){
+
+        //加载更多评论
+        if(targetEl.classList.contains('loadMoreCommentBtn')){
+            getCommentsList()
+        }else if(targetEl.classList.contains('cancel')){ //取消“评论回复”框
+            targetEl.parentNode.parentNode.remove()
+        }else if(targetEl.classList.contains('replyIcon')){ //显示"评论回复"框
+            let parentNode = targetEl.parentNode,
+                isExistNextEl = targetEl.nextElementSibling;
+            let nextEl = document.createElement('div');
+            nextEl.className = 'add-comment';
+            nextEl.innerHTML = `<textarea placeholder="欢迎留言评论哦~"></textarea>
+                                <div class="sy-right">
+                                    <button type="button" class="sy-btn sy-btn-white sy-btn-md cancel">取消</button>
+                                    <button type="button" class="sy-btn sy-btn-green sy-btn-md release">发布</button>
+                                </div>`;
+            if(!isExistNextEl){
+                parentNode.appendChild(nextEl);
+            }else if(isExistNextEl.className !== 'add-comment'){
+                parentNode.insertBefore(nextEl, isExistNextEl);
+            }
+
+        }else if(targetEl.nodeName === 'I' && $(targetEl).hasClass('icon-thumbs')){ //添加“点赞”功能
             const isOfficial = getQueryString('ofi') ? 1 : 0;
             $.ajax({
                 type: 'put',
@@ -37,6 +58,8 @@ const articleServer = (function (global, document, $, undefined){
                     if(res.message==='success'){
                         $.success('已点赞');
                         setTimeout('location.reload(true);', 1000);
+                    }else if(res.code === '120'){
+                        $.warning(res.message);
                     }else{
                         $.error(res.message);
                     }
@@ -47,14 +70,13 @@ const articleServer = (function (global, document, $, undefined){
                     }
                 }
             })
-        //发布评论
-        }else if($(targetEl).hasClass('AddCommentBtn')){
+        }else if($(targetEl).hasClass('AddCommentBtn')){//发布评论
             const textArea = $(targetEl).parent().prev();
             if(textArea[0].value.trim() === ''){
                 $.warning('请输入评论内容');
-                return null;
+                return false;
             }
-            const globalData = localStorage.getItem('sy_rm_client_ubase');
+            const globalData = sessionStorage.getItem('sy_rm_client_ubase');
             const nickName = globalData ? JSON.parse(globalData).nickName : '';
             targetEl.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
             targetEl.setAttribute('disabled', true);
@@ -68,7 +90,7 @@ const articleServer = (function (global, document, $, undefined){
                 },
                 success: function (res) {
                     if(res.code === '200'){
-                        $.success('发布成功');
+                        $.success('已添加评论');
                         $('.commentList').empty();
                         $('.commentPageNo').val(1);
                         textArea[0].value = '';
@@ -87,29 +109,7 @@ const articleServer = (function (global, document, $, undefined){
                     targetEl.removeAttribute('disabled');
                 }
             });
-            //js动态添加"评论回复框"
-        }else if(targetEl.classList.contains('replyIcon')){
-            let parentNode = targetEl.parentNode,
-                isExistNextEl = targetEl.nextElementSibling;
-            let nextEl = document.createElement('div');
-            nextEl.className = 'add-comment';
-            nextEl.innerHTML = `<textarea placeholder="欢迎留言评论哦~"></textarea>
-                                <div class="sy-right">
-                                    <button type="button" class="sy-btn sy-btn-white sy-btn-md cancel">取消</button>
-                                    <button type="button" class="sy-btn sy-btn-green sy-btn-md release">发布</button>
-                                </div>`;
-            if(!isExistNextEl){
-                parentNode.appendChild(nextEl);
-            }else if(isExistNextEl.className !== 'add-comment'){
-                parentNode.insertBefore(nextEl, isExistNextEl);
-            }
-            //取消“评论回复框”
-        }else if(targetEl.classList.contains('cancel')){
-            targetEl.parentNode.parentNode.remove();
-            //发表“评论回复”
-        }else if(targetEl.classList.contains('release')){
-            //...ajax here
-            //添加回复
+        }else if(targetEl.classList.contains('release')){//添加回复
             const parentNode = $(targetEl).parent(),
                 textArea = parentNode.prev();
             if(textArea[0].value.trim() === ''){
@@ -121,7 +121,7 @@ const articleServer = (function (global, document, $, undefined){
             if(localDataEl.length > 0){
                 localData = JSON.parse(localDataEl.html());
             }
-            let globalData = localStorage.getItem('sy_rm_client_ubase');
+            let globalData = sessionStorage.getItem('sy_rm_client_ubase');
             const nickName = globalData ? JSON.parse(globalData).nickName : '';
             targetEl.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
             targetEl.setAttribute('disabled', true);
@@ -136,7 +136,7 @@ const articleServer = (function (global, document, $, undefined){
                 },
                 success: function (res) {
                     if(res.code === '200'){
-                        $.success('回复成功');
+                        $.success('已添加回复');
                         $('.commentList').empty();
                         $('.commentPageNo').val(1);
                         textArea.value = '';
@@ -155,9 +155,30 @@ const articleServer = (function (global, document, $, undefined){
                     targetEl.removeAttribute('disabled');
                 }
             });
-            //加载更多评论内容
-        }else if(targetEl.classList.contains('loadMoreCommentBtn')){
-            getCommentsList();
+        }else if($(targetEl).hasClass('delete')){
+            $.confirm();
+            $('.confirmModal').modal({
+                closeViaDimmer: false,
+                onConfirm: function (e) {
+                    const aid = getQueryString('aid'),
+                        token = sessionStorage.getItem('sy_rm_client_access_token'),
+                        uid = sessionStorage.getItem('sy_rm_client_ud');
+                    getResponse({
+                        type: 'delete',
+                        url: '/interpreterArticle/deleteInterpreterArtile?id='+ aid
+                    }).then(res => {
+                        if(res.message === 'success'){
+                            $.success('文章已删除');
+                            setTimeout(() => {
+                                location.href = '/personalArticle/list?t='+token+'&u='+uid;
+                            }, 1000);
+                        }else{
+                            $.error(res.message);
+                        }
+                    })
+                },
+                onCancel: function (e) { }
+            });
         }
     });
 
@@ -171,7 +192,7 @@ const articleServer = (function (global, document, $, undefined){
             url: '/commentAndLog/getCommentAndReply',
             data: {
                 bussinessId: getQueryString('aid'),
-                pageNo: pageNo,
+                pageNo: pageNo - 1,
                 pageSize: size
             }
         }).then(res => {
@@ -262,7 +283,7 @@ const articleServer = (function (global, document, $, undefined){
                                         <div class="am-u-sm-2">
                                             <a href="/article?uid=${item.publishUserId}"><img src="/static/image/index-default-head.png" alt="">${item.publishUser}</a>
                                         </div>
-                                        <div class="am-u-sm-4">${item.publishTime?item.publishTime:''}</div>
+                                        <div class="am-u-sm-4">${item.publishTime?item.publishTime:'--'}</div>
                                         <div class="am-u-sm-2 sy-center">
                                             <i class="sy-icon icon-eye"></i>${item.viewCount}
                                         </div>
@@ -366,7 +387,7 @@ const articleServer = (function (global, document, $, undefined){
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
                 } else if(res.data.totalElements === 0){
-                    bodyStr = `<p class="empty">暂无文章</p>`;
+                    bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
                 if(res.data.totalPages === pageNo){
@@ -420,7 +441,7 @@ const articleServer = (function (global, document, $, undefined){
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
                 }else if(res.data.totalElements === 0){
-                    bodyStr = `<p class="empty">暂无文章</p>`;
+                    bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
                 if(res.data.totalPages === pageNo){
@@ -438,8 +459,7 @@ const articleServer = (function (global, document, $, undefined){
 *
 * */
 //“发表/编辑”文章标题限制长度50个字符
-    let titlePut = document.getElementsByClassName('controlArticleTitleLength')[0];
-    titlePut && titlePut.addEventListener('input', throttleFn(function () {
+    $('.controlArticleTitleLength').on('input', throttleFn(function () {
         let _this = this;
         let val = _this.value,
             len = val.length;
@@ -451,7 +471,7 @@ const articleServer = (function (global, document, $, undefined){
             return null;
         }
         nextEl.innerHTML =  len + '/50';
-    }, 500), false);
+    }, 500));
 //“发布/编辑”文章预览文章
     function previewArticle() {
         const title = document.getElementsByClassName('createArticle_Title')[0],
@@ -468,7 +488,7 @@ const articleServer = (function (global, document, $, undefined){
                 return null;
             }
         }
-        const user = JSON.parse(localStorage.getItem('sy_rm_client_ubase'));
+        const user = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase'));
         const previewData = {
             title: title.value,
             label: label.value,
@@ -524,8 +544,8 @@ const articleServer = (function (global, document, $, undefined){
                 articleId: articleId
             });
         }
-        const token = localStorage.getItem('sy_rm_client_access_token'),
-            userId = localStorage.getItem('sy_rm_client_ud');
+        const token = sessionStorage.getItem('sy_rm_client_access_token'),
+            userId = sessionStorage.getItem('sy_rm_client_ud');
         getResponse({
             type: type,
             url: url,
@@ -546,6 +566,7 @@ const articleServer = (function (global, document, $, undefined){
         let moreBtn = $(".article_LoadMoreBtn"),
             pageEl = $('.article_PageNo'),
             pageNo = +pageEl.val();
+        $.loading('获取数据...');
         getResponse({
             url: '/interpreterArticle/interpreterArticleList',
             data: {
@@ -554,21 +575,26 @@ const articleServer = (function (global, document, $, undefined){
                 status: status
             }
         }).then(res => {
-            const token = localStorage.getItem('sy_rm_client_access_token');
+            const token = sessionStorage.getItem('sy_rm_client_access_token');
             if(res.message === 'success'){
+                const list = res.data.content;
                 let bodyStr = "", listArr = [];
-                res.data.content.forEach(item => {
-                    let statusStr = "", statusLabel = item.lable;
+                list.forEach(item => {
+                    let statusStr = "",
+                        statusLabel = item.lable,
+                        statusTime = item.publishTime;
                     if(item.status === 0){
                         statusLabel = '草稿';
+                        statusTime = item.gmtUpdate;
                         statusStr = `<div class="am-u-sm-8 tip"></div>`;
                     }else if(item.status === 1){
                         statusLabel = '待审核';
+                        statusTime = item.submissionTime;
                         statusStr = `<div class="am-u-sm-8 tip">文章正在审核中，请耐心等待</div>`;
-                    }else if(item.status === 2){
-                        statusLabel = '审核未通过';
+                    }else if(item.status === 2 || item.status === 4){
+                        statusLabel = item.status === 2?'审核未通过':'发布撤回';
                         statusStr = `<div class="am-u-sm-8 tip">很抱歉，文章不能正常发布，请点击正文查看详情</div>`;
-                    }else{
+                    }else {
                         statusStr = `<div class="am-u-sm-1"><i class="sy-icon icon-eye"></i>${item.viewCount}</div>
                                      <div class="am-u-sm-1"><i class="sy-icon icon-thumbs"></i>${item.likeNumber}</div>
                                      <div class="am-u-sm-1"><i class="sy-icon icon-commenting"></i>${item.commentsNumber}</div>`;
@@ -584,7 +610,7 @@ const articleServer = (function (global, document, $, undefined){
                                         <p>${item.partContent}</p>
                                         <div class="am-g">
                                             ${statusStr}
-                                            <div class="am-u-sm-4">${item.publishTime?item.publishTime:''}</div>
+                                            <div class="am-u-sm-4">${statusTime?statusTime:'--'}</div>
                                         </div>
                                     </div>
                                 </div>`;
@@ -596,7 +622,7 @@ const articleServer = (function (global, document, $, undefined){
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
                 }else if(res.data.totalElements === 0){
-                    bodyStr = `<p class="empty">暂无文章</p>`;
+                    bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
                 if(res.data.totalPages === pageNo){
@@ -605,6 +631,7 @@ const articleServer = (function (global, document, $, undefined){
                 $('.personalArticleList').append(bodyStr);
             }
             moreBtn.removeAttr('disabled').html('加载更多');
+            $('.my-loading').remove()
         });
     }
 
@@ -658,7 +685,7 @@ const articleServer = (function (global, document, $, undefined){
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
                 }else if(res.data.totalElements === 0){
-                    bodyStr = `<p class="empty">暂无文章</p>`;
+                    bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
                 if(res.data.totalPages === pageNo){

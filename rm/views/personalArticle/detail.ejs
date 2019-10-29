@@ -15,13 +15,14 @@
                     </h5>
                     <div class="am-g">
                         <% if (data.data.status === 0 || data.data.status === 2) {%>
-                            <div class="am-u-sm-6">最近保存时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                            <div class="am-u-sm-6">最近保存时间：<%= data.data.gmtUpdate?data.data.gmtUpdate:'--' %></div>
                         <% } else if (data.data.status === 1) {%>
-                            <div class="am-u-sm-6">提交审核时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                            <div class="am-u-sm-6">提交审核时间：<%= data.data.submissionTime?data.data.submissionTime:'--' %></div>
                             <div class="am-u-sm-6 sy-right tip">文章正在审核中，请耐心等待</div>
-                        <% } else if (data.data.status === 2) { %>
-                            <div class="am-u-sm-6 sy-right tip"><%= data.data.reviewDesc %></div>
-                        <% } else if (data.data.status === 3) {%>
+                        <% } else if (data.data.status === 2 || data.data.status === 4) { %>
+                            <div class="am-u-sm-6">最近保存时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                            <div class="am-u-sm-6 sy-right tip"><%= (data.data.status === 2? '未通过理由：':'撤回理由：')+data.data.reviewDesc %></div>
+                        <% } else {%>
                             <div class="am-u-sm-6" style="width: 70%">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
                             <div class="am-u-sm-2 sy-right" style="width: 10%"><i class="sy-icon icon-eye"></i><%= data.data.viewCount %></div>
                             <div class="am-u-sm-2 sy-right" style="width: 10%"><i class="sy-icon icon-thumbs"></i><%= data.data.likeNumber %></div>
@@ -40,38 +41,14 @@
     </div>
 </div>
 <script>
-(function (){
+(function ($){
+
+    var search = location.search;
 
     $('.editTarget').click(function (e) {
         e.preventDefault();
-        var search = location.search;
         location.href = '/personalArticle/edit'+search;
-    });
+    })
 
-//删除文章
-    $('.delete').click(function () {
-        $.confirm();
-        $('.confirmModal').modal({
-            closeViaDimmer: false,
-            onConfirm: function (e) {
-                var aid = __bundle__.getQueryString('aid');
-                __api__.getResponse({
-                    type: 'delete',
-                    url: '/interpreterArticle/deleteInterpreterArtile?id='+ aid
-                }).then(res => {
-                    if(res.message === 'success'){
-                        $.success('文章已删除');
-                        setTimeout(function () {
-                            location.href = '/personalArticle/list';
-                        }, 1000);
-                    }else{
-                        $.error(res.message);
-                    }
-                })
-            },
-            onCancel: function (e) { }
-        });
-    });
-
-})();
+})(jQuery);
 </script>

@@ -2,14 +2,14 @@
     <div class="am-g sy-bold">消息通知</div>
     <div class="am-g nav-filter mgFilter">
         <!-- 有新消息时，添加class=will即可 -->
-        <label data-type="1" class="active">订单消息</label>
-        <label data-type="0">其他消息</label>
+        <label data-type="0" class="mgFt orderMsg active">订单消息</label>
+        <label data-type="1" class="mgFt otherMsg">其他消息</label>
     </div>
     <div class="am-g message-list">
         <table class="mgList">
             <tbody>
                 <tr class="empty">
-                    <td colspan="2">暂无消息</td>
+                    <td colspan="2"><div class="empty"></div></td>
                 </tr>
             </tbody>
         </table>
@@ -17,30 +17,84 @@
     </div>
 </div>
 <script type="text/javascript" src="/static/lib/pagination.js"></script>
-<script type="text/javascript" src="/static/lib/sockjs.min.js"></script>
-<script type="text/javascript" src="/static/lib/stomp.min.js"></script>
-<script type="text/javascript" src="/static/lib/socket.js"></script>
 <script>
-    //connect();
+(function ($) {
 
     var getMessage = __api__.getPageMessage();
 
-//切换消息类型
+    //已读消息
+    $('.mgList').on('click', function (e) {
+        var tar = $(e.target),
+            msgEl = null;
+        e.preventDefault()
+        if(tar.hasClass('readMsg') || tar.parents('.readMsg').length > 0){
+            msgEl = $(tar.parents('.readMsg')[0] || tar);
+            var status = msgEl.attr('data-status'),
+                mid = msgEl.attr('data-mid'),
+                url = msgEl.attr('data-url');
+            if(status === '0' && mid){
+                __api__.getResponse({
+                    type: 'put',
+                    url: '/notice/updateNoticeStatus',
+                    data: {
+                        noticeId: mid,
+                        status: 1
+                    }
+                }).then(res => {
+                    if(res.message === 'success'){
+                        msgEl.parents('tr').removeClass('will');
+                        __api__.getResponse({
+                            url:　'/notice/getNoReadCount',
+                            data: {
+                                status: 0
+                            }
+                        }).then(data => {
+                            if(data.message === 'success'){
+                                $('.messageProps').html(+data.data ? data.data : '');
+                            }
+                        })
+                    }else{
+                        $.error(res.message);
+                    }
+                })
+            }
+            if(tar[0].nodeName === 'A'){
+                window.open(tar.attr('href'), '_blank');
+                return null
+            }
+            setTimeout(function () {
+                url && window.open(url, '_blank');
+            }, 100)
+        }
+    })
+
+    //切换消息类型
     $('.mgFilter').on('click', function (e) {
-        if(e.target.nodeName === 'LABEL'){
-            var tarEl = $(e.target),
+        var target = e.target;
+        if(target.nodeName === 'LABEL' && $(target).hasClass('mgFt')){
+            var tarEl = $(target),
                 type = tarEl.attr('data-type');
             tarEl.addClass('active').siblings().removeClass('active');
-            getMessage.set({
-                xhr : {
-                    data : {
-                        status: type,
-                        pageNo: 0,
-                        pageSize: getMessage.o.limit
-                    }
-                }
-            }, true);
+            showMsgFn(tarEl, type);
         }
-    });
+    })
 
+    function showMsgFn(el, type) {
+        $.loading('获取数据...');
+        getMessage.o.current = 1;
+        getMessage.o.limit = 10;
+        getMessage.set({
+            xhr : {
+                data : {
+                    noticeType: type,
+                    pageNo: getMessage.get('current') - 1,
+                    pageSize: getMessage.get('limit')
+                }
+            }
+        }, true);
+        setTimeout(function () {
+            el.removeClass('will')
+        }, 1000);
+    }
+}(jQuery))
 </script>

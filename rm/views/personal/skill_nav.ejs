@@ -13,7 +13,7 @@
     (function ($) {
 
         // 1：团队，其他为个人
-        var ubase = localStorage.getItem('sy_rm_client_ubase'),
+        var ubase = sessionStorage.getItem('sy_rm_client_ubase'),
             ubaseObj = ubase && JSON.parse(ubase);
         if(ubaseObj.isTeam === 1){
             $('.item.team').removeClass('sy-hidden');

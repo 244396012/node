@@ -691,7 +691,7 @@ var uploadEvent = {
     }
 };
 
-var uploadFileList={
+var uploadFileList = {
     "initFileList":function(opt){
         opt.fileList = new Array();
     },
@@ -703,7 +703,7 @@ var uploadFileList={
         uploadTools.flushOpt(opt);
     }
 };
-var formTake={
+var formTake = {
     "getData":function(formId){
         var formData = {};
         var $form = $("#"+formId);

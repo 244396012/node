@@ -2,15 +2,14 @@
     <div class="bg a2_bg-1">
         <div class="content">
             <div class="a1_bg_txt">
-                独乐乐不如众乐乐，一人翻不如一起翻。
-                一个人可以走的很快，但是一群人可以走的更远。
-                啄语平台将向各路英雄豪杰敞开大门，邀请身边的好友一起入坑吧！
+                独乐乐不如众乐乐，一人译不如一起译！
+                一个人可以走得很快，一群人可以走得更远。
+                啄语平台向译者江湖各路英雄豪杰敞开大门，邀请身边的小伙伴一起加入吧！
             </div>
         </div>
     </div>
     <div class="bg a2_bg-2">
-        <div class="content">
-            <h3 class="sy-center">活动内容</h3>
+        <div class="content" style="height: 1000px">
             <div class="step step_1">
                 每邀请1位好友（完善简历），可以获得20积分，通过平台测试成为译员获得100分。
             </div>
@@ -27,6 +26,19 @@
                 所邀请好友所得现金红包及积分需邀请人完成平台第一次订单方可全部解锁。
                 现金红包直接进入个人账户，可申请提现。
             </div>
+            <a href="/personal/application"
+               class="applyUser"
+               style="display: block;width: 200px;height: 60px;position: absolute;bottom: -96px;left: 41.6%">&nbsp;</a>
         </div>
     </div>
 </div>
+<script>
+    $('.applyUser').click(function (e) {
+        e.preventDefault()
+        if(!__api__.isAuth){
+            location.href = '/login';
+            return null
+        }
+        location.href = '/personal/application';
+    })
+</script>

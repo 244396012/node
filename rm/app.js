@@ -1,5 +1,6 @@
+
+// const https = require('https');
 const fs = require('fs');
-const https = require('https');
 const path = require('path');
 const express = require('express');
 const ejs = require('ejs');
@@ -9,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const favicon = require('serve-favicon');
 const compression = require('compression');
 const logger = require('morgan');
+const FileStreamRotator = require('file-stream-rotator');//分割日志
 
 /*
 *
@@ -16,9 +18,8 @@ const logger = require('morgan');
 "file-stream-rotator": "^0.2.0",
 "morgan": "^1.9.0",
 *
-var session = require('express-session');
-var morgan = require('morgan');//日志组件
-var FileStreamRotator = require('file-stream-rotator');//分割日志
+const session = require('express-session');
+const morgan = require('morgan');//日志组件
 *
 * */
 
@@ -37,12 +38,12 @@ app.set('layout','shared/layout');
 app.set('view engine', 'ejs');
 app.engine('.ejs', ejs.__express);
 app.use('/public', express.static('public', {
-    //'maxAge': '2h'
+    // 'maxAge': '2h'
 }));
 app.use('/static', express.static('static', {
-    //static里面的文件不会更改，设置缓存时长30天
-    // 'maxAge': '30d',
-    // 'Expires': '30d',
+    //static里面的文件不会更改，设置缓存时长7天
+    'maxAge': '7d',
+    'Expires': '7d',
     'ETag': false,
     'lastModified': false
 }));
@@ -67,20 +68,18 @@ app.use('/personalArticle', pageUserArticleRoute);
 app.use('/article', pageArticleRoute);
 app.use('/activity', pageActivityRoute);
 
-/*
-*
+
 //打印本地日志log
-var logDirectory = path.join(__dirname, 'logger');
+const logDirectory = path.join(__dirname, 'logger');
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);//-- ensure log directory exists
-var infoLogStream = FileStreamRotator.getStream({//-- create a rotating write stream
+const infoLogStream = FileStreamRotator.getStream({//-- create a rotating write stream
     date_format: 'YYYYMMDD',
     filename: path.join(logDirectory, 'log-%DATE%.log'),
     frequency: 'daily',
     verbose: false
 });
-app.use(morgan('short', {stream: infoLogStream}));//-- setup the logger
-*
-* */
+app.use(logger('short', {stream: infoLogStream}));//-- setup the logger
+
 
 //catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -102,7 +101,8 @@ app.use(function (err, req, res, next) {
         case 404:
             res.render('shared/404', {
                 title: '404 页面不存在',
-                layout: 'shared/404'
+                layout: 'shared/404',
+                mark: ''
             });
             break;
         default:

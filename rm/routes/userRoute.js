@@ -47,7 +47,7 @@ routes.get('/teamInfo', function (req, res) {
     const userId = req.query.u,
         token = req.query.t;
     getTokenMsg({
-        url: '/team/findTeamByUSerId',
+        url: '/team/findTeamByUserId',
         token: token,
         data: { userId: userId }
     }).done(redata => {

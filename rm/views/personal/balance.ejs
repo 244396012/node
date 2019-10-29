@@ -1,110 +1,49 @@
 <div class="personal balance">
     <div class="am-g">
-        <div class="am-u-lg-9 sy-font-md">申请提现时间：北京时间<span class="sy-orange">每月16-20日，每月</span>可申请<span class="sy-orange">一次</span></div>
-        <div class="am-u-lg-3 sy-right sy-font-md sy-personal-help"
+        <div class="am-u-lg-6 sy-font-md">
+            申请提现时间：北京时间<span class="sy-orange">每月16-20日</span>，每条数据<span class="sy-orange">每月</span>只可提现<span class="sy-orange">一次</span></div>
+        <div class="am-u-lg-6 sy-font-md sy-right sy-personal-help"
              title="点击查看提现规则"
              onclick="$.toolinfo({
                 title: '提现规则',
                 txt: __bundle__.promptTxt.balanceRule})">
-            <span class="sy-info-icon"></span>提现规则</div>
-    </div>
-    <div class="am-g sy-center account-info">
-        <div class="am-u-lg-4">
-            <p id="remainMoney_Balance">--</p>
-            <span>账户余额</span>
-        </div>
-        <div class="am-u-lg-4">
-            <p id="outMoney_Balance" data-num="0">--</p>
-            <span>可提现</span>
-        </div>
-        <div class="am-u-lg-4">
-            <p id="totalMoney_Balance" data-num="0">--</p>
-            <span style="padding-left: 45px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
+            <span class="sy-info-icon"></span>提现规则
         </div>
     </div>
-    <div class="draw-cash drawCash">
-        <div class="draw-add">
-            <div class="sy-font-md">
-                <div>
-                    <span>选择提现方式</span>
-                    <label class="am-radio am-success bankCheck">
-                        <input type="radio" name="payWay" value="银行卡" data-am-ucheck> 银行卡
-                    </label>
-                    <label class="am-radio am-success alipayCheck">
-                        <input type="radio" name="payWay" value="支付宝" data-am-ucheck> 支付宝
-                    </label>
-                    <label class="am-radio am-success paypalCheck">
-                        <input type="radio" name="payWay" value="Paypal" data-am-ucheck> Paypal
-                    </label>
-                    <input class="withdrawalType" type="hidden" value="">
-                </div>
-                <div>
-                    <span>可提现金额</span>
-                    <input class="withdrawalAmount" type="number" placeholder="请输入提取金额">
-                    <label class="drawAll_Balance">全部提现</label>
-                    <p class="tip"></p>
-                </div>
-                <div>
-                    <span>输入结算密码</span>
-                    <input class="withdrawalPwd" type="password" placeholder="请输入结算密码">
-                </div>
-            </div>
-            <div class="sy-pd-t-30 agreementType">
-                <div class="ageTrue sy-hidden">
-                    <label class="am-radio am-success">
-                        <input type="radio" name="agreeRadio" data-am-ucheck> 阅读并同意
-                    </label>
-                    <a href="javascript:;"
-                       onclick="$.toolinfo({
-                            width: '600px',
-                            title: '《51社保提现三方协议》',
-                            txt: __bundle__.promptTxt.balanceRule})">
-                        《51社保提现三方协议》</a>
-                </div>
-                <div class="ageFalse sy-hidden">
-                    <label class="am-radio am-success">
-                        <input type="radio" name="agreeRadio" data-am-ucheck> 阅读并同意
-                    </label>
-                    <a href="javascript:;"
-                       onclick="$.toolinfo({
-                            width: '600px',
-                            title: '《云账户提现三方协议》',
-                            txt: __bundle__.promptTxt.balanceRule})">
-                        《云账户提现三方协议》</a>
-                </div>
-            </div>
-            <div class="sy-pd-t-30 sy-center">
-                <button type="button"
-                        disabled
-                        onclick="__api__.commitWithdraw(this)"
-                        class="sy-btn sy-btn-green sy-btn-sh sy-font-md withdrawalBtn">申请提现</button>
+    <div class="am-g">
+        <div class="am-u-lg-12 sy-pd-t-10 sy-font-md">
+            币种：
+            <div class="cash-filter cashFilter">
+
             </div>
         </div>
-        <div class="draw-schedule sy-hidden">
-            <div class="sy-center sy-bold sy-baseColor">申请提现成功</div>
-            <div class="progress sy-bold sy-center">
-                <div class="step done">
-                    <span>1</span>
-                    <p>提现申请成功</p>
-                </div>
-                <div class="step">
-                    <span>2</span>
-                    <p>等待财务审核</p>
-                </div>
-                <div class="step">
-                    <span>3</span>
-                    <p>提交至结算中心</p>
-                </div>
-                <div class="line"></div>
+    </div>
+    <div class="am-g sy-center account-info accountWrap">
+        <div class="am-u-lg-9 accountInit">
+            <div class="am-u-lg-4">
+                <p class="remainMoney_Balance">--</p>
+                <span>账户余额</span>
             </div>
+            <div class="am-u-lg-4">
+                <p class="outMoney_Balance" data-num="0">--</p>
+                <span>可提现</span>
+            </div>
+            <div class="am-u-lg-4">
+                <p class="totalMoney_Balance" data-num="0">--</p>
+                <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
+            </div>
+        </div>
+        <div class="am-u-lg-3 accountPrev sy-hidden" style="padding-top: 1.4rem">
+            <!-- class = active、waiting、done -->
+            <button type="button" class="sy-btn sy-btn-md sy-font-md sy-hidden active">申请提现</button>
         </div>
     </div>
     <div class="income-detail">
         <div class="am-g income-filter">
-            <div class="am-u-lg-3 sy-bold sy-font-lg">收入明细</div>
-            <div class="am-u-lg-9 sy-right sy-font-sm">
-                <label class="income-filter incomeFilter active" data-type="">全部</label>
-                <label class="income-filter incomeFilter" data-type="三个月">三个月</label>
+            <div class="am-u-lg-6 sy-bold">收入明细</div>
+            <div class="am-u-lg-6 sy-right sy-font-sm">
+                <label class="income-filter incomeFilter" data-type="">全部</label>
+                <label class="income-filter incomeFilter active" data-type="三个月">三个月</label>
                 <label class="income-filter incomeFilter" data-type="半年内">半年内</label>
                 <label class="income-filter incomeFilter" data-type="一年内">一年内</label>
             </div>
@@ -115,70 +54,53 @@
                 <tr>
                     <td>时间</td>
                     <td>金额</td>
+                    <td>币种</td>
                     <td>账户信息</td>
                     <td>说明</td>
                 </tr>
                 </thead>
-                <tbody class="financeList">
+                <tbody class="incomeFinanceList">
                     <tr class="empty"><td colspan="4">暂无明细</td></tr>
                 </tbody>
             </table>
         </div>
-        <div id="pagination" class="pagination"></div>
+        <div id="incomePagination" class="pagination"></div>
     </div>
 </div>
 <script type="text/javascript" src="/static/lib/pagination.js"></script>
+<script src="/static/lib/fileUpload/js/fileUpload.js"></script>
 <script>
-(function ($) {
+(function (document, $) {
 
-    __api__.getAccountAmount();
-    __api__.judgeWithdrawLimit();
+    __api__.initAccount();
 
-    //显示金额
-    $('.toggleTotal').on('click', function() {
-        var _this = this,
-            el = $('#totalMoney_Balance'),
-            money = el.attr('data-num');
-        $(_this).toggleClass('on');
-        $(_this).hasClass('on') ? el.html(money) : el.html('****');
-    });
+    var incomeDetail = __api__.getIncomeDetail();
 
-    //计算税率
-    var amountEl = document.getElementsByClassName('withdrawalAmount')[0];
-    amountEl.addEventListener('input',__bundle__.throttleFn(function () {
-        __api__.getTaxRate(this);
-    }, 500), false);
+    $('.personal.balance').on('click', function (e) {
 
-    //全部提现
-    $('.drawAll_Balance').click(function () {
-        var money = $('#outMoney_Balance').attr('data-num');
-        amountEl.value = money;
-        __api__.getTaxRate(amountEl);
-    });
-
-    //勾选协议
-    $('input[name=agreeRadio]').on('click', function () {
-        this.checked ? $('.withdrawalBtn').removeAttr('disabled'): '';
-    });
-
-    //收入明细
-    var detailFn = __api__.getIncomeDetail();
-
-    $('label.incomeFilter').on('click', function () {
-        var _this = this,
-            type = _this.getAttribute('data-type');
-        $(_this).addClass('active').siblings().removeClass('active');
-        detailFn.set({
-            xhr : {
-                data : {
-                    dateFilterStr: type,
-                    page: 0,
-                    limit: detailFn.o.limit
+        var target = e.target;
+        //显示/隐藏金额
+        if($(target).hasClass('toggleTotal')){
+            var el = $('.totalMoney_Balance'),
+                money = el.attr('data-num');
+            $(target).toggleClass('on');
+            $(target).hasClass('on') ? el.html(money) : el.html('****');
+        //筛选收入明细
+        }else if($(target).hasClass('incomeFilter')){
+            incomeDetail.o.current = 1;
+            incomeDetail.o.limit = 10;
+            incomeDetail.set({
+                xhr : {
+                    data : {
+                        filterStr: target.getAttribute('data-type'),
+                        pageNo: incomeDetail.get('current')-1,
+                        pageSize: incomeDetail.get('limit')
+                    }
                 }
-            }
-        }, true);
+            }, true);
+            $(target).addClass('active').siblings().removeClass('active');
+        }
     });
 
-}(jQuery));
-
+}(document, jQuery))
 </script>

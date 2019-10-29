@@ -12,7 +12,9 @@
             <h3>个性标签及擅长领域 <a href="/personal/resume"><span class="edit"><i class="icon-edit"></i>编辑</span></a></h3>
             <div class="labelExp">
                 <% for(var i = 0; i<data.labelArr.length; i++) { %>
+                    <% if(data.labelArr[i]){  %>
                     <span><%= data.labelArr[i] %></span>
+                    <% }  %>
                 <% } %>
             </div>
             <h3>项目经历</h3>

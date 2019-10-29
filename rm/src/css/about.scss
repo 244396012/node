@@ -22,14 +22,15 @@
   &>.tab-item{
     margin-bottom: 26px;
     font-size: 16px;
-    &:hover{
-      cursor: pointer;
-      color: $baseColor;
-    }
+    &>a{color: #333}
     &:last-child{
       margin-bottom: 0;
     }
-    &.active{
+    &:hover{
+      cursor: pointer;
+    }
+    &.active,
+    &.active>a{
       color: $baseColor;
       font-weight: bold;
     }
@@ -91,6 +92,10 @@
     .am-panel{
       box-shadow: none;
       border-bottom: 1px solid #eee;
+      img{
+        width: 100%;
+        margin-bottom: 20px;
+      }
     }
     .am-panel-group .am-panel-hd+.am-panel-collapse .am-panel-bd{
       padding-top: 24px;
@@ -134,3 +139,26 @@
 
   }
 }
+.about.about-us{
+  .banner{
+    width: 100%;
+    height: 300px;
+    background-image: url("/static/image/about-banner.png");
+    background-size: 100% 100%;
+    background-position: center;
+  }
+  .am-g{
+    padding: 50px 0;
+    &.gray{
+      background: #F6F7F9;
+    }
+  }
+  h3{
+    font-size: 26px;
+    font-weight: 400;
+    color: $baseColor;
+  }
+}
+
+.markBg{background: $baseColor; color: #fff}
+.markCl{color: $baseColor}

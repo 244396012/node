@@ -23,7 +23,7 @@ import './modal';
 
 // 获取手机验/邮箱证码
     const validateCode_acc = function (_this) {
-        const isSlide = $('#slideBtn').attr('data-pass'),
+        const isSlide = __api__.sid,
             account = $('#accountPut').val(),
             codeType = _this.getAttribute('data-type'); //类型：注册 1，忘记密码 2
         if(account.trim() === ''){
@@ -33,6 +33,10 @@ import './modal';
         //手机号、邮箱验证
         const regEmail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
             regTel = /^1[1-9][0-9]{9}$/;
+        if(account.includes(' ')){
+            $.warning('手机号/邮箱存在多余空格');
+            return false
+        }
         if(!(regTel.test(account) || regEmail.test(account))){
             $.warning('请输入正确的手机号/邮箱');
             return false;
@@ -58,7 +62,7 @@ import './modal';
     };
 // 个人用户注册
     const register_acc = function (_this) {
-        const isSlide = $('#slideBtn').attr('data-pass'),
+        const isSlide = __api__.sid,
             requiredEles = $('input[required]');
         //空值验证
         for(let i = 0; i < requiredEles.length; i++){
@@ -66,12 +70,12 @@ import './modal';
             if(el.value.trim() === ''){
                 el.focus();
                 $.warning('请输入'+$(el).attr('placeholder'));
-                return false;
+                return false
             }
         }
         if(!isSlide){
             $.warning('请先拖动滑块进行安全验证');
-            return false;
+            return false
         }
         const account = $('#accountPut').val(),
             yzCode = $('#accountCode').val(),
@@ -80,15 +84,13 @@ import './modal';
         //手机号、邮箱验证
         if(!(/^1[1-9][0-9]{9}$/.test(account) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(account))){
             $.warning('请输入正确的手机号/邮箱');
-            return false;
+            return false
         }
         if(password.length < 6 || password.length > 20){
             $.warning('请输入长度为6-20的密码');
-            return false;
+            return false
         }
-        $(_this)
-            .attr('disabled','disabled')
-            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             baseUrl: loginUrl,
@@ -103,12 +105,12 @@ import './modal';
             if(res.message === 'success'){
                 $.success('注册成功');
                 setTimeout(() => {
-                    location.href = '/login';
-                },1500);
+                    location.href = '/login'
+                },1500)
             }else{
-                $.error(res.message);
+                $.error(res.message)
             }
-            $(_this).removeAttr('disabled').html('注 册');
+            $(_this).removeAttr('disabled').html('注 册')
         })
     };
 // 个人/团队用户登录
@@ -120,8 +122,14 @@ import './modal';
             if(el.value.trim() === ''){
                 el.focus();
                 $.warning('请输入'+$(el).attr('placeholder'));
-                return false;
+                return false
             }
+        }
+        const account = $('#account').val(),
+            pwd = $('#password').val();
+        if(account.includes(' ')){
+            $.warning('手机号/邮箱存在多余空格');
+            return false
         }
         $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
@@ -132,8 +140,8 @@ import './modal';
                 client_id: '1',
                 client_secret: 'server',
                 grant_type: 'password',
-                username: $('#account').val(),
-                password: $('#password').val()
+                username: account.trim(),
+                password: pwd
             }
         }).then(res => {
             res.access_token && $.success('登录成功');
@@ -141,9 +149,7 @@ import './modal';
                 resolve(res);
             })
         }).catch(err => {
-            err.responseJSON.error === "invalid_grant"
-                ? $.error('用户名和密码不匹配')
-                : $.error(err.responseJSON.error);
+            $.error(err.responseJSON.error);
         }).finally(() => {
             $(_this).removeAttr('disabled').html('登 录');
         }).then(resLog => {
@@ -152,7 +158,7 @@ import './modal';
                 //设置1天过期的cookie
                 let date = new Date(),
                     moreDate = date.getTime() + 24*60*60*1000;
-                localStorage.setItem('sy_rm_client_access_token', resLog.access_token);
+                sessionStorage.setItem('sy_rm_client_access_token', resLog.access_token);
                 document.cookie = "sy_rm_client_tk="+ resLog.access_token + ";expires=" + new Date(moreDate);
                 //登录成功后，再获取userId
                 getResponse({
@@ -168,13 +174,14 @@ import './modal';
                             account: user.account,
                             userCode: user.userCode,
                             nickName: user.nickName,
+                            realName: user.userExtension.realName,
                             phone: user.telephone,
                             picture: user.picturePath,
                             receipt: user.userExtension.receipt,
                             isTeam: user.userExtension.wheatherTeam
                         };
-                        localStorage.setItem('sy_rm_client_ubase', JSON.stringify(baseStr));
-                        localStorage.setItem('sy_rm_client_ud', user.id);
+                        sessionStorage.setItem('sy_rm_client_ubase', JSON.stringify(baseStr));
+                        sessionStorage.setItem('sy_rm_client_ud', user.id);
                         document.cookie = "sy_rm_client_ud="+ user.id + ";expires=" + new Date(moreDate);
                         setTimeout(() => {
                             //若存在重定向，则登录成功后跳转
@@ -214,20 +221,23 @@ import './modal';
                 return false;
             }
         }
-        const isSlide = $('#slideBtn').attr('data-pass'),
+        const isSlide = __api__.sid,
             account = $('#accountPut').val(),
             code = $('#accountCode').val();
         //手机号、邮箱验证
         if(!(/^1[1-9][0-9]{9}$/.test(account) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(account))){
             $.warning('请输入正确的手机号/邮箱');
-            return false;
+            return false
         }
         if(!isSlide){
             $.warning('请先拖动滑块进行安全验证');
-            return false;
+            return false
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        if(!code.trim()){
+            $.warning('请先输入验证码');
+            return false
+        }
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'put',
             baseUrl: loginUrl,
@@ -242,11 +252,11 @@ import './modal';
                     index = currentForm.next('form').index();
                 $('div.sy-sp').eq(index-1).addClass('sy-forget-active');
                 currentForm.addClass('sy-hidden').next('form').removeClass('sy-hidden');
+                $('.forgetPwdStepBtn_2_acc').attr('data-act', account);
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('下一步');
+            $(_this).removeAttr('disabled').html('下一步');
         });
     };
 // 2、第二步，重置密码
@@ -271,14 +281,15 @@ import './modal';
             $.warning('两次输入的密码不一致');
             return false;
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'put',
             baseUrl: loginUrl,
             url: '/customer/setNewPassword',
             data: {
-                newPawwword: password
+                telphone: $(_this).attr('data-act'),
+                newPawwword: password,
+                reNewPassword: rePassword,
             }
         }).then(res => {
             if(res.code === '200' && res.message === 'success'){
@@ -290,8 +301,7 @@ import './modal';
             }else{
                 $.warning(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('提 交');
+            $(_this).removeAttr('disabled').html('提 交');
         });
     };
 

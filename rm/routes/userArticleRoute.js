@@ -19,12 +19,12 @@ function getResume(token, uid, callback) {
             projectExp: []
         };
         if(message === 'success'){
-            const areaArr = data.userExtension.area.split(','),
-                selfArr = data.userExtension.individualization.split(',');
-            backData.labelArr = [...areaArr, ...selfArr];
+            const selfArr = data.userExtension.individualization.split(','),
+                areaArr = data.userExtension.area.split(',');
+            backData.labelArr = [...selfArr, ...areaArr];
             backData.workExp = data.workExperienceList;
             backData.projectExp = data.projectExperienceList;
-            backData.lanPair = data.userExtendList.slice(0,4);
+            backData.lanPair = data.userExtendList.slice(0,4) || [];
             backData.base = {
                 picturePath: data.picturePath,
                 nickName: data.nickName,

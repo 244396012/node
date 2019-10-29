@@ -29,14 +29,14 @@
                 </div>
             </div>
             <div class="am-u-lg-4 content-right">
-                <div class="empty"></div>
+                <div class="h-40"></div>
                 <div class="detail">
                     <div class="title">图书翻译类型说明</div>
                     <div class="cnt">
                         <span>图书试译</span>
-                        <p>对中外各类书籍、出版物进行翻译。</p>
+                        <p>图书翻译项目持续周期长、能力要求高，译员正式接单之前需进行试译。试译片段均节选自待翻译图书，试译稿件质量直接影响译员是否能够接单。</p>
                         <span>图书翻译</span>
-                        <p>对中外各类书籍、出版物进行翻译。</p>
+                        <p>图书翻译是传统的笔译项目最早的服务内容之一。图书翻译项目涵盖各类书籍杂志，可分为社会科学和自然科学类，图书翻译内容包括小说、儿童读物、非小说类、专业书、工具书、手册、书目、剧本、报告、日记、书集、摄影绘画集，主要语种含有中文、英语、西班牙语、德语、意大利语、葡萄牙语、马来西亚语等中外语种。</p>
                     </div>
                 </div>
             </div>
@@ -44,7 +44,7 @@
     </div>
 </div>
 <script>
-    (function () {
+    (function (window, document, $) {
 
         location.hash = '';
 
@@ -62,7 +62,7 @@
         });
 
         //初始获取"待领取"列表
-        __api__.getOrderListPage_2({
+        __api__.getOrderBook({
             method: 'get',
             url: unclaimedUrl_try,
             data: {
@@ -88,7 +88,7 @@
             if(target.getAttribute('data-event-click') !== null){
                 if($('.filter').attr('disabled')){
                     event.preventDefault();
-                    $.warning('正在获取数据，请勿频繁操作');
+                    $.warning('正在获取数据');
                     return false;
                 }
                 type = checkedEl[0].value;
@@ -155,17 +155,13 @@
                             })
                         }
                     }
-                    // __api__.getOrderPage_2_WaitNum({
-                    //     url: rowCountUrl,
-                    //     type: '3'
-                    // });
                 }
-                __api__.getOrderListPage_2({
+                __api__.getOrderBook({
                     method: method,
                     url: url,
                     data: reqData
                 });
             }
         }, false);
-    }());
+    }(window, document, jQuery));
 </script>

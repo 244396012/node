@@ -10,12 +10,20 @@
         <div class="sy-personal-item sy-font-md">
             <span class="name">我的译侠值</span>
             <span class="score yxz_AsideU">0</span>
-            <span class="sy-info-icon more-icon" title="如何获取更多译侠值？"></span>
+            <span class="sy-info-icon more-icon"
+                  title="如何获取更多译侠值？"
+                  onclick="$.toolinfo({
+                    title: '如何获取译侠值',
+                    txt: __bundle__.promptTxt.yxz})"></span>
         </div>
         <div class="sy-personal-item sy-font-md">
             <span class="name">我的积分</span>
             <span class="score score_AsideU">0</span>
-            <span class="sy-info-icon more-icon" title="如何获取更多积分？"></span>
+            <span class="sy-info-icon more-icon"
+                  title="如何获取更多积分？"
+                  onclick="$.toolinfo({
+                    title: '如何获取积分',
+                    txt: __bundle__.promptTxt.score})"></span>
         </div>
         <div class="sy-personal-item sy-invite">
             <a class="sy-font-md showSignOn" href="javascript:;">签到领积分哦～～</a>
@@ -27,7 +35,7 @@
         <li><a href="/personal/">信息概览</a></li>
         <li><a href="/personal/baseInfo" class="myBaseInfo">基本信息</a></li>
         <li><a href="/personal/resume" class="myResume">我的简历</a></li>
-        <li><a href="/personal/skill">技能测试</a></li>
+        <li><a href="/personal/skill">我的技能</a></li>
         <li><a href="/personal/identification">认证中心</a></li>
         <li><a href="/personalArticle/" class="myHomePage">我的主页</a></li>
         <li class="sy-user-title">我的账户</li>
@@ -44,26 +52,43 @@
     </ul>
 </aside>
 <script>
-    (function () {
+    (function (window, document) {
 
         function getEl(string){
             return document.querySelector(string);
         }
 
         //跳转到“(团队、个人)基本信息、我的主页”，阻止默认行为，url添加参数
-        var t = localStorage.getItem('sy_rm_client_access_token'),
-            u = localStorage.getItem('sy_rm_client_ud'),
-            baseData = JSON.parse(localStorage.getItem('sy_rm_client_ubase'));
+        var t = sessionStorage.getItem('sy_rm_client_access_token'),
+            u = sessionStorage.getItem('sy_rm_client_ud'),
+            baseData = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase'));
+        var path = location.pathname + location.search;
 
-        baseData.isTeam === 1 && (getEl('a.myResume').innerHTML = '技能证书');
+        //设置名称、账号、icon图片等信息
+        document.addEventListener('DOMContentLoaded', function () {
+            getEl('.account_AsideU').innerHTML = baseData.account?__bundle__.hiddenAct(baseData.account):' --';
+            getEl('.nickName_AsideU').innerHTML = baseData.nickName?baseData.nickName:' --';
+            baseData.picture && getEl('.headIcon_AsideU').setAttribute('src', baseData.picture);
+            if(!baseData){
+                __bundle__.clearLocalData();
+                location.href = '/login?redirect='+ encodeURIComponent(path);
+                return false;
+            }
+            baseData.isTeam === 1 && (getEl('a.myResume').innerHTML = '技能证书');
 
-        //设置名称、账号、图片等信息
-        getEl('.account_AsideU').innerHTML = baseData.account?baseData.account:' --';
-        getEl('.nickName_AsideU').innerHTML = baseData.nickName?baseData.nickName:' --';
-        if(baseData.picture){
-            getEl('.headIcon_AsideU').setAttribute('src', baseData.picture);
-            getEl('.headIcon_Header').setAttribute('src', baseData.picture);
-        }
+            //滑动时，固定左侧“个人中心”导航栏
+            var aside = document.querySelector('#userMenuAside'),
+                scroll = 0;
+            window.onscroll = __bundle__.throttleFn(function () {
+                scroll = document.documentElement.scrollTop || document.body.scrollTop;
+                if(scroll >= 80){
+                    aside.classList.add('aside-u-fixed')
+                }else if(scroll < 50){
+                    aside.classList.remove('aside-u-fixed')
+                }
+            }, 20);
+
+        }, false);
 
         getEl('a.myBaseInfo').onclick = function (e) {
             e.preventDefault();
@@ -80,17 +105,7 @@
         //添加userCode参数
         getEl('a.myAppraise').onclick = function(e){
             e.preventDefault();
-            location.href = '/personal/appraise?uc=' + baseData.userCode;
+            location.href = '/personal/appraise?uc=' + u;
         };
-
-        //滑动时，固定左侧“个人中心”导航栏
-        var aside = document.querySelector('#userMenuAside'),
-            scroll = 0;
-        window.onscroll = function () {
-            scroll = document.documentElement.scrollTop || document.body.scrollTop;
-            scroll > 80
-                ? aside.classList.add('aside-u-fixed')
-                : aside.classList.remove('aside-u-fixed');
-        }
-    }());
+    }(window, document));
 </script>

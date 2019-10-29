@@ -4,25 +4,24 @@
         <div class="am-g identify-title">
             <div class="am-u-lg-9">
                 <span class="sy-bold">身份认证&nbsp;</span>
-                <span class="sy-font-sm identy-no">还未认证，请先认证</span>
-                <span class="sy-font-sm identy-yes">已认证</span>
+                <span class="sy-font-sm identy identy-no">还未认证，请先认证</span>
             </div>
             <div class="am-u-lg-3 sy-right"><i class="toggle am-icon-angle-down"></i></div>
         </div>
         <div class="am-g identify-cnt">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form">
+                    <div class="add-form identyForm sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
                                 <div><i class="required">*</i>真实姓名：</div>
-                                <div><input class="realName" type="text" required placeholder="请输入真实姓名"></div>
+                                <div><input class="realName idcardName" type="text" disabled required placeholder="未加载真实姓名"></div>
                             </div>
                             <div class="item">
                                 <div><i class="required">*</i>证件类型：</div>
-                                <div><select class="certificateType" required>
-                                        <option value="身份证">身份证</option>
-                                    </select></div>
+                                <div>
+                                    <select class="certificateType" required></select>
+                                </div>
                             </div>
                             <div class="item">
                                 <div><i class="required">*</i>证件号码：</div>
@@ -30,8 +29,9 @@
                             </div>
                         </form>
                         <div class="sy-btns sy-font-md">
-                            <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh certificateBtn">提交认证</button>
-                            <span><i class="sy-info-icon"></i> 提交认证后不可修改</span>
+                            <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
+                            <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh certificateBtn">提交</button>
+                            <span class="cardTip"><i class="sy-info-icon"></i> 认证成功后不可修改</span>
                         </div>
                     </div>
                     <div class="show-info"></div>
@@ -44,19 +44,18 @@
         <div class="am-g identify-title">
             <div class="am-u-lg-9">
                 <span class="sy-bold">结算方式&nbsp;</span>
-                <span class="sy-font-sm identy-no">还未认证，请先认证</span>
-                <span class="sy-font-sm identy-yes">已认证</span>
+                <span class="sy-font-sm settle identy-no">还未认证，请先认证</span>
             </div>
             <div class="am-u-lg-3 sy-right"><i class="toggle am-icon-angle-down"></i></div>
         </div>
-        <div class="am-g identify-cnt">
+        <div class="am-g identify-cnt identifyUser sy-hidden">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
                     <h3>
                         银行卡结算
-                        <label class="am-radio am-success">
-                            <input type="radio" name="payWay" value="银行卡" data-am-ucheck> 设为默认结算方式
-                        </label>
+                        <!--<label class="am-radio am-success">-->
+                            <!--<input type="radio" name="payWay" value="银行卡" data-am-ucheck disabled> 设为默认结算方式-->
+                        <!--</label>-->
                     </h3>
                     <div class="add-form bankForm">
                         <form class="sy-personal-form sy-personal-base">
@@ -90,9 +89,9 @@
                     <div class="show-info bankPay"></div>
                     <h3>
                         支付宝结算
-                        <label class="am-radio am-success">
-                            <input type="radio" name="payWay" value="支付宝" data-am-ucheck> 设为默认结算方式
-                        </label>
+                        <!--<label class="am-radio am-success">-->
+                            <!--<input type="radio" name="payWay" value="支付宝" data-am-ucheck disabled> 设为默认结算方式-->
+                        <!--</label>-->
                     </h3>
                     <div class="add-form alipayForm">
                         <form class="sy-personal-form sy-personal-base">
@@ -118,9 +117,9 @@
                     <div class="show-info aliPay"></div>
                     <h3>
                         Paypal结算
-                        <label class="am-radio am-success">
-                            <input type="radio" name="payWay" value="Paypal" data-am-ucheck> 设为默认结算方式
-                        </label>
+                        <!--<label class="am-radio am-success">-->
+                            <!--<input type="radio" name="payWay" value="Paypal" data-am-ucheck disabled> 设为默认结算方式-->
+                        <!--</label>-->
                     </h3>
                     <div class="add-form PaypalForm">
                         <form class="sy-personal-form sy-personal-base">
@@ -144,6 +143,54 @@
                     </div>
                     <div class="show-info Paypal"></div>
                 </div>
+            </div>
+        </div>
+        <div class="am-g identify-cnt identifyTeam sy-hidden">
+            <div class="add-form teamForm">
+                <form class="sy-personal-form sy-personal-base">
+                    <div class="item">
+                        <div><i class="required">*</i>团队名称：</div>
+                        <div><input class="teamName" type="text" required disabled placeholder="未加载团队名称"></div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>证件类型：</div>
+                        <div>
+                            <select class="teamCardType" required onchange="changeCard(this, $('.hideEl'))">
+                                <option value="身份证">身份证</option>
+                                <option value="公司账户">公司账户</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item hideEl">
+                        <div><i class="required">*</i>证件号码：</div>
+                        <div><input class="identifyId" type="text" required disabled placeholder="未加载证件号码"/></div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>开户人姓名：</div>
+                        <div><input class="teamBankName" type="text" required placeholder="请输入开户人姓名"/></div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>银行卡号：</div>
+                        <div><input class="teamBankNo" type="text" required placeholder="请输入银行卡号"/></div>
+                        <div class="tip teamTip"><i class="required">*</i>银行开户账户须与姓名、身份证号对应</div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>开户银行：</div>
+                        <div><input class="teamBankDeposit" type="text" required placeholder="请输入开户银行"/></div>
+                    </div>
+                    <div class="item">
+                        <div><i class="required">*</i>开户支行：</div>
+                        <div><input class="teamBankBranch" type="text" required placeholder="请输入开户支行"/></div>
+                    </div>
+                </form>
+                <div class="sy-btns sy-font-md">
+                    <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
+                    <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh setTeamBankPayBtn">保存</button>
+                    <span class="teamTip sy-hidden"><i class="sy-info-icon"></i> 请确保所填信息正确</span>
+                </div>
+            </div>
+            <div class="show-info teamPay">
+
             </div>
         </div>
     </div>
@@ -183,7 +230,7 @@
                     targerEl = formEl.find('input,select,textarea');
                 $(target).next().removeAttr('data-u-id');
                 targerEl.each(function () {
-                    if(!$(this).attr('disabled')){
+                    if(!$(this).attr('disabled') && this.nodeName !== 'SELECT'){
                         $(this).val('');
                     }
                 });
@@ -194,18 +241,38 @@
             }else if($(target).hasClass('sy-edit')){
                 var infoDiv = $(target).parents('.show-info'),
                     addForm = infoDiv.prev('.add-form');
-                var data = JSON.parse($(target).prev('.syHiddenData').text());
+                var data = JSON.parse($(target).prev('.syHiddenData').text() || '{}');
                 if(Object.prototype.toString.call(data) === '[object Object]'){
                     addForm.removeClass('sy-hidden');
                     addForm.find('button[data-sy-confirm]').attr('data-u-id', data.id);
-                    if(addForm.hasClass('bankForm')){
+                    if(addForm.hasClass('teamForm')){
+                        var hideEl = $('.hideEl'),
+                            divEl = $('div.teamTip'),
+                            spanEl = $('span.teamTip');
+                        if(data.certificateType !== '身份证'){
+                            hideEl.addClass('sy-hidden');
+                            divEl.addClass('sy-hidden');
+                            spanEl.removeClass('sy-hidden');
+                        }else{
+                            hideEl.removeClass('sy-hidden');
+                            divEl.removeClass('sy-hidden');
+                            spanEl.addClass('sy-hidden');
+                        }
+                        addForm.find('.teamCardType').val(data.certificateType);
+                        addForm.find('.teamBankName').val(data.realName);
+                        addForm.find('.teamBankNo').val(data.settleAccount);
+                        addForm.find('.teamBankDeposit').val(data.bankDeposit);
+                        addForm.find('.teamBankBranch').val(data.bankBranch);
+                    }else if(addForm.hasClass('bankForm')){
                         addForm.find('.bankNo').val(data.settleAccount);
                         addForm.find('.bankDeposit').val(data.bankDeposit);
                         addForm.find('.bankBranch').val(data.bankBranch);
                     }else if(addForm.hasClass('alipayForm')){
                         addForm.find('.alipayCode').val(data.settleAccount);
-                    }else {
+                    }else if(addForm.hasClass('PaypalForm')){
                         addForm.find('.PaypalCode').val(data.settleAccount);
+                    }else {
+                        addForm.find('.identifyId').val(data.cardId);
                     }
                 }
             // 显示/隐藏(银行卡、支付宝、Paypal账号)
@@ -223,4 +290,22 @@
             }
         })
     })(jQuery);
+
+    function changeCard(_this, ele){
+        var val = _this.value,
+            nameEl = $('.teamBankName'),
+            divEl = $('div.teamTip'),
+            spanEl = $('span.teamTip');
+        if(val === '身份证'){
+            ele.removeClass('sy-hidden');
+            nameEl.val(nameEl.attr('data-name'));
+            divEl.removeClass('sy-hidden');
+            spanEl.addClass('sy-hidden');
+            return null;
+        }
+        nameEl.val('');
+        divEl.addClass('sy-hidden');
+        spanEl.removeClass('sy-hidden');
+        ele.addClass('sy-hidden')
+    }
 </script>

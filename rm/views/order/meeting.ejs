@@ -1,0 +1,35 @@
+<div id="orderPage" class="order_page">
+    <div class="content">
+        <div class="am-g">
+            <div class="am-u-lg-8 content-left extra">
+                <nav class="nav">
+                    <% include order-nav.ejs %>
+                </nav>
+                <section class="cnt orderContent extra">
+
+                </section>
+                <div class="sy-center more">
+                    <input class="order_PageNo" type="hidden" value="1">
+                    <button class="sy-btn order_LoadMoreBtn sy-hidden" type="button" data-event-click>加载更多</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function ($) {
+
+        var baseInfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
+
+        __api__.getOrderOther({
+            url: '/pangu/GetTaskList',
+            data: {
+                userCode: baseInfo.userCode,
+                taskType: 'I',
+                pageindex: $('.order_PageNo').val(),
+                pagesize: 5
+            }
+        });
+
+    }(jQuery));
+</script>

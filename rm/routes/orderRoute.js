@@ -30,11 +30,19 @@ routes.get('/typeset', (req, res) => {
         layout: 'shared/layout'
     });
 });
-//口译外派
+//会展
+routes.get('/meeting', (req, res) => {
+    res.render('order/meeting.ejs', {
+        mark: 'order',
+        title: '啄语 | 订单中心-会展',
+        layout: 'shared/layout'
+    });
+});
+//外派
 routes.get('/interpret', (req, res) => {
     res.render('order/interpret.ejs', {
         mark: 'order',
-        title: '啄语 | 订单中心-口译外派',
+        title: '啄语 | 订单中心-外派',
         layout: 'shared/layout'
     });
 });
@@ -43,6 +51,14 @@ routes.get('/train', (req, res) => {
     res.render('order/train.ejs', {
         mark: 'order',
         title: '啄语 | 订单中心-培训',
+        layout: 'shared/layout'
+    });
+});
+//搭建设备
+routes.get('/device', (req, res) => {
+    res.render('order/device.ejs', {
+        mark: 'order',
+        title: '啄语 | 订单中心-设备搭建',
         layout: 'shared/layout'
     });
 });

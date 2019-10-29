@@ -28,13 +28,15 @@
                             </div>
                             <div class="item">
                                 <div><i class="required">*</i>学历：</div>
-                                <div><select id="degree" required placeholder="请选择学历">
+                                <div>
+                                    <select id="degree" required placeholder="请选择学历">
                                         <option value="博士">博士</option>
                                         <option value="硕士">硕士</option>
                                         <option value="本科" selected>本科</option>
                                         <option value="大专">大专</option>
                                         <option value="其它">其它</option>
-                                    </select></div>
+                                    </select>
+                                </div>
                             </div>
                             <div class="item">
                                 <div><i class="required">*</i>毕业时间：</div>
@@ -73,6 +75,7 @@
                                    </select>
                                    <button type="button"
                                            class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_b"
+                                           data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                                            onclick="beforeUpload(this, '笔译证书')">上传证书</button>
                                </div>
                            </div>
@@ -100,6 +103,7 @@
                                     </select>
                                     <button type="button"
                                             class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_k"
+                                            data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                                             onclick="beforeUpload(this, '口译证书')">上传证书</button>
                                 </div>
                             </div>
@@ -127,6 +131,7 @@
                                     </select>
                                     <button type="button"
                                             class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_p"
+                                            data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                                             onclick="beforeUpload(this, '培训证书')">上传证书</button>
                                 </div>
                             </div>
@@ -284,8 +289,8 @@
 <script>
     (function ($) {
 
-        var ubase = localStorage.getItem('sy_rm_client_ubase'),
-            ubaseObj = ubase && JSON.parse(ubase);
+        var ubase = sessionStorage.getItem('sy_rm_client_ubase'),
+            ubaseObj = JSON.parse(ubase) || {};
         if(ubaseObj.isTeam === 1) {
             $('.resume-item.degree').remove();
             $('.resume-item.work').remove();
@@ -337,8 +342,17 @@
         $('div.resume-item').on('click', function (e) {
             var event = e || window.event,
                 target = event.target || event.srcElement;
+        //图片放大
+            if(target.nodeName === 'IMG'){
+                var src = target.getAttribute('src');
+                $.enlargeImg(src);
         //添加信息
-            if($(target).hasClass('add')){
+            }else if($(target).hasClass('add')){
+                var isSkill = $(target).parents('.skill-info');
+                if(isSkill.length > 0){
+                    isSkill.prev().removeClass('sy-hidden');
+                    return null;
+                }
                 var outDiv = $(target).parents('.resume-item'),
                     formDiv = outDiv.find('.add-form');
                 formDiv.removeClass('sy-hidden');
@@ -359,6 +373,9 @@
         //取消标签
             }else if(target.nodeName === 'BUTTON' && $(target).attr('data-sy-reset') === ''){
                 var parentForm = $(target).parents('.add-form');
+                if(parentForm.next('div').children().length <= 0){
+                    return null;
+                }
                 $('dl.label').find('dd').removeClass('selected');
                 parentForm.addClass('sy-hidden');
                 parentForm.next().removeClass('sy-hidden');
@@ -407,7 +424,7 @@
             })
             var selfStr = '';
             individualData.forEach(function (item) {
-                selfStr += `<dd class="selected">${item}<i class="am-icon-close"></i></dd>`
+                item && (selfStr += `<dd class="selected">${item}<i class="am-icon-close"></i></dd>`)
             });
             labelIndividual.eq(1).html(selfStr);
             for(let i = 0; i<areaData.length; i++){

@@ -7,6 +7,8 @@
             <a class="a1_step a1_step_4" data-step="a1_step_4" href="javascript:void(0);"></a>
         </div>
     </div>
+    <p class="sy-font-lg sy-center"
+       style="width: 100%;position: absolute;top: 592px;letter-spacing: 1px;color: #fff">活动时间：2019年11月11日 - 2020年11月11日</p>
     <div class="bg a1_step a1_step_1 active" id="a1_step_1">
         <div class="content">
             <h3 class="sy-center">注册领单 礼从天降</h3>
@@ -26,7 +28,7 @@
                     <img src="/static/image/activity/a1_detail_step_1-3.png" alt="">
                 </div>
                 <div class="sy-center" style="margin-top: 50px">
-                    <a class="sy-btn sy-btn-md sy-btn-green sy-radius-50" href="/register">去注册</a>
+                    <a class="sy-btn sy-btn-md sy-btn-green sy-radius-50 goRegister" href="/register">去注册</a>
                 </div>
             </div>
         </div>
@@ -49,7 +51,7 @@
                     <img src="/static/image/activity/a1_detail_step_2-3.png" style="margin-left: 62px" alt="">
                 </div>
                 <div class="sy-center" style="margin-top: 50px">
-                    <a class="sy-btn sy-btn-md sy-btn-green sy-radius-50" href="/order/">去抢单</a>
+                    <a class="sy-btn sy-btn-md sy-btn-green sy-radius-50 goOrder" href="/order/">去抢单</a>
                 </div>
             </div>
         </div>
@@ -71,15 +73,14 @@
         <div class="content">
             <h3 class="sy-center">魔力圈圈 喜气连连</h3>
             <div class="cnt">
-                <h5 class="zhuanpan sy-center">今日获得<strong>1</strong>次抽奖机会</h5>
-                <div class="zhuanpan">
-                    <div class="zhuanpanPoint" id="js_pointer">
-                        <a class="zhuanpanBtn" href="javascript:;"
-                           title="Let's GO"
-                           onclick="lottery.draw()"></a>
+                <h5 class="zhuanpan sy-center">今日获得<strong class="rewardTimes">0</strong>次抽奖机会</h5>
+                <div class="zhuanpanOut">
+                    <div class="zhuanpan" id="js_pointer"></div>
+                    <div class="zhuanpanPoint" >
+                        <a class="zhuanpanBtn" href="javascript:;" title="Let's GO"></a>
                     </div>
                 </div>
-                <h5 class="history">我的抽奖记录</h5>
+                <h5 class="history rewardHistoryBtn">我的抽奖记录</h5>
                 <h4 class="intro sy-center">活动介绍</h4>
                 <div class="intro">
                     <div>通过平台测试成为译员，每日一次抽奖机会。</div>
@@ -113,38 +114,136 @@
             </div>
         </div>
     </div>
+    <!-- 抽奖记录 -->
+    <div class="am-modal am-modal-no-btn rewardHistory">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">我的抽奖记录
+                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd">
+                <div class="user-table none">
+                    <table class="am-table am-table-striped am-table-centered sy-font-md" style="border: 1px solid #f2f2f2">
+                        <thead>
+                        <tr>
+                            <td>抽奖时间</td>
+                            <td>抽奖结果</td>
+                            <td></td>
+                        </tr>
+                        </thead>
+                        <tbody class="rewardList">
+                            <tr class="empty"><td colspan="3">暂无记录</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination rewardPagination"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 填写地址 -->
+    <div class="am-modal fillLocation">
+        <div class="am-modal-dialog" style="width: 500px">
+            <div class="am-modal-hd">填写信息
+                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd" style="padding-top: 25px">
+                <div class="item">
+                    联系方式：<input class="control-phone" type="text" placeholder="请输入收货人联系方式">
+                </div>
+                <div class="item" >
+                    收件地址：<select class="control-province" name="deliverprovince" id="deliverprovince"></select>
+                    <select class="control-city" name="delivercity" id="delivercity"></select>
+                    <select class="control-area" name="deliverarea" id="deliverarea"></select>
+                    <div style="padding-left: 71px;padding-top: 10px">
+                        <input class="control-detail" type="text" placeholder="请输入详细地址">
+                    </div>
+                </div>
+            </div>
+            <div class="am-modal-footer sy-center" style="margin: .5rem 0 1rem;">
+                <button type="button" class="sy-btn sy-btn-green sy-btn-sh sy-font-md confirmLocation">提 交</button>
+                <button type="button"
+                        style="margin-left: 10px"
+                        onclick="$('.fillLocation').modal('close')"
+                        class="sy-btn sy-btn-white sy-btn-sh sy-font-md">取 消</button>
+            </div>
+        </div>
+    </div>
 </div>
-<script src="/static/lib/zhuanpan.js"></script>
+<script src="/static/lib/prizeWheel.js"></script>
+<script src="/static/lib/area.js"></script>
+<script type="text/javascript" src="/static/lib/pagination.js"></script>
 <script>
-    //tab显示详情
-    var refStep = __bundle__.getQueryString('step');
-    var stepBtn = $('a.a1_step');
-    stepBtn.on('click', function (){
-        var currStep = $(this).attr('data-step');
-        $(this).addClass('active').siblings().removeClass('active');
-        $('div.a1_step.'+ currStep).addClass('active').siblings().removeClass('active');
-    });
-    if(refStep){
-        $('a.a1_step.'+ refStep).addClass('active').siblings().removeClass('active');
-        $('div.a1_step.'+ refStep).addClass('active').siblings().removeClass('active');
-    }
-    //大转盘
-    var lottery = new LotteryDial(document.getElementById('js_pointer'), { // eslint-disable-line
-        speed: 40, // 每帧速度
-        areaNumber: 8 // 奖区数量
-    })
-    var index = -1;
-    lottery.on('start', function () {
-        // 请求获取中奖结果
-        // index = Math.round(Math.random() * 10)
-        index = 7
-        lottery.setResult(index)
-//    // 假如请求出错
-//    setTimeout(function () {
-//      lottery.reset()
-//    }, 1000)
-    })
-    lottery.on('end', function () {
-        console.log('中奖奖区：' + index)
-    })
+    (function ($) {
+
+        //tab显示详情
+        var refStep = __bundle__.getQueryString('step');
+        var stepBtn = $('a.a1_step');
+        stepBtn.on('click', function (){
+            var currStep = $(this).attr('data-step');
+            $(this).addClass('active').siblings().removeClass('active');
+            $('div.a1_step.'+ currStep).addClass('active').siblings().removeClass('active');
+        });
+        if(refStep){
+            $('a.a1_step.'+ refStep).addClass('active').siblings().removeClass('active');
+            $('div.a1_step.'+ refStep).addClass('active').siblings().removeClass('active');
+        }
+        //去注册
+        $('.goRegister').click(function (e) {
+            e.preventDefault()
+            if(!__api__.isAuth){
+                location.href = '/register';
+                return null
+            }
+            if(__api__.isAuth.isPassIdentity || __api__.isAuth.isPassSkill){
+                setTimeout(() => {
+                    location.href = '/personal/skill';
+                }, 1000);
+                return null
+            }
+            if(__api__.isAuth.isPassIdentity && __api__.isAuth.isPassSkill){
+                setTimeout(() => {
+                    location.href = '/personal';
+                }, 1000);
+                return null
+            }
+        })
+        //去抢单
+        $('.goOrder').click(function (e) {
+            e.preventDefault()
+            if(!__api__.isAuth){
+                setTimeout(() => {
+                    location.href = '/register';
+                }, 1000);
+                return null
+            }
+            //未通过身份验证
+            if(!__api__.isAuth.isPassIdentity){
+                $.warning('你当前还不能接单，快去完善信息吧');
+                setTimeout(() => {
+                    location.href = '/personal/identification';
+                }, 1000);
+                return null;
+            }
+            //已通过身份验证，未通过技能验证
+            if(!__api__.isAuth.isPassSkill){
+                $.warning('你当前还不能接单，快去完善信息吧');
+                setTimeout(() => {
+                    location.href = '/personal/skill';
+                }, 1000);
+                return null;
+            }
+            location.href = '/order'; //接单
+        })
+
+        //初始化大转盘
+        var lottery = new LotteryDial(document.getElementById('js_pointer'), { // eslint-disable-line
+            speed: 15, // 每帧速度
+            areaNumber: 8 // 奖区数量
+        })
+
+        //开始抽奖
+        __api__.joinWheel(lottery);
+
+        new PCAS("deliverprovince", "delivercity", "deliverarea");
+
+    }(jQuery))
 </script>

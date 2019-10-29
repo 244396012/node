@@ -43,6 +43,7 @@ div.activity{
 }
 
 div.activity{
+  position: relative;
   .content{
     position: relative;
   }
@@ -243,35 +244,45 @@ div.activity{
           color: $thisOrange;
         }
       }
-      div.zhuanpan{
-        width: 836px;
+      div.zhuanpanOut{
+        position: relative;
         height: 836px;
-        margin: 0 auto;
-        background-image: url("/static/image/activity/zhuanpan.png");
-      }
-      div.zhuanpanPoint{
-        position: absolute;
-        left: 524px;
-        top: 408px;
-        width: 148px;
-        height: 230px;
-        background-image: url("/static/image/activity/zhuanpanzhizhen.png");
-        background-repeat: no-repeat;
-      }
-      a.zhuanpanBtn{
-        display: block;
-        position: absolute;
-        top: 53px;
-        left: 12px;
-        width: 125px;
-        height: 125px;
-        border-radius: 100%;
+        padding-top: 25px;
+        div.zhuanpan{
+          width: 780px;
+          height: 780px;
+          margin: 0 auto;
+          background-image: url("/static/image/activity/zhuanpan.png");
+          background-position: center;
+        }
+        div.zhuanpanPoint{
+          position: absolute;
+          left: 399px;
+          top: 293px;
+          width: 148px;
+          height: 230px;
+          background-image: url("/static/image/activity/zhuanpanzhizhen.png");
+          background-repeat: no-repeat;
+        }
+        a.zhuanpanBtn{
+          display: block;
+          position: absolute;
+          top: 54px;
+          left: 12px;
+          width: 125px;
+          height: 125px;
+          border-radius: 100%;
+        }
       }
       h5.history{
         margin-top: -2px;
         padding-left: 50px;
         text-align: center;
         color: #F15C2F;
+        &:hover{
+          cursor: pointer;
+          opacity: .85;
+        }
       }
       h4{
         color: #fff;
@@ -420,5 +431,59 @@ div.activity{
         }
       }
     }
+  }
+}
+
+.am-modal{
+  .am-modal-dialog{
+    width: 480px;
+    text-align: left;
+  }
+  .item{
+    font-size: 14px;
+    &+.item{
+      margin-top: 15px;
+    }
+  }
+  input,select{
+    height: 32px;
+    line-height: 32px;
+    padding: 0 8px;
+    border-radius: 2px;
+    outline: none;
+    border: 1px solid #BFBFBF;
+    color: #333;
+  }
+  input{
+    width: 330px;
+  }
+  select{
+    width: 107px;
+  }
+}
+
+.user-table{
+  padding: 15px;
+  border: 1px solid #eee;
+  &.none{
+    padding: 0;
+    border: none;
+  }
+  .am-table-striped>tbody>tr:nth-child(even)>td{
+    background: #F9F9F9;
+  }
+  .am-table-striped>tbody>tr:nth-child(odd)>td{
+    background: #fff;
+  }
+  thead{
+    background: #eee;
+  }
+  td{
+    padding: 12px 0;
+    border: none;
+    border-top: none!important;
+  }
+  tr.empty>td{
+    color: #999;
   }
 }

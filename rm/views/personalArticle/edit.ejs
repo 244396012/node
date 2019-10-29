@@ -52,9 +52,9 @@ $(function (){
             fileTypeExts: '*.jpg;*.png;',
             fileObjName: 'multipartFile',
             formData: {
-                userId: localStorage.getItem('sy_rm_client_ud')
+                userId: sessionStorage.getItem('sy_rm_client_ud')
             },
-            token: 'bearer '+localStorage.getItem('sy_rm_client_access_token'),
+            token: 'bearer '+sessionStorage.getItem('sy_rm_client_access_token'),
             fileSizeLimit: 1024,
             uploader: __api__.baseRMUrl + '/interpreterArticle/uploadCover',
             onUploadStart: function () {

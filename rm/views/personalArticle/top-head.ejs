@@ -1,13 +1,17 @@
 <div class="main-bg">
     <div class="head">
         <img class="imgUrl" src="<%= data.base.picturePath?data.base.picturePath:'/static/image/personal-default-head.png'%>" alt="">
-        <strong class="name"><%= data.base.nickName?data.base.nickName:'XXX'%></strong>
+        <strong class="name"><%= data.base.nickName?data.base.nickName:'--'%></strong>
     </div>
     <div class="info">
         <div class="column-2 lan-pair lanPair">
             <% for (var i = 0; i < data.lanPair.length; i++){ %>
+                <% origin = data.lanPair[i].sourceLanguageName.split('-')[0] %>
+                <% target = data.lanPair[i].targetLanguageName.split('-')[0] %>
+                <% domain = data.lanPair[i].areaName && JSON.parse(data.lanPair[i].areaName).toString() %>
             <div class="lan">
-                <span><%= data.lanPair[i].sourceLanguageName.split('-')[0] %>- <%= data.lanPair[i].targetLanguageName.split('-')[0] %></span>
+                <span><%= origin %> - <%= target %></span>
+                <span class="domain"><%= domain %></span>
                 <span class="lv"><%= data.lanPair[i].levelName %></span>
             </div>
             <% } %>
@@ -25,8 +29,8 @@
 <script>
     (function ($) {
 
-        var t = localStorage.getItem('sy_rm_client_access_token'),
-            u = localStorage.getItem('sy_rm_client_ud');
+        var t = sessionStorage.getItem('sy_rm_client_access_token'),
+            u = sessionStorage.getItem('sy_rm_client_ud');
         //跳转到我的主页、我的文章”，阻止默认行为，url添加参数
         $('a.myHomePage').click(function (e) {
             e.preventDefault();

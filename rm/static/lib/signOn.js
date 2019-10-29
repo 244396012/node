@@ -100,6 +100,7 @@ var calUtil = {
     }
 };
 
+
 window.onload = function () {
     calUtil.loadStyle();
     //点击签到
@@ -131,20 +132,16 @@ window.onload = function () {
                     __api__.getResponse({
                         type: 'post',
                         url: '/sign/sign'
-                        // data:{
-                        //     signDate: new Date().toLocaleDateString().replace(/\//g,'-'),
-                        //     userId: localStorage.getItem('sy_rm_client_ud')
-                        // }
                     }).then(res => {
                         if(res.message === 'success'){
                             $.success('签到成功');
-                            $('a.am-close').click();
+                            location.reload();
                         }else{
-                            $.error(res.message);
+                            $.warning(res.message);
                         }
                     });
                 }
             })
         })
     });
-};
+}

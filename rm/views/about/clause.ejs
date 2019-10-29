@@ -1,11 +1,11 @@
 <div class="content">
     <div class="about_page about clause">
         <aside class="about_aside">
-            <div class="tabItem tab-item active" id="clause_service">服务条款</div>
-            <div class="tabItem tab-item" id="clause_user">隐私条款</div>
+            <div class="tabItem tab-item active"><a href="/about/clause">服务条款</a></div>
+            <div class="tabItem tab-item"><a href="/about/secret">隐私条款</a></div>
         </aside>
         <div class="about_cnt">
-            <div class="cntItem cnt-item clause_service">
+            <div class="cntItem cnt-item">
                 <h5>【定义及解释】</h5>
                 <pre>
 一、 数译（成都）信息技术有限公司：以下简称“甲方”。
@@ -62,35 +62,6 @@
 一、 付款方式：甲方通过翻译平台提供的在线支付方式或线下支付方式向乙方提供稿费。具体时间付费时间及方式以甲方平台公布为准。
                 </pre>
             </div>
-            <div class="cntItem cnt-item clause_user sy-hidden">
-                <pre>
-一、 甲乙双方对因签订和/或履行本协议获得的对方的商业机密负有保密责任，不得以任何形式、任何理由透露给任何第三方，但依据双方书面约定、依据法律法规，或者依据司法和/或政府机关的要求进行披露的除外，否则，任何一方都有权向对方请求损失赔偿，并依法追究法律责任。
-二、 保密条款不因本协议的无效、提前终止、解除或不具操作性而失效。
-                </pre>
-                <h5>【知识产权】</h5>
-                <pre>
-一、 乙方承诺对稿件拥有著作权或者已经获得了稿件原著作权人的许可，且使用翻译服务或行使译文的著作权时不侵犯原著作权人或他人的知识产权或其他合法权利。
-二、 稿件翻译完成后译文的知识产权由甲乙（或原著作权人）双方共有。
-                </pre>
-                <h5>【不可抗力】</h5>
-                <pre>
-因不可抗力或者其他意外事件，使得本协议的履行不可能、不必要或者无意义的，可以解除本协议约束，协议双方均不承担任何责任。本协议中的不可抗力因素指不能预见、不能避免且不能克服的客观情况，包括但不限于战争、黑客攻击、国家强制性政策或任何其他人为造成的灾难等。
-                </pre>
-                <h5>【其他】</h5>
-                <pre>
-一、 本协议受中华人民共和国法律管辖。用户与本网站之间产生任何纠纷或争议，首先本着友好协商的态度解决，协商不成的，任何一方有权将争议提交至甲方住所地人民法院
-二、 用户对本协议中的内容有任何疑问，可在线咨询客服或拨打-----------。
-三、 本协议经乙方提交注册后正式生效。
-                </pre>
-            </div>
         </div>
     </div>
 </div>
-<script>
-    $('.tabItem').on('click', function (){
-        var _this = this,
-            _target = _this.id;
-        $(_this).addClass('active').siblings().removeClass('active');
-        $('.'+ _target).removeClass('sy-hidden').siblings().addClass('sy-hidden');
-    });
-</script>

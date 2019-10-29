@@ -38,7 +38,7 @@
     editor.customConfig.uploadFileName = config.fileName;
 //携带token
     editor.customConfig.uploadImgHeaders = {
-        'Authorization': 'bearer '+localStorage.getItem('sy_rm_client_access_token')
+        'Authorization': 'bearer '+sessionStorage.getItem('sy_rm_client_access_token')
     };
 //使用监听函数在上传图片的不同阶段做相应处理
     editor.customConfig.uploadImgHooks = {

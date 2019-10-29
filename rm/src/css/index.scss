@@ -73,11 +73,6 @@ div.index{
       background: #FFF105;
     }
   }
-  .pointer{
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
   .star h3,
   .step>h3,
   .saying>h3,
@@ -218,9 +213,15 @@ div.index{
         li>div{
           display: table-cell;
           &.info{
-            width: 200px;
+            width: 232px;
             span{
+              vertical-align: bottom;
+              display: inline-block;
+              max-width: 80px;
               margin: 0 3px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
               color: #F1572A;
             }
           }
