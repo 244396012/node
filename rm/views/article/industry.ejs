@@ -1,0 +1,19 @@
+<div class="article_page information industry">
+    <div class="main-bg"></div>
+    <div class="content">
+        <div class="cnt goodArticleCnt sy-default-transition sy-show-transition">
+            <div class="empty"></div>
+        </div>
+        <div class="sy-mg-t-30 sy-center more">
+            <button class="sy-btn loadMoreBtn_Industry sy-hidden" type="button">加载更多</button>
+            <input class="loadMorePageNo_Industry" type="hidden" value="0">
+        </div>
+    </div>
+</div>
+<script>
+    __api__.getIndustryArticle();
+
+    $('.loadMoreBtn_Industry').click(function () {
+        __api__.getIndustryArticle()
+    }, false)
+</script>

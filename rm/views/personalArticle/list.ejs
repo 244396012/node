@@ -5,19 +5,19 @@
     <div class="content">
         <aside class="article_aside">
             <h3>我的主页</h3>
-            <a class="myHomePage" href="/personalArticle/">介绍</a>
-            <a class="myHomeArticle active" href="/personalArticle/list">文章</a>
+            <a class="myHomePage" href="/p-article/">介绍</a>
+            <a class="myHomeArticle active" href="/p-article/list">文章</a>
         </aside>
         <div class="article_cnt">
             <div class="am-g nav-filter">
                 <label data-status="" class="active">全部文章(<span class="all">0</span>)</label>
                 <label data-status="3">已发布(<span class="done">0</span>)</label>
-                <label data-status="0">草稿箱(<span class="draft">0</span>)</label>
+                <label data-status="0,4">草稿箱(<span class="draft">0</span>)</label>
                 <label data-status="1">待审核(<span class="wait">0</span>)</label>
-                <a class="add" href="/personalArticle/create"><span>+ </span>添加文章</a>
+                <a class="add" href="/p-article/create"><span>+ </span>添加文章</a>
             </div>
             <div class="cnt personalArticleList">
-
+                <div class="empty"></div>
             </div>
             <div class="sy-mg-t-30 sy-mg-b-30 sy-center">
                 <input class="article_PageNo" type="hidden" value="0">
@@ -29,7 +29,6 @@
 <script>
 (function () {
 
-    //初始化列表
     __api__.getUserListArticle();
 
     var filter = document.getElementsByClassName('nav-filter')[0],
@@ -39,10 +38,11 @@
 
     //加载更多
     loadMore.addEventListener('click', function () {
-        var cur = $('.nav-filter>label.active');
+        var curEl = $('.nav-filter>label.active'),
+            page = curEl.attr('data-status');
         this.setAttribute('disabled', true);
         this.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
-        __api__.getUserListArticle(cur.attr('data-status'));
+        __api__.getUserListArticle(page);
     }, false);
 
     //筛选文章状态
@@ -64,6 +64,19 @@
             pageno.value = 0;
             container.innerHTML = '';
             __api__.getUserListArticle(status);
+        }else if(tarEl.className === 'add'){
+            event.preventDefault();
+            if(!__api__.isAuth.isPassSkill){
+                $.warning('请先进行技能测试');
+                setTimeout("location.href = '/personal/skill'", 1500)
+            }
+            if(!__api__.isAuth.isPassIdentity){
+                $.warning('请先进行身份认证');
+                setTimeout("location.href = '/personal/identification'", 1500)
+            }
+            if(__api__.isAuth.isPassIdentity && __api__.isAuth.isPassSkill){
+                location.href = '/p-article/create'
+            }
         }
     }, false);
 
@@ -76,7 +89,7 @@
             var data = res.data;
             filter.getElementsByClassName('all')[0].innerHTML = data['all'];
             filter.getElementsByClassName('done')[0].innerHTML = data['3'];
-            filter.getElementsByClassName('draft')[0].innerHTML = data['0'];
+            filter.getElementsByClassName('draft')[0].innerHTML = data['0'] + (data['4'] ? data['4'] : 0);
             filter.getElementsByClassName('wait')[0].innerHTML = data['1'];
         }
     });

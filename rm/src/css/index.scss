@@ -358,6 +358,11 @@ div.index{
     &>h3{
       margin-bottom: 30px;
     }
+    .short-nick-name{
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
   .saying, .information{
     .bg,.cnt{

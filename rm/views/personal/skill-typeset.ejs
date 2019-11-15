@@ -21,7 +21,7 @@
             <div class="am-u-lg-12 labels">
                 <div>擅长软件：</div>
                 <div class="show-softLabel">
-                    <% software = JSON.parse(data.data.software) %>
+                    <% software = data.data.software && JSON.parse(data.data.software) || [] %>
                     <% for(var i = 0; i<software.length; i++) { %>
                     <span><%= software[i] %></span>
                     <% } %>
@@ -30,8 +30,8 @@
             <div class="am-u-lg-12 labels">
                 <div>任务标签：</div>
                 <div class="show-taskLabel">
-                    <% taskLable = JSON.parse(data.data.taskLable) %>
-                    <% for(var i = 0; i<taskLable.length; i++) { %>
+                    <% taskLable = data.data.taskLable && JSON.parse(data.data.taskLable) || [] %>
+                    <% for(var i = 0; i < taskLable.length; i++) { %>
                     <% taskName = taskLable[i].dtpLableName %>
                     <span><%= taskName %></span>
                     <% } %>

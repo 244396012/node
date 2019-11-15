@@ -27,6 +27,7 @@ const app = express();
 
 //基本设置
 app.disable('x-powered-by');
+app.use(compression());//gzip
 app.use(favicon(__dirname + '/static/image/favicon.png'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -43,17 +44,14 @@ app.use('/public', express.static('public', {
 app.use('/static', express.static('static', {
     //static里面的文件不会更改，设置缓存时长7天
     'maxAge': '7d',
-    'Expires': '7d',
-    'ETag': false,
-    'lastModified': false
+    'ETag': true,
+    'lastModified': true
 }));
-app.use(compression());//gzip
 app.use(logger('dev'));//logger
 
 //获取路由
 const pageRoute = require('./routes'),
       pageOrderRoute = require('./routes/orderRoute'),
-      pageInfoRoute = require('./routes/infoRoute'),
       pageUserRoute = require('./routes/userRoute'),
       pageUserArticleRoute = require('./routes/userArticleRoute'),
       pageArticleRoute = require('./routes/articleRoute');
@@ -62,11 +60,14 @@ const pageActivityRoute = require('./routes/activityRoute');
 //使用路由，控制页面跳转、加载
 app.use('/', pageRoute);
 app.use('/order', pageOrderRoute);
-app.use('/information', pageInfoRoute);
 app.use('/personal', pageUserRoute);
-app.use('/personalArticle', pageUserArticleRoute);
+app.use('/p-article', pageUserArticleRoute);
 app.use('/article', pageArticleRoute);
 app.use('/activity', pageActivityRoute);
+
+//临时文件
+const tempApi = require('./routes/temp');
+app.use('/temp', tempApi);
 
 
 //打印本地日志log

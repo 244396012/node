@@ -121,7 +121,7 @@ import './modal';
                 return false
             }
             if(!activityId){
-                $.warning('请稍等，活动参数正在初始化');
+                $.warning('对不起，活动还未开始');
                 return false
             }
             if($('.rewardTimes').text() === '0'){
@@ -143,7 +143,6 @@ import './modal';
                 url: '/operateActivity/prize',
                 data: { activityId: activityId }
             }).then(res => {
-                console.log(res.data);
                 if(res.message === 'success' && res.data.prizeNo >= 0){
                     wheel.setResult(res.data.prizeNo);
                     //轮询，直到转盘停止转到，弹出中奖消息
@@ -255,7 +254,7 @@ import './modal';
 
         //抽奖记录
         $('.rewardHistoryBtn').on('click', function () {
-            if(!baseInfo.account) {
+            if(!__api__.isAuth) {
                 $.warning('请先登录');
                 return false
             }

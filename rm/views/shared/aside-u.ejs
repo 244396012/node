@@ -35,9 +35,9 @@
         <li><a href="/personal/">信息概览</a></li>
         <li><a href="/personal/baseInfo" class="myBaseInfo">基本信息</a></li>
         <li><a href="/personal/resume" class="myResume">我的简历</a></li>
-        <li><a href="/personal/skill">我的技能</a></li>
+        <li><a href="/personal/skill">技能测试</a></li>
         <li><a href="/personal/identification">认证中心</a></li>
-        <li><a href="/personalArticle/" class="myHomePage">我的主页</a></li>
+        <li><a href="/p-article/" class="myHomePage">我的主页</a></li>
         <li class="sy-user-title">我的账户</li>
         <li><a href="/personal/balance">结算中心</a></li>
         <li><a href="/personal/safety">安全设置</a></li>
@@ -86,7 +86,7 @@
                 }else if(scroll < 50){
                     aside.classList.remove('aside-u-fixed')
                 }
-            }, 20);
+            }, 20)
 
         }, false);
 
@@ -100,12 +100,12 @@
         };
         getEl('a.myHomePage').onclick = function (e) {
             e.preventDefault();
-            location.href = '/personalArticle?t='+ t +'&u=' + u;
+            location.href = '/p-article?t='+ t +'&u=' + u;
         };
-        //添加userCode参数
+        //添加userid参数
         getEl('a.myAppraise').onclick = function(e){
             e.preventDefault();
-            location.href = '/personal/appraise?uc=' + u;
+            location.href = '/personal/appraise?u=' + u;
         };
     }(window, document));
 </script>

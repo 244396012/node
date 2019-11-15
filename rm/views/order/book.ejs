@@ -4,7 +4,7 @@
             <div class="am-u-lg-8 content-left">
                 <nav class="nav">
                     <% include order-nav.ejs %>
-                    <div class="filter">
+                    <div class="filter sy-hidden">
                         <a class="item active" href="#" data-event-click>待领取<span>0</span></a>
                         <a class="item" href="#10" data-event-click>进行中<span>0</span></a>
                         <a class="item extra sy-hidden" href="#20" data-event-click>已提交<span>0</span></a>
@@ -21,7 +21,7 @@
                     </div>
                 </nav>
                 <section class="cnt orderContent">
-
+                    <div class="empty"></div>
                 </section>
                 <div class="sy-center more">
                     <input class="order_PageNo" type="hidden" value="1">
@@ -46,7 +46,7 @@
 <script>
     (function (window, document, $) {
 
-        location.hash = '';
+        (location.hash === '#20' || location.hash === '#21') && (location.hash = '');
 
         var unclaimedUrl = '/transTask/getNotReceiveTask', //图书翻译待领取
             claimedUrl = '/transTask/getTaskList', //图书翻译除待领取
@@ -54,6 +54,13 @@
             unclaimedUrl_try = '/tryTransTask/getTryTransListByPage', //图书试译待领取
             claimedUrl_try = '/tryTransTask/getTryTransListByStatus', //图书试译除待领取
             rowCountUrl_try = '/tryTransTask/allTransListCount'; //试译各状态条目
+        var hash = location.hash;
+
+        $('.filter>a.item').each(function () {
+            if($(this).attr('href') === hash){
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
 
         //初始获取状态条目
         __api__.getOrderStatusNum({
@@ -61,34 +68,39 @@
             type: ''
         });
 
-        //初始获取"待领取"列表
-        __api__.getOrderBook({
-            method: 'get',
+        __api__.getNoAcceptNum({
             url: unclaimedUrl_try,
             data: {
-                "page": $('.order_PageNo').val(),
+                "page": 1,
                 "limit": 5
             }
         });
 
+        filterConfig({
+            el: $('.order_PageNo')[0],
+            type: '1',
+            method: 'get',
+            url: unclaimedUrl_try
+        })
+
         var pageOrder = document.getElementsByClassName('order_page').item(0),
             container = document.getElementsByClassName('orderContent').item(0),
             pageEl = document.getElementsByClassName('order_PageNo').item(0);
+
         /*
         * 订单页面 "div.order_page" 添加“click”事件委托
         * */
         pageOrder.addEventListener('click', function (e) {
             var event = e || window.event,
                 target = event.target || event.srcElement;
-            var extraEl = $("a.item.extra"),
+            var extraEl = $(".filter>a.item.extra"),
                 checkedEl = $('input[name=fileType]:checked');
-            var type = "1", status = "", isTry = false;
-            var url = '', method = 'get', reqData = null;
+            var type = "1", url = '', method = 'get';
             //包含属性'data-event-click'的元素触发事件
             if(target.getAttribute('data-event-click') !== null){
                 if($('.filter').attr('disabled')){
                     event.preventDefault();
-                    $.warning('正在获取数据');
+                    $.warning('请稍等，正在获取数据');
                     return false;
                 }
                 type = checkedEl[0].value;
@@ -100,7 +112,7 @@
                 location.hash = target.getAttribute('href').slice(1);
                 $(target).addClass('active').siblings().removeClass('active');
             //切换“订单类型”
-            }else if(target.nodeName === 'INPUT' && ($(target).hasClass('am-ucheck-checkbox')||$(target).hasClass('am-ucheck-radio'))) {
+            }else if(target.nodeName === 'INPUT' && ($(target).hasClass('am-ucheck-checkbox') || $(target).hasClass('am-ucheck-radio'))) {
                 pageEl.value = 1;
                 container.innerHTML = '';
                 type === "1" ? extraEl.addClass('sy-hidden') : extraEl.removeClass('sy-hidden');
@@ -120,48 +132,62 @@
             }
             //发送ajax ----> 自定义判断type: 1试译  2翻译
             if(target.getAttribute('data-event-click') !== null){
-                status = location.hash ? location.hash.slice(1) : '';
+
+                filterConfig({
+                    el: $('.order_PageNo')[0],
+                    type: type,
+                    method: method,
+                    url: url
+                })
+            }
+        }, false)
+
+        function filterConfig(config) {
+            var status = location.hash ? location.hash.slice(1) : '',
+                type = config.type,
+                method = config.method,
+                url = config.url,
                 reqData = {
-                    "page": $('.order_PageNo').val(),
+                    "page": config.el.value,
                     "limit": 5
                 };
-                if(type === "1"){  //图书试译
-                    if(!status){ //待领取
-                        url = unclaimedUrl_try;
-                    }else{ //其他状态
-                        if(status === '10'){
-                            status = '1';
-                        }else if(status === '25'){
-                            status = '0';
-                        }
-                        url = claimedUrl_try;
-                        reqData.status = status;
+            if(type === "1"){  //图书试译
+                if(!status){ //待领取
+                    url = unclaimedUrl_try;
+                }else{ //其他状态
+                    if(status === '10'){
+                        status = '1';
+                    }else if(status === '25'){
+                        status = '0';
                     }
-                }else{ //图书翻译
-                    if(!status){
-                        url = unclaimedUrl;
-                        reqData.type = '3';
-                    }else{
-                        method = 'POST';
-                        url = claimedUrl;
-                        reqData = {
-                            jsonStr: JSON.stringify({
-                                "page":{
-                                    "page": $('.order_PageNo').val(),
-                                    "limit": 5
-                                },
-                                "status": status,
-                                "type": '3'
-                            })
-                        }
+                    url = claimedUrl_try;
+                    reqData.status = status;
+                }
+            }else{ //图书翻译
+                if(!status){
+                    url = unclaimedUrl;
+                    reqData.type = '3';
+                }else{
+                    method = 'POST';
+                    url = claimedUrl;
+                    reqData = {
+                        jsonStr: JSON.stringify({
+                            "page":{
+                                "page": config.el.value,
+                                "limit": 5
+                            },
+                            "status": status,
+                            "type": '3'
+                        })
                     }
                 }
-                __api__.getOrderBook({
-                    method: method,
-                    url: url,
-                    data: reqData
-                });
             }
-        }, false);
-    }(window, document, jQuery));
+            __api__.getOrderBook({
+                method: method,
+                url: url,
+                data: reqData
+            });
+        }
+
+    }(window, document, jQuery))
 </script>

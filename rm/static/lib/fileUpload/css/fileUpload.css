@@ -4,9 +4,10 @@
     margin-top: 10px;
 }
 .fileUploadContent .fileItem{
+    position: relative;
     border: solid thin #DDDDDD;
     width: 150px;
-    height: 215px;
+    height: 190px;
     display: inline-block;
     margin: 10px;
     text-align: center;
@@ -51,8 +52,10 @@
     background-color: red;
 }
 .fileUploadContent .fileItem .status{
+    position: absolute;
+    right: -6px;
+    bottom: 15px;
     font-size: 15px;
-    text-align: center;
 	margin-top: 5px;
 	text-align: left;
 }
@@ -75,6 +78,7 @@
     overflow: hidden;
     clear: both;
     padding: 2px 2px;
+    padding-right: 20px;
 	font-size: 14px;
 }
 .fileUploadContent .uploadBts {

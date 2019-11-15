@@ -1,4 +1,4 @@
-<style>html,body{background: #FCFCFC}</style>
+<style>html,body{background: #FCFCFC}.w-e-toolbar{display: none}.w-e-text-container{height: auto!important;border: none!important;}</style>
 <div class="article_pageDetail article_page information information_detail industry_detail">
     <div class="content">
         <% if(data.message === 'success') {%>
@@ -9,9 +9,9 @@
                     <img src="/static/image/index-default-head.png" alt="">
                 </div>
                 <div class="am-u-md-11">
-                    <h5><%= data.data.publishUser %>
+                    <h5><%= data.data.publishNickName %>
                         <a href="javascript:;"><span class="delete"><i class="am-icon-trash-o"></i>删除</span></a>
-                        <a class="editTarget" href="/personalArticle/edit"><span class="edit"><i class="icon-edit"></i>编辑</span></a>
+                        <a class="editTarget" href="/p-article/edit"><span class="edit"><i class="icon-edit"></i>编辑</span></a>
                     </h5>
                     <div class="am-g">
                         <% if (data.data.status === 0 || data.data.status === 2) {%>
@@ -32,7 +32,9 @@
                 </div>
             </div>
             <div class="detailContent_Info detail">
-                <%- data.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %>
+                <div id="editor" class="createArticle_Editor">
+                    <%- data.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %>
+                </div>
             </div>
         </div>
         <% } else { %>
@@ -40,15 +42,19 @@
         <% } %>
     </div>
 </div>
+<script src="/static/lib/wangEditor.min.js"></script>
+<script src="/static/lib/wangEditorConfig.js"></script>
 <script>
 (function ($){
 
     var search = location.search;
 
+    $('.w-e-text').removeAttr('contenteditable');
+
     $('.editTarget').click(function (e) {
         e.preventDefault();
-        location.href = '/personalArticle/edit'+search;
+        location.href = '/p-article/edit'+search
     })
 
-})(jQuery);
+})(jQuery)
 </script>

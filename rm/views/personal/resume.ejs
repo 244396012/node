@@ -9,7 +9,7 @@
         </div>
         <div class="am-g">
             <div class="am-u-lg-12">
-                <div class="sy-personal-cnt">
+                <div class="sy-personal-cnt" style="min-height: 200px">
                     <div class="add-form sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -48,7 +48,7 @@
                             <button data-sy-confirm id="degreeBtn_Resume" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
                         </div>
                     </div>
-                    <div class="show-info"></div>
+                    <div class="show-info sy-default-transition sy-show-transition"></div>
                 </div>
             </div>
         </div>
@@ -62,11 +62,11 @@
         <div class="am-g">
             <div class="am-u-lg-12">
                 <div class="sy-personal-cnt">
-                    <div class="add-form add-form-笔译证书 sy-hidden">
-                       <form class="sy-personal-form sy-personal-base">
+                    <div class="add-form add-form-笔译证书">
+                        <form class="sy-personal-form sy-personal-base">
                            <div class="item">
                                <div>笔译证书：</div>
-                               <div>
+                               <div class="hide-el sy-hidden">
                                    <select class="languageList languageList_b">
                                        <option value="">请选择语种</option>
                                    </select>
@@ -74,27 +74,22 @@
                                        <option value="">请选择证书名称</option>
                                    </select>
                                    <button type="button"
+                                           title="仅支持jpg、png、jpeg、gif图片"
                                            class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_b"
-                                           data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                                            onclick="beforeUpload(this, '笔译证书')">上传证书</button>
                                </div>
                            </div>
-                       </form>
+                        </form>
+                        <span class="add"><i>+</i>添加</span>
                     </div>
                     <div class="show-info skill-info sy-hidden">
-                        <div class="am-g">
-                            <div class="am-u-lg-6">笔译证书</div>
-                            <div class="am-u-lg-6 sy-right sy-resume-title">
-                                <span class="add project"><i>+</i>添加</span>
-                            </div>
-                        </div>
                         <div class="items"></div>
                     </div>
-                    <div class="add-form add-form-口译证书 sy-hidden">
+                    <div class="add-form add-form-口译证书">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
                                 <div>口译证书：</div>
-                                <div>
+                                <div class="hide-el sy-hidden">
                                     <select class="languageList languageList_k">
                                         <option value="">请选择语种</option>
                                     </select>
@@ -102,27 +97,22 @@
                                         <option value="">请选择证书名称</option>
                                     </select>
                                     <button type="button"
+                                            title="仅支持jpg、png、jpeg、gif图片"
                                             class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_k"
-                                            data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                                             onclick="beforeUpload(this, '口译证书')">上传证书</button>
                                 </div>
                             </div>
                         </form>
+                        <span class="add"><i>+</i>添加</span>
                     </div>
                     <div class="show-info skill-info sy-hidden">
-                        <div class="am-g">
-                            <div class="am-u-lg-6">口译证书</div>
-                            <div class="am-u-lg-6 sy-right sy-resume-title">
-                                <span class="add"><i>+</i>添加</span>
-                            </div>
-                        </div>
                         <div class="items"></div>
                     </div>
-                    <div class="add-form add-form-培训证书 sy-hidden">
+                    <div class="add-form add-form-培训证书">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
                                 <div>培训证书：</div>
-                                <div>
+                                <div class="hide-el sy-hidden">
                                     <select class="languageList languageList_p">
                                         <option value="">请选择语种</option>
                                     </select>
@@ -130,20 +120,15 @@
                                         <option value="">请选择证书名称</option>
                                     </select>
                                     <button type="button"
+                                            title="仅支持jpg、png、jpeg、gif图片"
                                             class="btn btn-default sy-btn sy-btn-green sy-btn-sh uploadBtn_p"
-                                            data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                                             onclick="beforeUpload(this, '培训证书')">上传证书</button>
                                 </div>
                             </div>
                         </form>
+                        <span class="add"><i>+</i>添加</span>
                     </div>
                     <div class="show-info skill-info sy-hidden">
-                        <div class="am-g">
-                            <div class="am-u-lg-6">培训证书</div>
-                            <div class="am-u-lg-6 sy-right sy-resume-title">
-                                <span class="add"><i>+</i>添加</span>
-                            </div>
-                        </div>
                         <div class="items"></div>
                     </div>
                 </div>
@@ -257,15 +242,18 @@
                                 <span>个性标签让订单推送更加精准</span>
                                 <div>
                                     <dl class="label individual">
-                                        <dd>可提供排版</dd>
-                                        <dd>可对照图片进行翻译</dd>
-                                        <dd>可听译</dd>
-                                        <dd class="extra">
-                                            <input type="text" class="addLabelPut" placeholder="请输入标签">
-                                            <button type="button" class="addBtn">添加</button>
-                                        </dd>
+                                        <dd>内容精确</dd>
+                                        <dd>交稿迅速</dd>
+                                        <dd>擅长排版</dd>
+                                        <dd>文艺范</dd>
+                                        <dd>听译</dd>
+                                        <dd>口译</dd>
+                                        <!--<dd class="extra">-->
+                                            <!--<input type="text" class="addLabelPut" placeholder="请输入标签">-->
+                                            <!--<button type="button" class="addBtn">添加</button>-->
+                                        <!--</dd>-->
                                     </dl>
-                                    <dl class="label individual doself"></dl>
+                                    <!--<dl class="label individual doself"></dl>-->
                                 </div>
                             </div>
                             <div class="max-wd">
@@ -304,11 +292,9 @@
             laydate.render({ elem: '.projectEndTime', type: 'month' });
         }
 
-        //初始化领域、公司
-        __api__.getResumeBaseInfo();
-
-        //获取简历信息
-        __api__.getResumeInfo();
+        __api__.initResume()
+        __api__.getResumeBaseInfo()
+        __api__.getResumeInfo()
 
         //选择语种，切换证书
         $('.languageList').change(function () {
@@ -338,22 +324,27 @@
             targetEl.innerHTML = elStr;
         });
 
-    //添加“click”事件委托
+    //“click”事件委托
         $('div.resume-item').on('click', function (e) {
+
             var event = e || window.event,
                 target = event.target || event.srcElement;
+
         //图片放大
             if(target.nodeName === 'IMG'){
                 var src = target.getAttribute('src');
                 $.enlargeImg(src);
         //添加信息
-            }else if($(target).hasClass('add')){
-                var isSkill = $(target).parents('.skill-info');
+            }else if($(target).hasClass('add') || $(target.parentNode).hasClass('add')){
+                var tarEl = $(target.parentNode).hasClass('add') ? target.parentNode : target,
+                    isSkill = $(target).parents('.skill');
                 if(isSkill.length > 0){
-                    isSkill.prev().removeClass('sy-hidden');
+                    var form = $(tarEl).prev(),
+                        hideEl = form.find('.hide-el');
+                    hideEl.removeClass('sy-hidden');
                     return null;
                 }
-                var outDiv = $(target).parents('.resume-item'),
+                var outDiv = $(tarEl).parents('.resume-item'),
                     formDiv = outDiv.find('.add-form');
                 formDiv.removeClass('sy-hidden');
         //取消保存

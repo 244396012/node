@@ -1,0 +1,61 @@
+<style>html,body{background: #FCFCFC}.w-e-toolbar{display: none}.w-e-text-container{height: auto!important;border: none!important;}</style>
+<div class="article_pageDetail article_page information information_detail industry_detail">
+    <div class="content">
+        <% if(data.message === 'success') { %>
+        <div class="detail_cnt">
+            <h3 class="detailTitle_Info title sy-center"><%= data.data.articleTitle %></h3>
+            <div class="title am-g">
+                <div class="am-u-md-1 sy-center">
+                    <img src="/static/image/index-default-head.png" alt="">
+                </div>
+                <div class="am-u-md-11">
+                    <h5>啄语君</h5>
+                    <div class="am-g">
+                        <div class="am-u-sm-6" style="width: 70%">发布时间：<%= data.data.publishTime?data.data.publishTime:'--' %></div>
+                        <div class="am-u-sm-2 sy-right" style="width: 10%">
+                            <i class="sy-icon icon-eye"></i><%= data.data.baseView + data.data.viewCount %>
+                        </div>
+                        <div class="am-u-sm-2 sy-right" style="width: 10%">
+                            <i class="sy-icon icon-thumbs"></i><%= data.data.baseLike + data.data.likeCount %>
+                        </div>
+                        <div class="am-u-sm-2 sy-right" style="width: 10%">
+                            <i class="sy-icon icon-commenting"></i><%= data.data.commentsCount %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="detailContent_Info detail">
+                <div id="editor" class="createArticle_Editor">
+                    <%- data.data.contentHtml.replace(/\&lt;/g,'<').replace(/\&gt;/g, '>') %>
+                </div>
+            </div>
+            <div class="comment">
+                <p class="sy-bold">评论</p>
+                <textarea placeholder="欢迎留言评论哦~"></textarea>
+                <div class="sy-right">
+                    <button type="button" class="sy-btn sy-btn-green sy-btn-md AddCommentBtn">发布</button>
+                </div>
+                <div class="commentList comment-list">
+
+                </div>
+                <div class="sy-mg-t-30 sy-center more">
+                    <button class="sy-btn sy-hidden loadMoreCommentBtn" type="button">加载更多</button>
+                    <input class="commentPageNo" type="hidden" value="1">
+                </div>
+            </div>
+        </div>
+        <% } else { %>
+        <p style="line-height: 200px;text-align: center;color: #999"><%= JSON.stringify(data) %></p>
+        <% } %>
+    </div>
+</div>
+<script src="/static/lib/wangEditor.min.js"></script>
+<script src="/static/lib/wangEditorConfig.js"></script>
+<script>
+    (function ($) {
+
+        $('.w-e-text').removeAttr('contenteditable');
+
+        __api__.getCommentsList()
+    }(jQuery))
+</script>

@@ -8,8 +8,12 @@
             <div class="info">
                 <div class="column-2 lan-pair lanPair">
                     <% for (var i = 0; i < data.lanPair.length; i++){ %>
+                    <% origin = data.lanPair[i].sourceLanguageName.split('-')[0] %>
+                    <% target = data.lanPair[i].targetLanguageName.split('-')[0] %>
+                    <% domain = data.lanPair[i].areaName && JSON.parse(data.lanPair[i].areaName).toString() %>
                     <div class="lan">
-                        <span><%= data.lanPair[i].sourceLanguageName.split('-')[0] %>- <%= data.lanPair[i].targetLanguageName.split('-')[0] %></span>
+                        <span><%= origin %> - <%= target %></span>
+                        <span class="domain"><%= domain %></span>
                         <span class="lv"><%= data.lanPair[i].levelName %></span>
                     </div>
                     <% } %>
@@ -35,7 +39,9 @@
             <h3>个性标签及擅长领域</h3>
             <div class="labelExp">
                 <% for(var i = 0; i<data.labelArr.length; i++) { %>
-                <span><%= data.labelArr[i] %></span>
+                    <% if(data.labelArr[i]){  %>
+                    <span><%= data.labelArr[i] %></span>
+                    <% }  %>
                 <% } %>
             </div>
             <h3>项目经历</h3>

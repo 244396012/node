@@ -14,6 +14,7 @@ import {
     hiddenAccount,
     clearLocalData
 } from './utils';
+import './index';
 
 (function (bundle, global, document, $){
 

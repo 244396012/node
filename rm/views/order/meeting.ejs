@@ -6,7 +6,7 @@
                     <% include order-nav.ejs %>
                 </nav>
                 <section class="cnt orderContent extra">
-
+                    <div class="empty"></div>
                 </section>
                 <div class="sy-center more">
                     <input class="order_PageNo" type="hidden" value="1">
@@ -30,6 +30,19 @@
                 pagesize: 5
             }
         });
+
+        $('.order_LoadMoreBtn').click(function () {
+            __api__.getOrderOther({
+                url: '/pangu/GetTaskList',
+                data: {
+                    userCode: baseInfo.userCode,
+                    taskType: 'I',
+                    pageindex: $('.order_PageNo').val(),
+                    pagesize: 5
+                }
+            });
+        })
+
 
     }(jQuery));
 </script>

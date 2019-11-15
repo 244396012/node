@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var previewData = JSON.parse(sessionStorage.getItem('previewArticle'));
     if(!previewData) {
-        location.href = "/personalArticle/create";
+        location.href = "/p-article/create";
     }else{
         $('.articleTitle').html(previewData.title);
         $('.articleUserPicture').attr("src",previewData.picture);

@@ -1,3 +1,18 @@
+<script>
+    (function () {
+        var userAgent = navigator.userAgent,
+            isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1,
+            isIE11 = userAgent.indexOf('Trident') > -1 && userAgent.indexOf("rv:11.0") > -1;
+        var invalidChrome;
+        if (userAgent.indexOf("Chrome") > -1) {
+            var version = userAgent.match(/chrome\/[\d.]+/gi)[0].match(/[\d]+/)[0];
+            if (+version < 45) {
+                invalidChrome = true;
+            }
+        }
+        (isIE || isIE11 || invalidChrome) && $('.browserModal').modal({closeViaDimmer: false})
+    }())
+</script>
 <div class="index">
     <!-- 顶部轮播 -->
     <div class="am-slider am-slider-default" data-am-flexslider style="height: 400px">
@@ -10,7 +25,7 @@
             </li>
             <li style="background-image: url('/static/image/activity/activity_banner-1.png')">
                 <div class="slider-content">
-                    <a class="pointer" href="/activity/a1_detail?step=a1_step_1"> </a>
+                    <a class="pointer" href="/activity/a1"> </a>
                 </div>
             </li>
             <li style="background-image: url('/static/image/activity/activity_banner-2.png')">
@@ -25,7 +40,7 @@
             <div class="line"></div>
             <div class="font">
                 <p style="height: 60px;line-height: 60px;">
-                    <strong>2000</strong>
+                    <strong class="totalNum">--</strong>
                     <span style="margin-left: 20px;vertical-align: 13px">位</span>
                 </p>
                 <p>自由译者加入啄语</p>
@@ -38,10 +53,10 @@
                 <div class="item">
                     <img src="/static/image/index-introduce-1.png" alt="">
                     <h5>订单充足 全领域多语种</h5>
-                    <p>依托语言桥，每天为平台译员提供近400个订单，涵盖文娱传<a href="#"> >>></a></p>
+                    <p>依托啄语，每天为平台译员提供近400个订单，涵盖文娱传<a href="#"> >>></a></p>
                     <div class="item-hide">
                         <h5>订单充足 全领域多语种</h5>
-                        <p>依托语言桥，每天为平台译员提供近400个订单，涵盖文娱传媒、IT互联网、法律财经、生物医药、能源化工等多个领域，英、俄、法、西、葡等多个语种，给“术业专攻“的你充分施展的舞台。</p>
+                        <p>依托啄语，每天为平台译员提供近400个订单，涵盖文娱传媒、IT互联网、法律财经、生物医药、能源化工等多个领域，英、俄、法、西、葡等多个语种，给“术业专攻“的你充分施展的舞台。</p>
                         <a class="sy-btn sy-btn-sm sy-btn-default" href="/about">了解更多</a>
                     </div>
                 </div>
@@ -51,7 +66,7 @@
                     <p>内置在线版CAT与海量术语及语料，一键接单，一键开始生<a href="#"> >>></a></p>
                     <div class="item-hide">
                         <h5>内置CAT 海量语料加持</h5>
-                        <p>内置在线版CAT与海量术语及语料，一键接单，一键开始生产，全称术语与语料支持，操作简捷，无需学习，助力高效翻译。 更有低错自动质检、一键排版等实用功能，让翻译之路省时省心省力。</p>
+                        <p>内置在线版CAT与海量术语及语料，一键接单，一键开始生产，全程术语与语料支持，操作简捷，无需学习，助力高效翻译。 更有低错自动质检、一键排版等实用功能，让翻译之路省时省心省力。</p>
                         <a class="sy-btn sy-btn-sm sy-btn-default" href="/about">了解更多</a>
                     </div>
                 </div>
@@ -61,7 +76,7 @@
                     <p>啄语“三维”智能评价算法，领单、派单更智能，更精准<a href="#"> >>></a></p>
                     <div class="item-hide">
                         <h5>数据智能 啄语者脱颖而出</h5>
-                        <p>啄语“三维”智能评价算法，领单、派单更智能，更精准，更高效。译员更可自由设置接单时间，接单量等，自主安排碎片时间，让优秀的译员脱颖而出，同时帮助译员查漏补缺，和译员一起成长。</p>
+                        <p>啄语“三维”智能评价算法，领单、派单更智能、更精准、更高效。译员更可自由设置接单时间、接单量等，自主安排碎片时间，让优秀的译员脱颖而出，同时帮助译员查漏补缺，和译员一起成长。</p>
                         <a class="sy-btn sy-btn-sm sy-btn-default" href="/about">了解更多</a>
                     </div>
                 </div>
@@ -82,7 +97,9 @@
         <div class="order">
             <div class="am-g">
                 <div class="am-u-md-8">
-                    <a class="sy-btn sy-btn-sm sy-btn-default sy-btn-green OrderPageBtn" href="/register">图书译者招募 >></a>
+                    <a class="sy-btn sy-btn-sm sy-btn-default sy-btn-green"
+                       id="OrderPageBtn"
+                       href="/register">图书译者招募 >></a>
                 </div>
                 <div class="am-u-md-4">
                     <h5 class="sy-center">订单状态</h5>
@@ -102,11 +119,11 @@
             <div class="step-bg"></div>
             <div class="step-item item-1">
                 <h5>注册并完善资料</h5>
-                <span>通过手机号码快速完成注册，并及时提交和完善个人信息。</span>
+                <span>通过手机号/邮箱快速完成注册，并及时提交和完善个人信息。</span>
             </div>
             <div class="step-item item-2">
                 <h5>译员资格测试</h5>
-                <span>使用平台提供的测试题，测评自身的翻译技能，获得对应的译员等级和擅长领域。</span>
+                <span>使用平台提供的测试题，测评自身的翻译技能，获得您擅长领域对应的等级。</span>
             </div>
             <div class="step-item item-3">
                 <h5>参与翻译业务</h5>
@@ -154,7 +171,8 @@
     </div>
 <!-- 首页板块： 译员风采、行业资讯 -->
     <div class="content">
-        <div class="indexSaying saying sy-hidden">
+        <% if(pecker.message === 'success' && pecker.data.content.length > 0){ %>
+        <div class="indexSaying saying">
             <h3 class="sy-center">啄语者说</h3>
             <div>
                 <div class="bg">
@@ -163,23 +181,79 @@
                        href="/register">我要发表</a>
                 </div>
                 <div class="cnt goodArticleCnt">
+                    <% for(let i = 0; i< pecker.data.content.length; i++){ %>
+                    <% item = pecker.data.content[i] %>
+                    <div class="item">
+                        <div class="img"><img src="<%= item.coverId %>" alt=""></div>
+                        <div class="item-cnt">
+                            <a href="/article/detail?aid=<%= item.id %>&uid=<%= item.publishUserId %>">
+                                <h5><%= item.articleTitle %></h5>
+                            </a>
+                            <p><%= item.partContent.slice(0, 95) %></p>
+                            <div class="am-g">
+                                <div class="am-u-sm-2 short-nick-name" style="width: 20%">
+                                    <a href="/article?uid=<%= item.publishUserId %>">
+                                        <img src="/static/image/index-default-head.png" alt=""><%= item.publishNickName %>
+                                    </a>
+                                </div>
+                                <div class="am-u-sm-4" style="width: 44%"><%= item.publishTime?item.publishTime:'--' %></div>
+                                <div class="am-u-sm-2 sy-right" style="width: 12%">
+                                    <i class="sy-icon icon-eye"></i><%= item.viewCount %>
+                                </div>
+                                <div class="am-u-sm-2 sy-right" style="width: 12%">
+                                    <i class="sy-icon icon-thumbs"></i><%= item.likeNumber %>
+                                </div>
+                                <div class="am-u-sm-2 sy-right" style="width: 12%">
+                                    <i class="sy-icon icon-commenting"></i><%= item.commentsNumber %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
                     <div class="more">
-                        <a href="/information/">查看更多>></a>
+                        <a href="/article/pecker">查看更多>></a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="indexInfo information sy-hidden">
+        <% } %>
+        <% if(industry.message === 'success' && industry.data.content.length > 0){ %>
+        <div class="indexInfo information">
             <h3 class="sy-center">行业资讯</h3>
             <div>
                 <div class="bg"></div>
                 <div class="cnt industryArticleCnt">
+                    <% for(let i = 0; i< industry.data.content.length; i++){ %>
+                    <% item = industry.data.content[i] %>
+                    <div class="item">
+                        <div class="img"><img src="<%= item.coverId %>" alt=""></div>
+                        <div class="item-cnt">
+                            <a href="/article/i-detail?ofi=1&aid=<%= item.id %>">
+                                <h5><%= item.articleTitle %></h5>
+                            </a>
+                            <p><%= item.partContent.slice(0, 95) %></p>
+                            <div class="am-g">
+                                <div class="am-u-sm-6" style="width: 64%"><%= item.publishTime?item.publishTime:'' %></div>
+                                <div class="am-u-sm-2 sy-right" style="width: 12%">
+                                    <i class="sy-icon icon-eye"></i><%= item.baseView + item.viewCount %>
+                                </div>
+                                <div class="am-u-sm-2 sy-right" style="width: 12%">
+                                    <i class="sy-icon icon-thumbs"></i><%= item.baseLike + item.likeCount %>
+                                </div>
+                                <div class="am-u-sm-2 sy-right" style="width: 12%">
+                                    <i class="sy-icon icon-commenting"></i><%= item.commentsCount %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
                     <div class="more">
-                        <a href="/information/industry">查看更多>></a>
+                        <a href="/article/industry">查看更多>></a>
                     </div>
                 </div>
             </div>
         </div>
+        <% } %>
     </div>
 <!-- 底部Logo -->
     <div class="bottom-bg">
@@ -221,64 +295,41 @@
         </ul>
     </aside>
 </div>
+<div class="am-modal am-modal-confirm browserModal">
+    <div class="am-modal-dialog" style="width: 360px;">
+        <div class="am-modal-hd">提 示
+            <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+        </div>
+        <div class="am-modal-bd">
+            您的<span class="sy-orange">浏览器版本过低</span>，为了更好的体验，请升级您的浏览器！
+            若您使用的是360、搜狗等双核浏览器，请手动切换至<span class="sy-orange">极速模式</span>。
+        </div>
+        <div class="am-modal-footer" style="margin: 1rem 0 2rem">
+            <span class="am-modal-btn sy-btn sy-btn-green sy-btn-sm"
+                  onclick="location.href='https://www.baidu.com/s?wd=chrome'">去下载</span>
+        </div>
+    </div>
+</div>
 <script src="/static/lib/scroll.js"></script>
 <script>
-
     (function ($) {
 
-        //文章精选、行业资讯
-        __api__.getIndexGoodArticle();
-
-        //设置index首页“我要接单”、“我要发表”、“图书译者”按钮权限跳转
-        $('#releaseBtn_Index,#getOrderBtn_Index,.OrderPageBtn').on('click', function(e){
-            //未登录
-            if(!__api__.isAuth) return;
-
-            if($(this).hasClass('OrderPageBtn')){
-                location.href = '/order';
-            }
-
-            e.preventDefault();
-            var id = this.id;
-            //未通过身份验证
-            if(!__api__.isAuth.isPassIdentity){
-                if(id === 'releaseBtn_Index'){
-                    $.warning('你当前还不能发表文章，快去完善信息吧');
-                }else if(id === 'getOrderBtn_Index'){
-                    $.warning('你当前还不能接单，快去完善信息吧');
+        $.ajax({
+            type: 'GET',
+            url: '/temp',
+            dataType: 'json',
+            complete: function (res) {
+                if(res.status === 200){
+                    $('strong.totalNum').html(res.responseText)
                 }
-                setTimeout(() => {
-                    location.href = '/personal/identification';
-                }, 1000);
-                return null;
-            }
-            //已通过身份验证，未通过技能验证
-            if(!__api__.isAuth.isPassSkill){
-                if(id === 'releaseBtn_Index'){
-                    $.warning('你当前还不能发表文章，快去完善信息吧');
-                }else if(id === 'getOrderBtn_Index'){
-                    $.warning('你当前还不能接单，快去完善信息吧');
-                }
-                setTimeout(() => {
-                    location.href = '/personal/skill';
-                }, 1000);
-                return null;
-            }
-            //已通过验证
-            if(id === 'releaseBtn_Index'){
-                location.href = '/personalArticle/create'; //发布文章
-            }else if(id === 'getOrderBtn_Index'){
-                location.href = '/order'; //接单
             }
         })
 
     }(jQuery))
     
-    //返回顶部
     window.onscroll = __bundle__.throttleFn(function () {
         var goTop = $('li.back'),
             myScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-        //返回顶部
         myScrollTop > 500
             ? goTop.removeClass('sy-hidden')
             : goTop.addClass('sy-hidden');

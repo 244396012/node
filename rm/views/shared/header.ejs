@@ -11,11 +11,11 @@
                 </a>
                 <!--添加 active-->
                 <a class="nav-item" href="/">首页</a>
-                <a class="nav-item" href="/order/">订单中心</a>
-                <a class="nav-item" href="/activity/">平台活动</a>
-                <a class="nav-item nav_about_Header" href="/about/">关于我们 <i class="am-icon-angle-down"></i></a>
+                <a class="nav-item orderCenter" href="/order">订单中心</a>
+                <a class="nav-item" href="/activity">平台活动</a>
+                <a class="nav-item nav_about_Header" href="/about">关于我们 <i class="am-icon-angle-down"></i></a>
                 <div class="nav_dropDown_Header header-dropDown sy-center">
-                    <a href="/about/">关于我们</a>
+                    <a href="/about">关于我们</a>
                     <a href="/about/help">帮助中心</a>
                     <a href="/about/clause">服务条款</a>
                 </div>
@@ -25,16 +25,16 @@
                 <a class="am-btn am-btn-default sy-font-fm reg" href="/register">注册</a>
             </div>
             <div class="am-u-sm-5 sy-right nav-login hasLogin sy-hidden">
-                <a class="receiptOrderBtn nav-item nav-order off" href="javascript:void(0);">可接单</a>
+                <a class="receiptOrderBtn nav-item nav-order off sy-show-transition" href="javascript:void(0);">可接单</a>
                 <a class="nav-item nav-message" href="/personal/message">
                     消息通知<span class="nav-message-props sy-center messageProps"></span>
                 </a>
-                <a class="nav-item nav-personal personalEntry" href="javascript:;">
+                <a class="nav-item nav-personal personalEntry" href="/personal">
                     个人中心<img class="headIcon_Header" src="/static/image/personal-default-head.png" alt=" ">
                 </a>
                 <div class="dropDown_Header header-dropDown sy-center">
-                    <a href="/personal/">个人中心</a>
-                    <a href="/personal/safety">账户管理</a>
+                    <a href="/personal">个人中心</a>
+                    <a href="/personal/balance">账户管理</a>
                     <a href="/about/help">帮助中心</a>
                     <a class="userLogoutBtn" href="javascript:void(0);">退出登录</a>
                 </div>
@@ -45,87 +45,85 @@
 <!-- 母版页header script，主要功能：给当前页添加active、设置接单等 -->
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function () {
-    (function ($) {
 
-        function getEl(string){
-            return document.querySelector(string);
+    function getEl(string){
+        return document.querySelector(string);
+    }
+
+    //给header、aside导航添加“active”
+    var pathname = location.pathname,
+        navItems = $('.nav_AsideU a, .nav_Header>a.nav-item');
+    for(var i = 0, len = navItems.length; i<len; i++){
+        var item = navItems[i],
+            href = $(item).attr('href');
+        if(pathname === href){
+            $(item).addClass('active');
+            break;
+        }else if((href !== '/' && href !== '/personal/') && pathname.indexOf(href) > -1){
+            $('.nav_AsideU,.nav_Header').find('a[href="'+ href +'"]').addClass('active');
+            break;
+        }else if(pathname === '/personal/teamInfo'){
+            $('a.myBaseInfo').addClass('active');
         }
+    }
 
-        //给header、aside导航添加“active”
-        var pathname = location.pathname,
-            navItems = $('.nav_AsideU a, .nav_Header>a.nav-item');
-        for(var i = 0, len = navItems.length; i<len; i++){
-            var item = navItems[i],
-                href = $(item).attr('href');
-            if(pathname === href){
-                $(item).addClass('active');
-                break;
-            }else if((href !== '/' && href !== '/personal/') && pathname.indexOf(href) > -1){
-                $('.nav_AsideU,.nav_Header').find('a[href="'+ href +'"]').addClass('active');
-                break;
-            }else if(pathname === '/personal/teamInfo'){
-                $('a.myBaseInfo').addClass('active');
-            }
-        }
-
-        //设置“暂不接稿”
-        var receiptBtn = getEl('.receiptOrderBtn');
-        receiptBtn.addEventListener('click', function () {
-            var _this = this,
-                status = _this.classList.contains('off') ? 1:0;
-            __api__.getResponse({
-                url: '/userExtension/openCloseReceipt',
-                data: { receiptStatus: status }
-            }).then(res => {
-                if(res.message === 'success'){
-                    $.success('设置成功');
-                    if(_this.classList.contains('off')){
-                        _this.classList.add('on');
-                        _this.classList.remove('off');
-                    }else{
-                        _this.classList.add('off');
-                        _this.classList.remove('on');
-                    }
+    //设置“暂不接稿”
+    var receiptBtn = getEl('.receiptOrderBtn');
+    receiptBtn.addEventListener('click', function () {
+        var _this = this,
+            status = _this.classList.contains('off') ? 1:0;
+        __api__.getResponse({
+            url: '/userExtension/openCloseReceipt',
+            data: { receiptStatus: status }
+        }).then(function(res) {
+            if(res.message === 'success'){
+                $.success('设置成功');
+                if(_this.classList.contains('off')){
+                    _this.classList.add('on');
+                    _this.classList.remove('off');
                 }else{
-                    $.error(res.message);
+                    _this.classList.add('off');
+                    _this.classList.remove('on');
                 }
-            });
-        }, false);
+            }else{
+                $.error(res.message);
+            }
+        })
+    }, false);
 
-        //“个人中心”、“关于我们”下拉框
-        var navEntry = getEl('.nav_about_Header'),
-            navDropDown = getEl('.nav_dropDown_Header'),
-            userEntry = getEl('.personalEntry'),
-            userDropDown = getEl('.dropDown_Header'),
-            timer = null;
-        navEntry.onmousemove = userEntry.onmousemove = function (){
-            var _this = this;
-            clearTimeout(timer);
-            timer = window.setTimeout(function (){
-                _this.classList.contains('personalEntry')
-                    ? userDropDown.classList.add('transition')
-                    : navDropDown.classList.add('transition');
-            },100);
-        }
-        navEntry.onmouseleave = userEntry.onmouseleave = function (){
-            var _this = this;
-            timer = window.setTimeout(function (){
-                _this.classList.contains('personalEntry')
-                    ? userDropDown.classList.remove('transition')
-                    : navDropDown.classList.remove('transition');
-            },300);
-        }
-        navDropDown.onmouseleave = userDropDown.onmouseleave = function (){
-            var _this = this;
-            timer = window.setTimeout(function (){
-                _this.classList.remove('transition');
-            },300);
-        }
-        navDropDown.onmousemove = userDropDown.onmousemove = function (){
-            clearTimeout(timer);
-            this.classList.add('transition');
-        }
+    //“个人中心”、“关于我们”下拉框
+    var navEntry = getEl('.nav_about_Header'),
+        navDropDown = getEl('.nav_dropDown_Header'),
+        userEntry = getEl('.personalEntry'),
+        userDropDown = getEl('.dropDown_Header'),
+        timer = null;
+    navEntry.onmousemove = userEntry.onmousemove = function (){
+        var _this = this;
+        clearTimeout(timer);
+        timer = window.setTimeout(function (){
+            _this.classList.contains('personalEntry')
+                ? userDropDown.classList.add('transition')
+                : navDropDown.classList.add('transition');
+        },100);
+    }
+    navEntry.onmouseleave = userEntry.onmouseleave = function (){
+        var _this = this;
+        timer = window.setTimeout(function (){
+            _this.classList.contains('personalEntry')
+                ? userDropDown.classList.remove('transition')
+                : navDropDown.classList.remove('transition');
+        },300);
+    }
+    navDropDown.onmouseleave = userDropDown.onmouseleave = function (){
+        var _this = this;
+        timer = window.setTimeout(function (){
+            _this.classList.remove('transition');
+        },300);
+    }
+    navDropDown.onmousemove = userDropDown.onmousemove = function (){
+        clearTimeout(timer);
+        this.classList.add('transition');
+    }
 
-    })(jQuery);
 }, false);
 </script>

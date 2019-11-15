@@ -31,10 +31,10 @@ function getResume(uid, callback) {
                 currentPointSummary: data.currentPointSummary,
                 translateYear: data.userExtension.translateYear,
                 yxTotalScore: data.yxTotalScore
-            };
+            }
         }
-        callback(backData);
-    });
+        callback(backData)
+    })
 }
 
 
@@ -60,7 +60,7 @@ routes.get('/', function(req, res){
 routes.get('/list', function (req, res){
     const uid = req.query.uid;
     getResume(uid, function (data) {
-        let title =  data.base.nickName?'"'+data.base.nickName+'"的主页-文章':'XXX的主页|文章';
+        let title =  data.base.nickName?'"'+data.base.nickName+'"的文章':'XXX的文章';
         res.render('article/list', {
             mark: 'article',
             title: title,
@@ -84,8 +84,8 @@ routes.get('/detail', function (req, res){
         data: { userId: uid }
     });
     Promise.all([detailData, userData]).done(data => {
-        const userBase = JSON.parse(data[1]),
-            title = userBase.data.nickName?'"'+userBase.data.nickName+'"的主页-文章详情':'XXX的主页|文章详情';
+        const articleBase = JSON.parse(data[0]),
+            title = articleBase.data.articleTitle ? articleBase.data.articleTitle : 'XXX的文章详情';
         res.render('article/detail', {
             mark: 'article',
             title: title,
@@ -93,7 +93,56 @@ routes.get('/detail', function (req, res){
             detail: JSON.parse(data[0]),
             userBase: JSON.parse(data[1])
         });
+    })
+});
+
+/*
+*
+* 啄语者说
+*
+* */
+//主页
+routes.get('/pecker', function(req, res){
+    res.render('article/pecker', {
+        mark: 'information',
+        title: '啄语者说',
+        layout: 'shared/layout'
     });
 });
+
+
+/*
+*
+* 行业资讯
+*
+* */
+//主页
+routes.get('/industry', function(req, res){
+    res.render('article/industry', {
+        mark: 'information',
+        title: '行业资讯',
+        layout: 'shared/layout'
+    });
+});
+//详情
+routes.get('/i-detail', function(req, res){
+    const aid = req.query.aid;
+    getNoTokenMsg({
+        url: '/officialArticle/officialArticleDetails',
+        data: {
+            articleId: aid
+        }
+    }).done(result => {
+        const detail = JSON.parse(result),
+            title = detail.data.articleTitle ? detail.data.articleTitle : '行业资讯 | 文章详情';
+        res.render('article/industryDetail', {
+            mark: 'information',
+            title: title,
+            layout: 'shared/layout',
+            data: detail
+        })
+    })
+});
+
 
 module.exports = routes;

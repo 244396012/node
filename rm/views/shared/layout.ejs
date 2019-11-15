@@ -3,10 +3,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="renderer" content="webkit">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="Cache" content="no-cache">
-    <meta name="renderer" content="webkit">
     <meta name="pinterest" content="nopin">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +16,7 @@
     <meta name="keywords" content="">
     <meta name="description" content="数译科技,资源管理系统">
     <title><%= title %></title>
-    <link rel="stylesheet" href="/static/lib/amazeui.min.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/amazeui/2.7.2/css/amazeui.min.css">
     <link rel="stylesheet" href="/public/css/main.css">
 <% if(mark === 'index'){ %>
     <link rel="stylesheet" href="/public/css/index.css">
@@ -72,8 +72,10 @@
     <% } %>
     </div>
 </body>
-<script type="text/javascript" src="/static/lib/jquery-2.1.4.min.js"></script>
-<script type="text/javascript" src="/static/lib/amazeui.min.js"></script>
+<script type="text/javascript" src="https://cdn.staticfile.org/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.min.js"></script>
+<script type="text/javascript" src="/static/lib/sockjs.min.js"></script>
+<script type="text/javascript" src="/static/lib/stomp.min.js"></script>
 <!-- 打包后的非Api接口文件 -->
 <script type="text/javascript" src="/public/js/bundle.js"></script>
 <!-- 打包后的Api接口文件 -->

@@ -15,7 +15,7 @@
             <div class="upload-btn sy-center"
                  data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                  onclick="$('a.uploadify-button').click()">
-                <i class="sy-personal-icon sy-personal-icon-head"></i>
+                <i class="sy-personal-icon sy-personal-icon-head"></i>点击上传
             </div>
             <p class="tips sy-orange" style="margin-top: 5px;padding-right: 12px">* 图片大小不超过3M</p>
         </div>
@@ -29,8 +29,7 @@
                                    type="text"
                                    required
                                    placeholder="请输入团队名称"
-                                   value="<%= data.data.teamName?data.data.teamName:'' %>"
-                                    <%= data.data.teamName?'disabled':'' %> >
+                                   value="<%= data.data.teamName?data.data.teamName:'' %>">
                         </div>
                     </div>
                     <div class="item">
@@ -69,7 +68,7 @@
                     <div class="item">
                         <div><i class="required">*</i>团队所在地：</div>
                         <div>
-                            <select class="area-control province" name="deliverprovince" id="deliverprovince" required prop="团队所在地" ></select>
+                            <select class="area-control province" name="deliverprovince" id="deliverprovince" required prop="团队所在地"></select>
                             <select class="area-control city" name="delivercity" id="delivercity"></select>
                             <select class="area-control area" name="deliverarea" id="deliverarea"></select>
                         </div>
@@ -275,37 +274,38 @@
                 isFill = $('#unifiedSocialCreditCode').val();
             if(!isFill){
                 var hiddenEl = $('.hiddenData').html(),
-                    hiddenData = hiddenEl && JSON.parse(hiddenEl);
-                for(var prop in hiddenData.data){
-                    var itemDt = hiddenData.data[prop];
+                    hiddenData = hiddenEl && JSON.parse(hiddenEl) || {},
+                    loopData = hiddenData.data;
+
+                for(var prop in loopData){
+                    var itemData = loopData[prop];
                     if(prop === 'currencyCode'){
-                        $('#currencyType').val(itemDt);
+                        $('#currencyType').val(itemData);
                     }else if(prop === 'location'){
-                        var localArr = itemDt.split(' ');
-                        $('select.province').val(localArr[0]).change();
-                        $('select.city').val(localArr[1]);
-                        $('select.area').val(localArr[2]);
+                        var address = itemData.split(' ');
+                        $('select.province').val(address[0]).change();
+                        $('select.city').val(address[1]);
+                        $('select.area').val(address[2]);
                     }else if(prop === 'primaryContactInfo' || prop === 'otherContactInfo'){
-                        var dataArr = itemDt && JSON.parse(itemDt) || [],
-                            itemStr = '';
-                        for(var i = 0, len = dataArr.length; i<len; i++){
-                            var item = dataArr[i];
-                            itemStr += `
-                                <div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
-                                    <div>${Object.keys(item)}：</div>
-                                    <div>
-                                        <input type="text" class="extra" value="${Object.values(item)}" readonly>
-                                        <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
-                                    </div>
-                                </div>`;
+                        var contactInfo = itemData && JSON.parse(itemData) || [],
+                            contactStr = '';
+                        for(var i = 0, len = contactInfo.length; i<len; i++){
+                            var item = contactInfo[i];
+                            contactStr += ` <div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
+                                                <div>${Object.keys(item)}：</div>
+                                                <div>
+                                                    <input type="text" class="extra" value="${Object.values(item)}" readonly>
+                                                    <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
+                                                </div>
+                                            </div>`;
                         }
                         if(prop === 'primaryContactInfo'){
-                            $('.primaryForm').find('.addItemTarget').before(itemStr);
+                            $('.primaryForm').find('.addItemTarget').before(contactStr);
                         }else{
-                            $('.otherForm').find('.addItemTarget').before(itemStr);
+                            $('.otherForm').find('.addItemTarget').before(contactStr);
                         }
                     }else {
-                        $('#'+prop).val(itemDt);
+                        $('#'+prop).val(itemData);
                     }
                 }
             }

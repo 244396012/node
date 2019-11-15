@@ -314,6 +314,14 @@ header{
         width: 100px;
         text-align: right;
       }
+      select.select{
+        width: 75px;
+        outline: none;
+        border-radius: 2px;
+        border: 1px solid #BFBFBF;
+        height: 32px;
+        line-height: 32px;
+      }
       &>div:nth-child(2){
         width: 380px;
         input,select,textarea{
@@ -333,7 +341,8 @@ header{
           line-height: 32px;
         }
         textarea{
-          height: 140px;
+          height: 144px;
+          padding-bottom: 30px;
         }
         p{margin: 0}
       }
@@ -532,6 +541,7 @@ header{
       padding: 12px 0;
       border: none;
       border-top: none!important;
+      vertical-align: middle;
     }
     td:first-child{
       width: 220px;
@@ -635,7 +645,7 @@ header{
         }
         strong{
           color: $baseColor;
-          font-size: 32px;
+          font-size: 26px;
           font-weight: 700;
           &.empty:after{
             content: '****';
@@ -715,7 +725,10 @@ header{
         }
       }
       .message-item{
-        margin-bottom: 12px;
+        cursor: pointer;
+        &+.message-item{
+          margin-top: 7px;
+        }
         a{
           margin: 0 3px;
           color: $baseColor;
@@ -842,11 +855,14 @@ header{
       width: 128px;
       height: 30px;
       background: rgba(0,0,0,.2);
+      color: #fff;
+      font-size: 14px;
       .sy-personal-icon-head{
         width: 25px;
         height: 30px;
-        background-position: -384px -38px;
+        background-position: -384px -37px;
         background-image: url("/static/image/sprite.png");
+        vertical-align: -9px;
       }
     }
     .sy-personal-form{
@@ -940,8 +956,33 @@ header{
       }
     }
     .skill{
-      .sy-personal-form{
+      .add-form{
+        position: relative;
+      }
+      form.sy-personal-form{
         padding-top: 10px;
+        &>div>div>select,input{
+          width: 175px!important;
+        }
+      }
+      span.add{
+        position: absolute;
+        width: 60px;
+        right: -6px;
+        top: 9px;
+        color: #2FC9D0;
+        font-size: 14px;
+        line-height: 20px;
+        &>i{
+          margin-right: 5px;
+          font-style: normal;
+          font-size: 28px;
+          vertical-align: -3px;
+        }
+        &:hover{
+          opacity: .85;
+          cursor: pointer;
+        }
       }
     }
     .sy-personal-form{
@@ -1036,6 +1077,7 @@ header{
   .preTestSet{
     .fileUploadContent .box{
       border: none;
+      text-align: center;
     }
     .uploadFileBt{
       display: none;
@@ -1193,12 +1235,11 @@ header{
                 line-height: 18px;
                 padding: 0px 10px;
                 margin-left: 0;
+                margin-right: 10px;
                 border: 1px solid #E5E5E5;
                 border-radius: 10px;
                 font-size: 12px;
-                &+span{
-                  margin-left: 10px;
-                }
+
               }
             }
           }
@@ -1929,8 +1970,9 @@ header{
         }
         button{
           width: 122px;
-          padding: 0 20px;
+          padding: 0 10px;
           background: $baseColorDeep;
+          border-color: $baseColorDeep;
         }
       }
     }
@@ -2078,14 +2120,14 @@ header{
         }
         &>textarea{
           width: 600px;
-          height: 120px;
+          height: 180px;
           padding: 8px 8px 30px;
           resize: vertical;
         }
-        &>.writeFont{
+        &>.write-font{
           position: absolute;
-          bottom: -25px;
-          right: 18px;
+          bottom: 4px;
+          right: 25px;
           text-align: right;
         }
         &>button.upload-btn{

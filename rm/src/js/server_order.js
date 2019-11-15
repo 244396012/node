@@ -7,7 +7,6 @@
 * */
 import { basePMUrl, orderApi, orderOtherApi } from "./interceptor";
 import { getResponse } from "./asyncAjax";
-import { getQueryString } from "./utils";
 import './modal';
 
 const orderServer = (function (global, document, $, undefined) {
@@ -16,6 +15,29 @@ const orderServer = (function (global, document, $, undefined) {
 
     function isEmpty(str) {
         return str || '--';
+    }
+
+    //证件类型
+    function certificate(str) {
+        switch (String(str)){
+            case '701': return '户口本';
+            case '702': return '出生证';
+            case '703': return '结婚证';
+            case '704': return '身份证';
+            case '705': return '驾驶证';
+            case '706': return '四六级';
+            case '707': return '营业执照';
+            case '791': return '毕业证';
+            case '792': return '学位证';
+            case '793': return '成绩单';
+            case '794': return '出生证明';
+            case '795': return '存款证明';
+            case '796': return '在职证明';
+            case '797': return '病例';
+            case '798': return '体检报告';
+            case '799': return '其他';
+            default: return str
+        }
     }
 
     //获取个人基本信息，从localStorage
@@ -49,6 +71,21 @@ const orderServer = (function (global, document, $, undefined) {
                         }
                     }
                 });
+            }
+        })
+    }
+
+
+//获取未领取条目
+    function getNoAcceptNum(config) {
+        getResponse({
+            method: 'get',
+            baseUrl: basePMUrl,
+            url: config.url,
+            data: config.data
+        }).then(res => {
+            if(res.success){
+                $('.filter>a.item').eq(0).find('span').html(res.data.totalRow);
             }
         })
     }
@@ -89,13 +126,16 @@ const orderServer = (function (global, document, $, undefined) {
 * 订单服务
 * */
     function getOrderService (config){
+
         config = config || {};
         config.method = config.method || "POST";
         config.data = config.data || {};
+
         let moreBtn = $(".order_LoadMoreBtn"),
             pageEl = $('.order_PageNo'),
             pageNo = +pageEl.val();
-        $.loading('获取数据...');
+
+        $.loading('获取数据');
         $('.filter').attr('disabled', 'disabled');
         moreBtn.addClass('sy-hidden');
         return getResponse({
@@ -108,40 +148,47 @@ const orderServer = (function (global, document, $, undefined) {
             const tempJson = config.data.jsonStr && JSON.parse(config.data.jsonStr) || {},
                 isOn = +tempJson.status === 10;
             const tk = sessionStorage.getItem('sy_rm_client_access_token');
+            pageNo <= 1 && $('section.cnt.orderContent').empty();
             if(res.success){
                 let bodyStr = '',
                     joinArr = [];
                 let result = res.data.list ? res.data.list : [];
                 unClaimed && $('.filter>a.item').eq(0).find('span').html(res.data.totalRow);
                 result.forEach(item => {
-                    let totalPrice = 0, totalWork = 0;
+                    let totalPrice = '', totalWork = '';
                     let operateStr = '';
                     //文档翻译
                     if(+item.orderType === 1){
-                        totalPrice = `￥${isEmpty(item.unitPrice)}/千字`;
-                        totalWork = `约${isEmpty(item.workLoad)}字`;
+                        totalPrice = `<em>￥${isEmpty(item.unitPrice)}/千字</em>`;
+                        totalWork = `<span>约${isEmpty(item.workLoad)}字</span>`;
                         if(unClaimed){
-                            operateStr += `<a href="javascript:;"
-                                          onclick="window.open('${basePMUrl}/DTPTask/view?fileId=${item.fileId}&staffNum=${baseInfo.userCode}&path=','_blank')"
-                                          class="sy-btn sy-btn-sm sy-btn-green">预览</a>`;
+                            operateStr = `<a href="javascript:;"
+                                             onclick="window.open('${basePMUrl}/DTPTask/view?fileId=${item.fileId}&staffNum=${baseInfo.userCode}&path=','_blank')"
+                                             class="sy-btn sy-btn-sm sy-btn-green">预览</a>`;
                         }
                     }else{
                         //证件翻译时，是否存在多个证件类型
-                        const isObj = item.workLoad && item.workLoad.includes('{');
+                        const isObj = item.workLoad && item.workLoad.includes('[');
+                        let oneWork = '', onePrice = '', mulWork = '', mulPrice = '';
                         if(isObj){
-                            const priceObj = item.unitPrice && item.unitPrice.includes('{') && JSON.parse(item.unitPrice),
-                                workObj = JSON.parse(item.workLoad);
-                            for(let prop in workObj){
-                                totalPrice += (+workObj[prop]) * (+priceObj[prop]);
-                                totalWork += (+workObj[prop]);
-                            }
+                            const workArr = JSON.parse(item.workLoad) || [];
+                            workArr.forEach((item, index) => {
+                                if(index < 1){
+                                    oneWork = `${certificate(item.cerType)} ${item.cerNum}份 ...`;
+                                    onePrice = `￥${item.cerPirce}/份 ...`
+                                }
+                                mulWork += `${certificate(item.cerType)} ${item.cerNum}份；`;
+                                mulPrice += `${certificate(item.cerType)} ￥${item.cerPirce}/份；`;
+                            })
                         }
-                        totalPrice = `￥${isEmpty(totalPrice)}`;
-                        totalWork = `${isEmpty(totalWork)}份`;
+                        totalPrice = `<em class="popoverPrice"
+                                          data-am-popover="{content:'${mulPrice}', trigger:'hover'}">${isEmpty(onePrice)}</em>`;
+                        totalWork = `<span class="popoverWork" 
+                                           data-am-popover="{content:'${mulWork}', trigger:'hover'}">${isEmpty(oneWork)}</span>`;
                     }
                     //待领取状态
                     if(unClaimed){
-                        operateStr = `<a href="javascript:;"
+                        operateStr += `<a href="javascript:;"
                                          ${item.receiveIs === '1'?'disabled':''}
                                           onclick="__api__.receiveOrder({
                                             params: {
@@ -154,17 +201,18 @@ const orderServer = (function (global, document, $, undefined) {
                     }else{
                         let isBack = (config.data.jsonStr && config.data.jsonStr.includes('21')) || false, //退稿或终止
                             txt = isOn ? '立即进入':'查看详情';
-                        if(+item.orderType === 1){ //文档
-                            operateStr = `<a href="${orderApi}/PartTaskDetail?projectid=${item.projectId}&taskid=${item.taskId}&token=${tk}" 
-                                         target="_blank"
-                                         class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
-                        }else{//证件
-                            operateStr = `<a href="${orderApi}/PartCertificatesTaskDetail?projectid=${item.projectId}&taskid=${item.taskId}&token=${tk}" 
-                                         target="_blank"
-                                         class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
-                        }
                         if(+item.taskStatus === 21 || +item.taskStatus === 22){
-                            isBack && (operateStr += `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
+                            isBack && (operateStr = `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
+                        }else{
+                            if(+item.orderType === 1){ //文档
+                                operateStr = `<a href="${orderApi}/PartTaskDetail?projectid=${item.projectId}&taskid=${item.taskId}" 
+                                                 target="${tk}"
+                                                 class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
+                            }else{//证件
+                                operateStr = `<a href="${orderApi}/PartCertificatesTaskDetail?projectid=${item.projectId}&taskid=${item.taskId}" 
+                                                 target="${tk}"
+                                                 class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
+                            }
                         }
                     }
                     joinArr.push(`<div class="item" key="${item.taskId}">
@@ -172,20 +220,20 @@ const orderServer = (function (global, document, $, undefined) {
                                         <label>${ isEmpty(item.responsibilityTypeZh) }</label>
                                         <span>订单编号：${ item.taskId }</span>
                                         <span>${item.sourceLanZh}-${item.targetLanZh}</span>
-                                        <span class="sy-float-r">要求返稿时间：${item.requireTime}</span>
+                                        <span class="sy-float-r">要求返稿时间：${item.requireTime.slice(0, -3)}</span>
                                     </div>
                                     <div class="detail">
                                         <div>
                                             <em>${isEmpty(item.taskName)}</em>
-                                            <span>${totalWork}</span>
+                                            ${totalWork}
                                         </div>
                                         <div>
                                             <em>${isEmpty(item.orderTypeZh)}</em>
-                                            <span>${isEmpty(item.qualityGradeZh)}</span>
+                                            <span>${+item.orderType === 1 ? isEmpty(item.qualityGradeZh) : ''}</span>
                                         </div>
                                         <div>
-                                            <em>${totalPrice}</em>
-                                            <span>${+item.orderType === 1?'原文千字':'--'}</span>
+                                            ${totalPrice}
+                                            <span>${isEmpty(item.settlementTypeZh)}</span>
                                         </div>
                                         <div>${operateStr}</div>
                                     </div>
@@ -204,6 +252,8 @@ const orderServer = (function (global, document, $, undefined) {
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.orderContent').append(bodyStr);
+                $('.popoverPrice').popover();
+                $('.popoverWork').popover();
             }else{
                 $.error(res.msg);
                 $('section.orderContent').html(`<div class="empty"></div>`)
@@ -220,6 +270,7 @@ const orderServer = (function (global, document, $, undefined) {
         config = config || {};
         config.method = config.method || "POST";
         config.data = config.data || {};
+
         let moreBtn = $(".order_LoadMoreBtn"),
             pageEl = $('.order_PageNo'),
             pageNo = +pageEl.val();
@@ -233,7 +284,8 @@ const orderServer = (function (global, document, $, undefined) {
         }else if(config.data.type){
             typeWait = '翻译待领取';
         }
-        $.loading('获取数据...');
+
+        $.loading('获取数据');
         $('.filter').attr('disabled', 'disabled');
         moreBtn.addClass('sy-hidden');
         return getResponse({
@@ -245,6 +297,7 @@ const orderServer = (function (global, document, $, undefined) {
             const isOn = (+config.data.status === 1)
                 || (config.data.jsonStr && JSON.parse(config.data.jsonStr).status === '10');
             const tk = sessionStorage.getItem('sy_rm_client_access_token');
+            pageNo <= 1 && $('section.cnt.orderContent').empty();
             if(res.success){
                 let bodyStr = '',
                     joinArr = [];
@@ -258,10 +311,9 @@ const orderServer = (function (global, document, $, undefined) {
                     if(typeResult === '图书试译'){
                         tempObj.prop2 = typeWait ? item.tryTaskId : item.tryTransId;
                         tempObj.prop3 = item.languageZh;
-                        tempObj.prop4 = item.requireReturnTraftTime;
+                        tempObj.prop4 = item.requireReturnTraftTime.slice(0,-3);
                         tempObj.prop5 = item.bookName;
                         tempObj.prop6 = `约${isEmpty(item.actuallyTranslatedWord)}字`;
-                        tempObj.prop7 = item.domainZh;
                         tempObj.prop8 = `￥${isEmpty(item.unitPriceOfTranslation)}/千字`;
                         if(isWait){
                             operateStr = `<a href="javascript:;"
@@ -278,10 +330,9 @@ const orderServer = (function (global, document, $, undefined) {
                     }else{
                         tempObj.prop2 = item.taskId;
                         tempObj.prop3 = item.sourceLanZh + '-' + item.targetLanZh;
-                        tempObj.prop4 = item.requireTime;
+                        tempObj.prop4 = item.requireTime.slice(0,-3);
                         tempObj.prop5 = item.taskName;
                         tempObj.prop6 = `约${isEmpty(item.workLoad)}字`;
-                        tempObj.prop7 = item.qualityGradeZh;
                         tempObj.prop8 = `￥${isEmpty(item.unitPrice)}/千字`;
                         if(isWait){
                             operateStr = `<a href="javascript:;"
@@ -300,19 +351,17 @@ const orderServer = (function (global, document, $, undefined) {
                         let isBack = (config.data.jsonStr && config.data.jsonStr.includes('21')) || false, //退稿或终止
                             txt = isOn ? '立即进入':'查看详情';
                         if(+item.taskStatus === 21 || +item.taskStatus === 22){
-                            isBack && (operateStr += `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
-                        }
-                        if(typeResult === '图书试译'){
-                            operateStr = `<a href="${orderApi}/PartTrialDetail?id=${item.id}&projectid=${item.projectId}&taskid=${item.tryTransId}&token=${tk}" 
-                                             target="_blank"
-                                             class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
+                            isBack && (operateStr = `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
                         }else{
-                            operateStr = `<a href="${orderApi}/PartBookTaskDetail?projectid=${item.projectId}&taskid=${item.taskId}&token=${tk}" 
-                                             target="_blank"
-                                             class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
-                        }
-                        if(+item.taskStatus === 21 || +item.taskStatus === 22){
-                            isBack && (operateStr += `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
+                            if(typeResult === '图书试译'){
+                                operateStr = `<a href="${orderApi}/PartTrialDetail?id=${item.id}&projectid=${item.projectId}&taskid=${item.tryTransId}" 
+                                                 target="${tk}"
+                                                 class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
+                            }else{
+                                operateStr = `<a href="${orderApi}/PartBookTaskDetail?projectid=${item.projectId}&taskid=${item.taskId}" 
+                                                 target="${tk}"
+                                                 class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`
+                            }
                         }
                     }
                     joinArr.push(`<div class="item">
@@ -329,7 +378,6 @@ const orderServer = (function (global, document, $, undefined) {
                                         </div>
                                         <div>
                                             <em>${ typeResult?'图书试译':'图书翻译' }</em>
-                                            <span>${ isEmpty(tempObj.prop7) }</span>
                                         </div>
                                         <div>
                                             <em>${ tempObj.prop8 }</em>
@@ -368,10 +416,12 @@ const orderServer = (function (global, document, $, undefined) {
         config = config || {};
         config.method = config.method || "POST";
         config.data = config.data || {};
+
         let moreBtn = $(".order_LoadMoreBtn"),
             pageEl = $('.order_PageNo'),
             pageNo = +pageEl.val();
-        $.loading('获取数据...');
+
+        $.loading('获取数据');
         $('.filter').attr('disabled', 'disabled');
         moreBtn.addClass('sy-hidden');
         return getResponse({
@@ -384,6 +434,7 @@ const orderServer = (function (global, document, $, undefined) {
                 isOn = +tempJson.status === 10;
             const isUnclaimed = !config.data.jsonStr;
             const tk = sessionStorage.getItem('sy_rm_client_access_token');
+            pageNo <= 1 && $('section.cnt.orderContent').empty();
             if(res.success){
                 let bodyStr = '',
                     joinArr = [];
@@ -419,11 +470,12 @@ const orderServer = (function (global, document, $, undefined) {
                         tempObj.prop2 = item.totalPrice;
                         let isBack = (config.data.jsonStr && config.data.jsonStr.includes('21')) || false, //退稿或终止
                             txt = isOn ? '立即进入':'查看详情';
-                        operateStr = `<a href="${orderApi}/PartDTPTaskDetail?taskid=${item.taskId}&token=${tk}" 
-                                             target="_blank"
-                                             class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`;
                         if(+item.taskStatus === 21 || +item.taskStatus === 22){
-                            isBack && (operateStr += `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
+                            isBack && (operateStr = `<span>${+item.taskStatus === 21 ? '已终止' : '已退稿'}</span>`);
+                        }else{
+                            operateStr = `<a href="${orderApi}/PartDTPTaskDetail?taskid=${item.taskId}" 
+                                             target="${tk}"
+                                             class="sy-btn sy-btn-sm sy-btn-green">${txt}</a>`;
                         }
                     }
                     joinArr.push(`<div class="item">
@@ -431,7 +483,7 @@ const orderServer = (function (global, document, $, undefined) {
                                         <label>${ isEmpty(item.orderTypeZh) }</label>
                                         <span>订单编号：${ item.taskId }</span>
                                         <span style="padding-left: 200px">DTP经理：${ item.dtpManager }</span>
-                                        <span class="sy-float-r">要求返稿时间：${ item.requireTime }</span>
+                                        <span class="sy-float-r">要求返稿时间：${ item.requireTime.slice(0,-3) }</span>
                                     </div>
                                     <div class="detail">
                                         <div>
@@ -445,7 +497,7 @@ const orderServer = (function (global, document, $, undefined) {
                                             <em>${isEmpty(tempObj.prop2)}元</em>
                                         </div>
                                         <div>
-                                            <a href="${basePMUrl}/tasking/exportFile?fileId=${item.fileId}" 
+                                            <a href="${basePMUrl}/transTask/tasking/exportFile?fileId=${item.fileId}"
                                                target="_blank"
                                                class="download"><em>${item.fileName}</em></a>
                                         </div>
@@ -481,10 +533,12 @@ const orderServer = (function (global, document, $, undefined) {
     function getOrderOther(config) {
         config = config || {};
         config.data = config.data || {};
+
         let moreBtn = $(".order_LoadMoreBtn"),
             pageEl = $('.order_PageNo'),
             pageNo = +pageEl.val();
-        $.loading('获取数据...');
+
+        $.loading('获取数据');
         moreBtn.addClass('sy-hidden');
         return getResponse({
             type: 'post',
@@ -492,12 +546,14 @@ const orderServer = (function (global, document, $, undefined) {
             url: config.url,
             data: config.data
         }).then(res => {
+            pageNo <= 1 && $('section.cnt.orderContent').empty();
             if(res.Success){
                 let bodyStr = '',
                     joinArr = [];
-                let result = res.Data.Data.row || [];
+                let result = res.Data.Data.rows || [];
                 result.forEach(item => {
-                    let tempStr = '';
+                    let tempStr = '',
+                        timeStr = `<span class="sy-float-r">${item.RequireTimeStart} - ${item.RequireTimeEnd}</span>`;
                     if(config.data.taskType === 'A'){//外派
                         tempStr = `<div class="detail">
                                         <div>单价：${item.Price}</div>
@@ -514,6 +570,7 @@ const orderServer = (function (global, document, $, undefined) {
                                         <div>奖金：${item.OtherPrice}</div>
                                         <div>总价：${item.TotalMoney}</div>
                                     </div>`;
+                        timeStr = `<span class="sy-float-r">${item.CompleteTime}</span>`
                     }else{//会展、设备搭建
                         tempStr = `<div class="detail">
                                         <div>
@@ -521,7 +578,7 @@ const orderServer = (function (global, document, $, undefined) {
                                             <em>加班费：${item.OvertimePrice}</em>
                                         </div>
                                         <div>
-                                            <em>天数：${item.dayNum}</em>
+                                            <em>天数：${item.DayNum}</em>
                                             <em>加班时长：${item.OvertimeHours}</em>
                                         </div>
                                         <div>
@@ -542,10 +599,10 @@ const orderServer = (function (global, document, $, undefined) {
                     joinArr.push(`<div class="item">
                                     <div class="base">
                                         <label>普通订单</label>
-                                        <span>订单编号：${item.ProjectID}</span>
+                                        <span>子订单编号：${item.ProjectID}</span>
                                         <span style="padding-left: 120px">${item.COrgName}</span>
                                         <span style="padding-left: 120px">PM：${item.PM}</span>
-                                        <span class="sy-float-r">${item.RequireTimeStart} - ${item.RequireTimeEnd}</span>
+                                        ${timeStr}
                                     </div>
                                     ${tempStr}
                                 </div>`);
@@ -559,7 +616,7 @@ const orderServer = (function (global, document, $, undefined) {
                     bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                if(res.Data.Data.total === pageNo-1){
+                if(Math.ceil(res.Data.Data.total/config.data.pagesize) === pageNo-1){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.orderContent').append(bodyStr);
@@ -572,7 +629,9 @@ const orderServer = (function (global, document, $, undefined) {
         })
     }
 
+
     return {
+        getNoAcceptNum,
         receiveOrder,
         getOrderStatusNum,
         getOrderService,

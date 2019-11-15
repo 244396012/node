@@ -22,7 +22,6 @@
 
     var getMessage = __api__.getPageMessage();
 
-    //已读消息
     $('.mgList').on('click', function (e) {
         var tar = $(e.target),
             msgEl = null;
@@ -30,9 +29,12 @@
         if(tar.hasClass('readMsg') || tar.parents('.readMsg').length > 0){
             msgEl = $(tar.parents('.readMsg')[0] || tar);
             var status = msgEl.attr('data-status'),
+                type = msgEl.attr('data-type'),
                 mid = msgEl.attr('data-mid'),
                 url = msgEl.attr('data-url');
+            var tk = sessionStorage.getItem('sy_rm_client_access_token');
             if(status === '0' && mid){
+                //标为已读
                 __api__.getResponse({
                     type: 'put',
                     url: '/notice/updateNoticeStatus',
@@ -43,16 +45,10 @@
                 }).then(res => {
                     if(res.message === 'success'){
                         msgEl.parents('tr').removeClass('will');
-                        __api__.getResponse({
-                            url:　'/notice/getNoReadCount',
-                            data: {
-                                status: 0
-                            }
-                        }).then(data => {
-                            if(data.message === 'success'){
-                                $('.messageProps').html(+data.data ? data.data : '');
-                            }
-                        })
+                        setTimeout(function (){
+                            __api__.getWaitingMsg()
+                            __api__.getWaitingTotalMsg()
+                        }, 3000)
                     }else{
                         $.error(res.message);
                     }
@@ -63,7 +59,13 @@
                 return null
             }
             setTimeout(function () {
-                url && window.open(url, '_blank');
+                if(url){
+                    if(type.indexOf('订单') > -1 && url.indexOf('/order') < 0){
+                        window.open(__api__.orderApi+url, tk)
+                    }else {
+                        window.open(url, '_blank')
+                    }
+                }
             }, 100)
         }
     })
@@ -80,7 +82,7 @@
     })
 
     function showMsgFn(el, type) {
-        $.loading('获取数据...');
+        $.loading('获取数据');
         getMessage.o.current = 1;
         getMessage.o.limit = 10;
         getMessage.set({
@@ -92,9 +94,7 @@
                 }
             }
         }, true);
-        setTimeout(function () {
-            el.removeClass('will')
-        }, 1000);
+        __api__.getWaitingMsg()
     }
 }(jQuery))
 </script>

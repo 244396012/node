@@ -27,7 +27,7 @@
             <div class="am-u-lg-12 labels">
                 <div>口译类型：</div>
                 <div>
-                    <% types = JSON.parse(data.data.interpretationTypes) %>
+                    <% types = data.data.interpretationTypes && JSON.parse(data.data.interpretationTypes) || [] %>
                     <% for(var i = 0; i<types.length; i++) { %>
                     <span><%= types[i] %></span>
                     <% } %>
@@ -41,7 +41,7 @@
                         <tr><th>擅长语言</th><th>一级领域</th><th>二级领域</th></tr>
                         </thead>
                         <tbody>
-                        <% language = JSON.parse(data.data.languageInfo) %>
+                        <% language = data.data.languageInfo && JSON.parse(data.data.languageInfo) || [] %>
                         <% for(var i = 0; i<language.length; i++) { %>
                         <tr>
                             <td><%= language[i].langaugeName %></td>

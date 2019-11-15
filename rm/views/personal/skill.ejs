@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="am-g">
-            <div class="am-u-lg-12 language-cnt languageCnt">
+            <div class="am-u-lg-12 language-cnt languageCnt sy-default-transition sy-show-transition">
                 <div class="empty"></div>
             </div>
         </div>
@@ -86,7 +86,7 @@
         }).then(res => {
             var optionStr = '';
             res.data.forEach(function(item){
-                optionStr += '<option value="'+ item.chineseName +','+ item.englishName +'">'+ item.chineseName +'</option>';
+                optionStr += '<option value="'+ item.chineseName +','+ item.englishName +','+ item.englishSimpleName +'">'+ item.chineseName +'</option>';
             });
             $('.originLan').append(optionStr);
             $('.targetLan').append(optionStr);
@@ -98,7 +98,8 @@
         }).then(res => {
             var areaStr = '';
             res.data.forEach(function(item){
-                areaStr += '<span data-value="'+ item.fullSpecialtyName +','+ item.id +'" data-pid="'+ item.specialtyId +'">'+ item.fullSpecialtyName +'</span>';
+                areaStr += '<span data-value="'+ item.fullSpecialtyName +','+ item.id +'" ' +
+                                 'data-pid="'+ item.specialtyId +'">'+ item.fullSpecialtyName +'</span>';
             });
             $('.areaWrap').html(areaStr);
         });
@@ -195,8 +196,10 @@
                         var data = {
                             originLanguageName: originLan.split(',')[0],
                             originLanguageCode: originLan.split(',')[1],
+                            originLanguageSimpleCode: originLan.split(',')[2],
                             targetLuanguageName: targetLan.split(',')[0],
                             targetLuanguageCode: targetLan.split(',')[1],
+                            targetLanguageSimpleCode: targetLan.split(',')[2],
                             domian: JSON.stringify(firstAreaName),
                             domainId: JSON.stringify(firstAreaId),
                             subDomain: JSON.stringify(secondAreaName),

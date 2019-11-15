@@ -34,11 +34,11 @@
         //跳转到我的主页、我的文章”，阻止默认行为，url添加参数
         $('a.myHomePage').click(function (e) {
             e.preventDefault();
-            location.href = '/personalArticle?t='+ t +'&u=' + u;
+            location.href = '/p-article?t='+ t +'&u=' + u;
         });
         $('a.myHomeArticle').click(function (e) {
             e.preventDefault();
-            location.href = '/personalArticle/list?t='+ t +'&u=' + u;
+            location.href = '/p-article/list?t='+ t +'&u=' + u;
         });
 
     }(jQuery))

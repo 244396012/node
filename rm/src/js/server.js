@@ -13,7 +13,6 @@ import serverPersonal from './server_personal';
 import serverOrder from './server_order';
 import './server_freelancer';
 import './activity';
-import './index';
 
 //url 对外api接口
 (function (api, global) {
@@ -36,6 +35,7 @@ import './index';
         getBaseInfo: serverPersonal.getBaseInfo,
         commitBaseInfo: serverPersonal.commitBaseInfo,
         commitBaseTeamInfo: serverPersonal.commitBaseTeamInfo,
+        initResume: serverPersonal.initResume,
         getResumeInfo: serverPersonal.getResumeInfo,
         getResumeBaseInfo: serverPersonal.getResumeBaseInfo,
         getAdeptLanguageList: serverPersonal.getAdeptLanguageList,
@@ -45,12 +45,16 @@ import './index';
         createTransTest: serverPersonal.createTransTest,
         tempCommitTrans: serverPersonal.tempCommitTrans,
         confirmCommitTrans: serverPersonal.confirmCommitTrans,
+        initIdenty: serverPersonal.initIdenty,
         getIdentyResult: serverPersonal.getIdentyResult,
         getPageMessage: serverPersonal.getPageMessage,
+        getWaitingMsg: serverPersonal.getWaitingMsg,
+        getWaitingTotalMsg: serverPersonal.getWaitingTotalMsg,
         getApplication: serverPersonal.getApplication,
         getApplicationCode: serverPersonal.getApplicationCode,
         getAdviceList: serverPersonal.getAdviceList,
         getAppraiseList: serverPersonal.getAppraiseList,
+        initAppraise: serverPersonal.initAppraise,
         initAccount: serverPersonal.initAccount,
         getIncomeDetail: serverPersonal.getIncomeDetail,
         getTaxRate: serverPersonal.getTaxRate,
@@ -81,6 +85,7 @@ import './index';
     api.getOrderBook = serverOrder.getOrderBook;
     api.getOrderDtp = serverOrder.getOrderDtp;
     api.getOrderOther = serverOrder.getOrderOther;
+    api.getNoAcceptNum = serverOrder.getNoAcceptNum;
 
     global.__api__ = api;
 
@@ -92,50 +97,10 @@ import './index';
     api.previewArticle = serverArticle.previewArticle;
     api.releaseArticle = serverArticle.releaseArticle;
     api.getUserListArticle = serverArticle.userListArticle;
-    api.getIndexGoodArticle = serverArticle.getIndexGoodArticle;
     api.getGoodArticle = serverArticle.getGoodArticle;
     api.getIndustryArticle = serverArticle.getIndustryArticle;
     api.userNotListArticle = serverArticle.userNotListArticle;
     api.getCommentsList = serverArticle.getCommentsList;
-
-    global.__api__ = api;
-
-})(window.__api__||{}, window);
-
-// 是否权限认证，注册到全局
-(function (api, global) {
-
-    /*
-   * 判断“认证权限”
-   * @params：identity身份认证
-   * @params：skill技能认证
-   * */
-    api.judgeAuth = function (config){
-
-        config = config || {};
-        const identity = config.identity || "";
-        const skillArr = config.skill || [];
-
-        const result = {
-            isPassIdentity: false,
-            isPassSkill: false
-        };
-        if(+identity !== 1){
-            return result;
-        }else{
-            result.isPassIdentity = true;
-        }
-        if(Array.isArray(skillArr) && skillArr.length > 0){
-            let isPass = skillArr.some(item => {
-                return item.passedStatue === '已通过' && item.levelType !== 'select';
-            });
-            if(!isPass){
-                return result;
-            }
-            result.isPassSkill = true;
-        }
-        return result;
-    };
 
     global.__api__ = api;
 

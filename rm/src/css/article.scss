@@ -40,6 +40,11 @@
       font-size: 18px;
     }
   }
+  .short-nick-name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .article_aside,
@@ -429,6 +434,22 @@
   }
 }
 
+.more>button{
+  width: 100px;
+  height: 32px;
+  line-height: 32px;
+  border: 1px solid #BFBFBF;
+  border-radius: 3px;
+  outline: none;
+  font-size: 14px;
+  color: #999;
+  background: #fff;
+  &:hover{
+    color: #fff;
+    background: #BFBFBF;
+  }
+}
+
 //啄语者、行业资讯
 .article_page.information{
   padding-top: 10px;
@@ -446,22 +467,6 @@
     .main-bg{
       background-image: url("/static/image/industry-main-bg.png");
       background-position: center;
-    }
-  }
-  .cnt button,
-  .comment .more>button{
-    width: 100px;
-    height: 32px;
-    line-height: 32px;
-    border: 1px solid #BFBFBF;
-    border-radius: 3px;
-    outline: none;
-    font-size: 14px;
-    color: #999;
-    background: #fff;
-    &:hover{
-      color: #fff;
-      background: #BFBFBF;
     }
   }
   .cnt{
@@ -531,7 +536,7 @@
           &>div{
             padding: 0;
             &.am-u-sm-1{
-              width: 10%;
+              width: 8.33%;
               text-align: right;
             }
             &.am-u-sm-2{
@@ -540,8 +545,8 @@
               text-overflow: ellipsis;
               white-space: nowrap;
             }
-            &.am-u-sm-8{
-              width: 55%;
+            &.am-u-sm-7{
+              width: 60%;
             }
             i.sy-icon{
               display: inline-block;
@@ -662,12 +667,12 @@
         &>div{
           padding: 0;
           &.am-u-sm-6{
-            width: 67%;
+            width: 70%;
             color: #333;
             font-size: 14px;
           }
           &.am-u-sm-2{
-            width: 11%;
+            width: 10%;
           }
           i.sy-icon{
             display: inline-block;
@@ -959,10 +964,4 @@
 }
 .w-e-toolbar{
   background-color: #FFF!important;
-}
-.w-e-text-container{
-  min-height: 500px!important;
-}
-.w-e-text{
-  overflow-y: auto!important;
 }

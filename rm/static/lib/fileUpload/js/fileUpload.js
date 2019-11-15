@@ -285,7 +285,8 @@ var uploadTools = {
         var imgtest=/image\/(\w)*/;//图片文件测试
         var fileTypeArray = opt.fileType;//文件类型集合
         var fileSizeLimit = opt.size;//文件大小限制
-		for(var i=0;i<fileList.length;i++){
+
+        for(var i=0;i<fileList.length;i++){
 			//判断文件是否存在
 			if(uploadTools.fileIsExit(fileList[i],opt)){
 				alert("文件（"+fileList[i].name+"）已经存在！",false);
@@ -294,7 +295,7 @@ var uploadTools = {
 			var fileTypeStr =  uploadTools.getSuffixNameByFileName(fileList[i].name);
 			//文件大小显示判断
 			if(fileSizeLimit!=-1&&fileList[i].size>(fileSizeLimit*1000)){
-				alert("文件（"+fileList[i].name+"）超出了大小限制！请控制在"+fileSizeLimit+"KB内",false);
+				alert("文件（"+fileList[i].name+"）超出了大小限制！",false);
 				continue;
 			}
 			//文件类型判断
@@ -310,7 +311,7 @@ var uploadTools = {
 					} else if (window.webkitURL != undefined) { // webkit or chrome
 						imgUrlStr = window.webkitURL.createObjectURL(fileList[i]);
 					}
-					var fileModel = uploadTools.getShowFileType(true,fileTypeUpcaseStr,fileList[i].name,imgUrlStr,fileListArray.length);
+                    var fileModel = uploadTools.getShowFileType(true,fileTypeUpcaseStr,fileList[i].name,imgUrlStr,fileListArray.length);
 				}else{
 					var fileModel = uploadTools.getShowFileType(true,fileTypeUpcaseStr,fileList[i].name,null,fileListArray.length);
 				}
@@ -617,7 +618,7 @@ var uploadEvent = {
         var fileCodeId = Number(fileItem.attr("fileCodeId"));
         var fileListArray = uploadFileList.getFileList(opt);
         // delete fileListArray[fileCodeId];
-		fileListArray.splice(fileCodeId,1); 
+		fileListArray.splice(fileCodeId,1);
         uploadFileList.setFileList(fileListArray,opt);
         fileItem.remove();
     },

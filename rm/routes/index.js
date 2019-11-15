@@ -1,5 +1,9 @@
 const express = require('express');
 const routes = express.Router();
+
+const server = require('./promise'),
+    getNoTokenMsg = server.getNoTokenMessage;
+
 /**
  *
  * account：登录、注册、找回密码等
@@ -39,11 +43,31 @@ routes.get('/forgetPwd', function (req, res) {
 
 //首页
 routes.get('/',function (req, res) {
-    res.render('index', {
-        mark: 'index',
-        title: '啄语 | 首页',
-        layout: 'shared/layout'
+    //行业资讯
+    let industry = getNoTokenMsg({
+        url: '/officialArticle/listOfficialArticle',
+        data: {
+            pageNo: 0,
+            pageSize: 2
+        }
     });
+    //译员精选
+    let pecker = getNoTokenMsg({
+        url: '/interpreterArticle/interpreterArticleListSelect',
+        data: {
+            pageNo: 0,
+            pageSize: 2
+        }
+    });
+    Promise.all([industry, pecker]).done(data => {
+        res.render('index', {
+            mark: 'index',
+            title: '啄语 | 首页',
+            layout: 'shared/layout',
+            industry: JSON.parse(data[0]),
+            pecker: JSON.parse(data[1])
+        })
+    })
 });
 //关于我们
 routes.get('/about/', function (req, res){

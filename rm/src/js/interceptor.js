@@ -60,7 +60,7 @@ $.ajaxSetup({
             * 即在非“个人中心”、“个人主页”、“订单中心”，则不跳转留在当前页面
             * 否则提示用户，跳转到登录页面
             */
-            if(!(path.includes('/personal/') || path.includes('/personalArticle/') || path.includes('/order/'))){
+            if(!(path.includes('/personal/') || path.includes('/p-article/') || path.includes('/order/'))){
                 return false;
             }
             if(res.responseJSON.error_description === 'null'){
@@ -71,9 +71,12 @@ $.ajaxSetup({
                 $.error('"未登录"或"登录信息已过期"，请重新登录');
             }
             setTimeout(() => {
-                location.href = '/login?redirect='+ encodeURIComponent(path);
+               location.href = '/login?redirect='+ encodeURIComponent(path);
             }, 1000);
         }
+    },
+    complete: function () {
+        $('.sy-default-transition').removeClass('sy-show-transition')
     }
 });
 
@@ -84,16 +87,13 @@ $.ajaxSetup({
     $.ajax({
         type: 'post',
         url: loginUrl + '/user/judgeUserLogin/test',
-        headers: {
-          'Cache-Control': 'private,max-age=3600'
-        },
         dataType: 'json',
         error: function (res) {
             // 未登录/登录信息过期时，访问afterLogin数组里面的路径，直接跳转到登录页面
             // const afterLogin = ['/personal/', '/personalArticle/', '/order/'];
             if(res.status === 401 || res.status === 403){
                 if(pathname.includes('/personal/')
-                    || pathname.includes('/personalArticle/')
+                    || pathname.includes('/p-article/')
                     || pathname.includes('/order/')){
                     setTimeout(() => {
                         location.href = '/login?redirect='+ encodeURIComponent(path);
@@ -127,12 +127,6 @@ $.ajaxSetup({
     }).then(isLog => {
         //isLog=0，表示已登录
         if(isLog >= 0){
-            //设置index首页，slider中“成为译员”按钮跳转
-            $('.sliderTranslator').html('立即前往 >>').on('click',function (e){
-                e.preventDefault();
-                location.href = '/personal/';
-            });
-            $('.toTranslatorBtn').remove();
             /*
             * 用户已登录，获取个人/团队信息
             * 主要用于header/aside显示设置
@@ -154,6 +148,7 @@ $.ajaxSetup({
                                 ? receiptBtn.removeClass('off').addClass('on')
                                 : receiptBtn.removeClass('on').addClass('off')
                         }
+                        receiptBtn.removeClass('sy-show-transition');
                         $('.yxz_AsideU').html(data.yxTotalScore ? parseInt(data.yxTotalScore) : '0');
                         $('.score_AsideU').html(parseInt(data.currentPointSummary));
                         $('.idcardName').val(data.userExtension.realName);
@@ -165,13 +160,40 @@ $.ajaxSetup({
 
                         data.picturePath && $('.headIcon_AsideU').attr('src', data.picturePath);
 
-                        //注册全局，“身份认证、技能认证”是否通过
-                        const resIdentity = data.userExtension.certificatePassed;
-                        const resSkill = data.cuLevelList;
-                        __api__.isAuth =  __api__.judgeAuth({
-                            identity: resIdentity,
-                            skill: resSkill
-                        });
+                        //注册全局，“身份、技能、财务”是否通过
+                        __api__.isAuth =  {
+                            isPassIdentity: data.userExtension.certificatePassed,
+                            isPassFinance: data.userExtension.settleCertificatePassed,
+                            isPassSkill: data.userExtendList.length > 0
+                        }
+                    }
+                }
+            });
+
+            //判断订单跳转
+            $.ajax({
+                type: 'GET',
+                url: __api__.baseRMUrl + '/userExtension/listPassedSkills',
+                data: {
+                    userId: sessionStorage.getItem('sy_rm_client_ud')
+                },
+                success: function (res) {
+                    if(res.message === 'success'){
+                        const { data } = res,
+                            ordetBtn = $('.orderCenter');
+                        if(!data.translation){
+                            if(data.dTP){
+                                ordetBtn.attr('href', '/order/typeset');
+                            }else if(data.exhibition){
+                                ordetBtn.attr('href', '/order/meeting');
+                            }else if(data.expatriate){
+                                ordetBtn.attr('href', '/order/interpret');
+                            }else if(data.training){
+                                ordetBtn.attr('href', '/order/train');
+                            }else if(data.build || data.device){
+                                ordetBtn.attr('href', '/order/device');
+                            }
+                        }
                     }
                 }
             });
@@ -189,29 +211,18 @@ $.ajaxSetup({
             });
 
             //登录后，添加websocket消息回调
-            const sockjs = document.createElement('script'),
-                stomp = document.createElement('script');
-            sockjs.type = 'text/javascript';
-            sockjs.src = '/static/lib/sockjs.min.js';
-            stomp.type = 'text/javascript';
-            stomp.src = '/static/lib/stomp.min.js';
-            document.head.appendChild(sockjs);
-            sockjs.onload = function () {
-                document.head.appendChild(stomp)
-            };
-            stomp.onload = function () {
-                //连接websocket
-                connectSocket(baseUrl + '/gs-guide-websocket', function (res) {
-                    if(res){
-                        const resJson = JSON.parse(res);
-                        if(resJson){
-                            //当在消息页面时，有新消息时，显示新消息通知
-                            if(resJson.messageType !== '订单消息'){
-                                $('label.otherMsg').addClass('will')
-                            }else{
-                                $('label.orderMsg').addClass('will')
-                            }
-                            //有新消息时，查询未读消息，显示“未读”条数
+            connectSocket(baseUrl + '/gs-guide-websocket', function (res) {
+                if(res){
+                    const resJson = JSON.parse(res);
+                    if(resJson){
+                        //当在消息页面时，有新消息时，显示新消息通知
+                        if(resJson.messageType !== '订单消息'){
+                            $('label.otherMsg').addClass('will')
+                        }else{
+                            $('label.orderMsg').addClass('will')
+                        }
+                        //有新消息时，查询未读消息，显示“未读”条数
+                        setTimeout(() => {
                             getResponse({
                                 url:　'/notice/getNoReadCount',
                                 data: {
@@ -222,10 +233,10 @@ $.ajaxSetup({
                                     $('.messageProps').html(+data.data ? data.data : '');
                                 }
                             })
-                        }
+                        }, 8000)
                     }
-                })
-            }
+                }
+            })
         }
     })
 }(window, document, jQuery));

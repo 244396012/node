@@ -21,7 +21,7 @@
                     <% _area = data.data.province
                             +' ' + data.data.city
                             +" " + data.data.area %>
-                    <% build = JSON.parse(data.data.buildInfo) %>
+                    <% build = data.data.buildInfo && JSON.parse(data.data.buildInfo) || [] %>
                     <% for(var i = 0; i<build.length; i++) { %>
                     <tr>
                         <td><%= _area %></td>

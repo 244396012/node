@@ -10,7 +10,7 @@
 
 import { baseRMUrl, loginUrl} from "./interceptor";
 import { getResponse } from "./asyncAjax";
-import { countDown, clearLocalData, throttleFn } from "./utils";
+import { countDown, clearLocalData, throttleFn, getQueryString } from "./utils";
 import './modal';
 
 const personalServer = (function (window, document, $, undefined) {
@@ -86,7 +86,7 @@ const personalServer = (function (window, document, $, undefined) {
             res.data.forEach(item => {
                 optionStr += `<option value="${item.chineseName}">${item.chineseName}</option>`
             });
-            $('.languageOption').html(optionStr).val('中文 - 中国');
+            $('.languageOption').html(optionStr).val('中文简体');
         });
     }
 // 提交个人信息
@@ -269,6 +269,164 @@ const personalServer = (function (window, document, $, undefined) {
 *       我的简历
 *
 * */
+//初始化绑定事件
+    function initResume (){
+        /*
+        * 添加（修改）学历信息
+        * 添加（修改）工作经历
+        * 添加（修改）项目经验
+        * */
+        $('#degreeBtn_Resume,#workBtn_Resume,#projectBtn_Resume').on('click', function () {
+            const _this = this,
+                prevFrom = $(_this).parent().prev('form'),
+                requiredEles = prevFrom.find('input[required],select[required],textarea[required]');
+            for(let i = 0; i < requiredEles.length; i++){
+                const el = requiredEles[i];
+                if(el.value.trim() === ''){
+                    el.focus();
+                    $.warning($(el).attr('placeholder'));
+                    return false;
+                }else if($(el).attr('data-len-pass')){
+                    el.focus();
+                    $.warning('内容长度超过限制');
+                    return false;
+                }
+            }
+            const dataPut = prevFrom.find('input,select,textarea');
+            const data = {};
+            dataPut.toArray().forEach(item => {
+                let existId = item.id?item.id:item.dataset.id;
+                data[existId] = item.value;
+                if($(item).attr('lay-key')){
+                    data[existId] = enFormatTime(item.value);
+                }
+            });
+            data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
+            data.userId = sessionStorage.getItem('sy_rm_client_ud');
+            $(_this).attr('disabled','disabled');
+            $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            let url = '';
+            switch (_this.id){
+                case 'degreeBtn_Resume':
+                    url = '/userExtension/addEducationInfo';break;
+                case 'workBtn_Resume':
+                    url = '/userExtension/addWorkExperience';break;
+                case 'projectBtn_Resume':
+                    url = '/userExtension/addProgramExperience';break;
+            }
+            getResponse({
+                type: 'post',
+                url: url,
+                data: data
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('保存成功');
+                    $(_this).prev().click();
+                    getResumeInfo();
+                    getResumeBaseInfo();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled');
+                $(_this).html('保存');
+            });
+        });
+        //添加（修改）个性标签和擅长领域
+        $('#addLabelBtn_Resume').on('click', function () {
+            const _this = this;
+            const selectedLabel = $('dl.label').find('dd.selected');
+            const areaArr = [],
+                individualArr = [];
+            if(selectedLabel.length < 1){
+                $.warning('请选择‘个性标签’或‘擅长领域’');
+                return false;
+            }
+            selectedLabel.toArray().forEach(item => {
+                const label = $(item);
+                label.hasClass('area')
+                    ? areaArr.push(label.text())
+                    : individualArr.push(label.text());
+            });
+            $(_this).attr('disabled','disabled');
+            $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            getResponse({
+                type: 'post',
+                url: '/userExtension/addIndividualInfo',
+                data: {
+                    area: areaArr.join(','),
+                    individualization: individualArr.join(','),
+                    userId: sessionStorage.getItem('sy_rm_client_ud')
+                }
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('保存成功');
+                    getResumeInfo();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled');
+                $(_this).html('保存');
+            })
+        });
+        //删除、修改信息（事件委托，给删除del、编辑edit绑定事件）
+        $('div.personal.resume').on('click', function (e) {
+            const el = e.target;
+            //根据id删除信息
+            if($(el).hasClass('sy-delete')){
+                $.confirm();
+                $('.confirmModal').modal({
+                    closeViaDimmer: false,
+                    onConfirm: function (e) {
+                        const id = $(el).attr('data-u-id');
+                        const path = $(el).attr('data-del');
+                        getResponse({
+                            type: 'delete',
+                            url: '/userExtension/'+ path + '?id='+id
+                        }).then(res => {
+                            if(res.message === 'success' && res.data){
+                                $.success('删除成功');
+                                getResumeBaseInfo();
+                                getResumeInfo();
+                            }else{
+                                $.error(res.message);
+                            }
+                        })
+                    },
+                    onCancel: function (e) { }
+                });
+                //根据id修改信息
+            }else if($(el).hasClass('sy-edit')){
+                const infoDiv = $(el).parents('.show-info'),
+                    addForm = infoDiv.prev('.add-form');
+                const data = JSON.parse($(el).prev('div').html());
+                if(Object.prototype.toString.call(data) === '[object Object]'){
+                    addForm.removeClass('sy-hidden');
+                    addForm.find('button[data-sy-confirm]').attr('data-u-id', data.id);
+                    if($(el).parents('.resume-item').hasClass('project')){
+                        for(let prop in data){
+                            addForm.find('[data-id='+prop+']').val(data[prop]);
+                            if(addForm.find('[data-id='+prop+']').attr('lay-key')){
+                                addForm.find('[data-id='+prop+']').val(deFormatTime(data[prop]));
+                            }else if(prop === 'projectDescribe'){
+                                addForm.find('[data-id=describe]').val(data[prop]);
+                                addForm.find('[data-id=describe]').next().html(`<span>${data[prop].length}</span>/300`);
+                            }
+                        }
+                        return false;
+                    }
+                    for(let prop in data){
+                        addForm.find('#'+prop).val(data[prop]);
+                        if(addForm.find('#'+prop).attr('lay-key')){
+                            addForm.find('#'+prop).val(deFormatTime(data[prop]));
+                        }else if(prop === 'workDescribe'){
+                            addForm.find('#describe').val(data[prop]);
+                            addForm.find('#describe').next().html(`<span>${data[prop].length}</span>/300`);
+                        }
+                    }
+                }
+            }
+        });
+    }
 //初始化页面数据
     function getResumeBaseInfo() {
         const userId = sessionStorage.getItem('sy_rm_client_ud'),
@@ -361,6 +519,7 @@ const personalServer = (function (window, document, $, undefined) {
                     const resJson = JSON.parse(res);
                     if(resJson.message === 'success'){
                         getResumeInfo();
+                        $('.languageList').val('').change();
                         $('.my-loading').remove();
                     }
                 },
@@ -421,23 +580,26 @@ const personalServer = (function (window, document, $, undefined) {
                     res.data.userSkillList.forEach(item => {
                         const tarFormNext = $('.add-form-'+item.userCertificateType).next('div'),
                             tarEl = tarFormNext.find('div.items');
-                        tarEl.append(`
-                             <div class="img-item">
-                                <img src="${item.userCertificatePath}" alt="${item.userCertificateType}">
-                                <p>${item.languageName+' - '+item.userCertificateName}</p>
-                                <a class="sy-delete delete-bg" href="javascript:;" data-del="deleteSkillInfo" data-u-id="${item.id}">删除</a>
-                            </div>`);
+                        tarEl.append(`<div class="img-item">
+                                        <img src="${item.userCertificatePath}" alt="${item.userCertificateType}">
+                                        <p>${item.languageName+' - '+item.userCertificateName}</p>
+                                        <a class="sy-delete delete-bg" href="javascript:;" data-del="deleteSkillInfo" data-u-id="${item.id}">删除</a>
+                                      </div>`);
                     });
                     $('div.resume-item.skill').find('div.show-info').each((index,item) => {
                         const tarEl = $(item),
                             prevEl = tarEl.prev('div'),
+                            hideEl = prevEl.find('.hide-el'),
+                            addEl = prevEl.find('span.add'),
                             childLen = tarEl.find('div.img-item').length;
                         if(childLen > 0){
                             tarEl.removeClass('sy-hidden');
-                            prevEl.addClass('sy-hidden');
+                            addEl.removeClass('sy-hidden');
+                            hideEl.addClass('sy-hidden');
                         }else{
+                            hideEl.removeClass('sy-hidden');
                             tarEl.addClass('sy-hidden');
-                            prevEl.removeClass('sy-hidden');
+                            addEl.addClass('sy-hidden');
                         }
                     });
                 }
@@ -537,161 +699,6 @@ const personalServer = (function (window, document, $, undefined) {
             }
         })
     }
-/*
-* 添加（修改）学历信息
-* 添加（修改）工作经历
-* 添加（修改）项目经验
-* */
-    $('#degreeBtn_Resume,#workBtn_Resume,#projectBtn_Resume').on('click', function () {
-        const _this = this,
-            prevFrom = $(_this).parent().prev('form'),
-            requiredEles = prevFrom.find('input[required],select[required],textarea[required]');
-        for(let i = 0; i < requiredEles.length; i++){
-            const el = requiredEles[i];
-            if(el.value.trim() === ''){
-                el.focus();
-                $.warning($(el).attr('placeholder'));
-                return false;
-            }else if($(el).attr('data-len-pass')){
-                el.focus();
-                $.warning('内容长度超过限制');
-                return false;
-            }
-        }
-        const dataPut = prevFrom.find('input,select,textarea');
-        const data = {};
-        dataPut.toArray().forEach(item => {
-            let existId = item.id?item.id:item.dataset.id;
-            data[existId] = item.value;
-            if($(item).attr('lay-key')){
-                data[existId] = enFormatTime(item.value);
-            }
-        });
-        data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        data.userId = sessionStorage.getItem('sy_rm_client_ud');
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        let url = '';
-        switch (_this.id){
-            case 'degreeBtn_Resume':
-                url = '/userExtension/addEducationInfo';break;
-            case 'workBtn_Resume':
-                url = '/userExtension/addWorkExperience';break;
-            case 'projectBtn_Resume':
-                url = '/userExtension/addProgramExperience';break;
-        }
-        getResponse({
-            type: 'post',
-            url: url,
-            data: data
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('保存成功');
-                $(_this).prev().click();
-                getResumeInfo();
-                getResumeBaseInfo();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
-        });
-    });
-//添加（修改）个性标签和擅长领域
-    $('#addLabelBtn_Resume').on('click', function () {
-        const _this = this;
-        const selectedLabel = $('dl.label').find('dd.selected');
-        const areaArr = [],
-            individualArr = [];
-        if(selectedLabel.length < 1){
-            $.warning('请选择‘个性标签’或‘擅长领域’');
-            return false;
-        }
-        selectedLabel.toArray().forEach(item => {
-            const label = $(item);
-            label.hasClass('area')
-                ? areaArr.push(label.text())
-                : individualArr.push(label.text());
-        });
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        getResponse({
-            type: 'post',
-            url: '/userExtension/addIndividualInfo',
-            data: {
-                area: areaArr.join(','),
-                individualization: individualArr.join(','),
-                userId: sessionStorage.getItem('sy_rm_client_ud')
-            }
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('保存成功');
-                getResumeInfo();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
-        })
-    });
-//删除、修改信息（事件委托，给删除del、编辑edit绑定事件）
-    $('div.personal.resume').on('click', function (e) {
-        const el = e.target;
-        //根据id删除信息
-        if($(el).hasClass('sy-delete')){
-            $.confirm();
-            $('.confirmModal').modal({
-                closeViaDimmer: false,
-                onConfirm: function (e) {
-                    const id = $(el).attr('data-u-id');
-                    const path = $(el).attr('data-del');
-                    getResponse({
-                        type: 'delete',
-                        url: '/userExtension/'+ path + '?id='+id
-                    }).then(res => {
-                        if(res.message === 'success' && res.data){
-                            $.success('删除成功');
-                            getResumeBaseInfo();
-                            getResumeInfo();
-                        }else{
-                            $.error(res.message);
-                        }
-                    })
-                },
-                onCancel: function (e) { }
-            });
-        //根据id修改信息
-        }else if($(el).hasClass('sy-edit')){
-            const infoDiv = $(el).parents('.show-info'),
-                addForm = infoDiv.prev('.add-form');
-            const data = JSON.parse($(el).prev('div').html());
-            if(Object.prototype.toString.call(data) === '[object Object]'){
-                addForm.removeClass('sy-hidden');
-                addForm.find('button[data-sy-confirm]').attr('data-u-id', data.id);
-                if($(el).parents('.resume-item').hasClass('project')){
-                    for(let prop in data){
-                        addForm.find('[data-id='+prop+']').val(data[prop]);
-                        if(addForm.find('[data-id='+prop+']').attr('lay-key')){
-                            addForm.find('[data-id='+prop+']').val(deFormatTime(data[prop]));
-                        }else if(prop === 'projectDescribe'){
-                            addForm.find('[data-id=describe]').val(data[prop]);
-                            addForm.find('[data-id=describe]').next().html(`<span>${data[prop].length}</span>/300`);
-                        }
-                    }
-                    return false;
-                }
-                for(let prop in data){
-                    addForm.find('#'+prop).val(data[prop]);
-                    if(addForm.find('#'+prop).attr('lay-key')){
-                        addForm.find('#'+prop).val(deFormatTime(data[prop]));
-                    }else if(prop === 'workDescribe'){
-                        addForm.find('#describe').val(data[prop]);
-                        addForm.find('#describe').next().html(`<span>${data[prop].length}</span>/300`);
-                    }
-                }
-            }
-        }
-    });
 
 /*
 *
@@ -701,7 +708,7 @@ const personalServer = (function (window, document, $, undefined) {
 * */
 //获取擅长语言，返回数据{ data: [] }列表
     function getAdeptLanguageList() {
-        $.loading('获取数据...');
+        $.loading('获取数据');
         getResponse({
             url: '/exam/customer/listAdeptLanguages'
         }).then(res => {
@@ -712,9 +719,6 @@ const personalServer = (function (window, document, $, undefined) {
                 data.length > 0 && $('.skillTips').remove();
                 data.forEach(item => {
                     let tabStr = '', operateStr = '';
-                    //格式化：语言对
-                    let originName = item.originLanguageName.split('-')[0].trim(),
-                        targetName = item.targetLanguageName.split('-')[0].trim();
                     //格式化：一级领域、二级领域( 判断数据格式为[] )
                     let firstAreaName = item.domain.startsWith('[') ? JSON.parse(item.domain).toString() : item.domain,
                         secondAreaName = item.subDomain.startsWith('[') ?
@@ -758,8 +762,7 @@ const personalServer = (function (window, document, $, undefined) {
                                                 id="${item.id}"
                                                 class="sy-btn sy-btn-green sy-btn-sh fileBtn showFileProp"
                                                 data-am-popover="{content: '仅支持doc、docx和pdf格式的文件，大小3M以内', trigger: 'hover'}"
-                                                >上传文档</button></td></tr>
-                            `;
+                                                >上传文档</button></td></tr>`;
                         }
                 //未通过 已通过 测试中 评审中
                     }else{//exam：非绿色通道
@@ -779,10 +782,8 @@ const personalServer = (function (window, document, $, undefined) {
                                                          });">开始测试</button>`;
                                 }else{
                                     if(em.examState === '未通过'){
-                                        selectStatus = `
-                                            <span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
-                                            <span class="tip">预计下次测试时间为${em.nextExamTime}</span>
-                                        `;
+                                        selectStatus = `<span>你已经测试过${em.examTimes}次，很遗憾，未通过</span>
+                                                        <span class="tip">预计下次测试时间为${em.nextExamTime}</span>`;
                                     }else if(em.examState === '已通过'){
                                         selectStatus = `<span>你已经通过选择题测试</span>`;
                                     }else if(em.examState === '测试中'){
@@ -818,10 +819,12 @@ const personalServer = (function (window, document, $, undefined) {
                                                        });">${em.nextExamLevel}测试</button>`;
                                 }else{
                                     if(em.passedStatue !== '未测试'){
-                                        tranStatus = `<span>${em.passedStatue}</span>
-                                                      <span class="level">
+                                        tranStatus = `<span>${em.passedStatue}</span>`;
+                                        if(em.level){
+                                            tranStatus += `<span class="level">
                                                             等级：<i class="showLevelProp"
                                                                      data-am-popover="{content:'${propStr}', trigger:'hover'}">P${em.level}</i></span>`;
+                                        }
                                     }
                                     if(!em.examState){
                                         tranBtn = `<button type="button" class="sy-btn sy-btn-green sy-btn-sh" disabled>不可测试</button>`;
@@ -861,8 +864,8 @@ const personalServer = (function (window, document, $, undefined) {
                     }
                     resStr +=  `<div class="item">
                                         <div class="item-lan">
-                                            <h1>${originName} → ${targetName}</h1>
-                                            <h1>${item.originLanguageCode} → ${item.targetLanguageCode}</h1>
+                                            <h1>${item.originLanguageName} → ${item.targetLanguageName}</h1>
+                                            <h1>${item.originLanguageSimpleCode} → ${item.targetLanguageSimpleCode}</h1>
                                             <span>${firstAreaName}</span>
                                         </div>
                                         <div class="item-cnt">
@@ -1156,13 +1159,11 @@ const personalServer = (function (window, document, $, undefined) {
                     'data-aid': data.questions[0].answerId
                 });
                 return new Promise(resolve => {
-                    resolve(data.recordId);
+                    resolve(data.recordId)
                 })
             }else{
                 $.error(res.message);
-                setTimeout(()=>{
-                  location.href = '/personal/skill';
-                }, 1000);
+                setTimeout("location.href = '/personal/skill'", 1000);
             }
         }).then(recordId => {
             //获取翻译剩余时间
@@ -1183,9 +1184,7 @@ const personalServer = (function (window, document, $, undefined) {
                         if(hour === '00' && minute === '00' && second === '00'){
                             $.warning('测试时间已到');
                             clearInterval(countDown);
-                            setTimeout(function () {
-                                location.href = '/personal/skill';
-                            },1000);
+                            setTimeout("location.href = '/personal/skill'", 1000);
                             return false;
                         }
                     },1000)
@@ -1197,8 +1196,7 @@ const personalServer = (function (window, document, $, undefined) {
     }
 //翻译题临时保存
     function tempCommitTrans(btn) {
-        $(btn).attr('disabled','disabled')
-            .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(btn).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'post',
             url: '/exam/customer/transCommitOne',
@@ -1219,8 +1217,16 @@ const personalServer = (function (window, document, $, undefined) {
             closeViaDimmer: false,
             onConfirm: function (e) {
                 const rid = $(btn).attr('data-rid');
-                $(btn).attr('disabled','disabled')
-                    .html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                getResponse({
+                    type: 'post',
+                    url: '/exam/customer/transCommitOne',
+                    data: {
+                        answer: $('.targetTxt').val(),
+                        answerId: $(btn).attr('data-aid'),
+                        recordId: $(btn).attr('data-rid')
+                    }
+                });
+                $(btn).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
                 confirmPageSkill(btn, rid).then(res => {
                     if(res.message === 'success'){
                         $('.transing').remove();
@@ -1237,6 +1243,7 @@ const personalServer = (function (window, document, $, undefined) {
                     }else{
                         $.error(res.message);
                     }
+                    $(btn).removeAttr('disabled').html('提 交');
                 })
             },
             onCancel: function (e) { }
@@ -1248,6 +1255,198 @@ const personalServer = (function (window, document, $, undefined) {
 *       认证中心
 *
 * */
+    function initIdenty (){
+    //提交身份认证
+        $('.certificateBtn').on('click', function () {
+            const _this = this,
+                parentFrom = $(_this).parents('.add-form'),
+                requiredEles = parentFrom.find('input[required],select[required],textarea[required]');
+            const data = {};
+            for(let i = 0; i < requiredEles.length; i++){
+                const el = requiredEles[i];
+                if(el.value.trim() === ''){
+                    el.focus();
+                    $.warning($(el).attr('placeholder'));
+                    return false;
+                }else{
+                    data[el.className] = el.value;
+                }
+            }
+            if(data['certificateType'].includes('身份证') && !/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(data['identifyId'])){
+                $.warning('请输入正确的身份证号码');
+                return false;
+            }
+            data.userId = sessionStorage.getItem('sy_rm_client_ud');
+            $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            getResponse({
+                type: 'post',
+                url: '/userExtension/identityUser',
+                data: data
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('已提交信息');
+                    getIdentyResult();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled').html('提交');
+            })
+        });
+    //银行卡结算
+        $('.setBankPayBtn').on('click', function () {
+            const _this = this,
+                parentFrom = $(_this).parents('.add-form'),
+                requiredEles = parentFrom.find('input[required],select[required]');
+            const data = {};
+            for(let i = 0; i < requiredEles.length; i++){
+                const el = requiredEles[i];
+                if(el.value.trim() === ''){
+                    el.focus();
+                    $.warning($(el).attr('placeholder'));
+                    return false;
+                }else{
+                    data[el.className] = el.value;
+                    if(el.className === 'identifyId'){
+                        delete data[el.className];
+                        data.identityId = el.value;
+                    }
+                }
+            }
+            if(!/(^\d{16}$)|(^\d{17}$)|(^\d{19}$)/.test(data.bankNo)){
+                $.warning('请输入正确的银行卡号');
+                return false
+            }
+            data.userId = sessionStorage.getItem('sy_rm_client_ud');
+            data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
+            $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            getResponse({
+                type: 'post',
+                url: '/userExtension/setSettleByBank',
+                data: data
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('银行卡信息验证通过');
+                    getIdentyResult();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled').html('保存');
+            })
+        });
+    //支付宝结算
+        $('.setAliPayBtn').on('click', function () {
+            const _this = this,
+                parentFrom = $(_this).parents('.add-form'),
+                requiredEles = parentFrom.find('input[required],select[required]');
+            const data = {};
+            for(let i = 0; i < requiredEles.length; i++){
+                const el = requiredEles[i];
+                if(el.value.trim() === ''){
+                    el.focus();
+                    $.warning($(el).attr('placeholder'));
+                    return false;
+                }else {
+                    if(!$(el).hasClass('identifyId')){
+                        data[el.className] = el.value;
+                    }
+                }
+            }
+            data.userId = sessionStorage.getItem('sy_rm_client_ud');
+            data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
+            $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            getResponse({
+                type: 'post',
+                url: '/userExtension/setSettleByAlipay',
+                data: data
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('保存成功');
+                    getIdentyResult();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled').html('保存');
+            })
+        });
+    //paypal结算
+        $('.setPayPalBtn').on('click', function () {
+            const _this = this,
+                parentFrom = $(_this).parents('.add-form'),
+                requiredEles = parentFrom.find('input[required],select[required]');
+            const data = {};
+            for(let i = 0; i < requiredEles.length; i++){
+                const el = requiredEles[i];
+                if(el.value.trim() === ''){
+                    el.focus();
+                    $.warning($(el).attr('placeholder'));
+                    return false;
+                }else {
+                    if(!$(el).hasClass('identifyId')){
+                        data[el.className] = el.value;
+                    }
+                }
+            }
+            data.defaultOrNot = '';
+            data.paypalAccount = $('.PaypalCode').val();
+            data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
+            $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            getResponse({
+                type: 'post',
+                url: '/finance/setSettleWayByPaypal',
+                data: data
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('保存成功');
+                    getIdentyResult();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled').html('保存');
+            })
+        });
+    //团队结算
+        $('.setTeamBankPayBtn').on('click', function() {
+            const _this = this,
+                parentFrom = $(_this).parents('.add-form'),
+                requiredEles = parentFrom.find('input[required],select[required]');
+            for(let i = 0; i < requiredEles.length; i++){
+                const el = requiredEles[i];
+                if(el.value.trim() === ''){
+                    el.focus();
+                    $.warning($(el).attr('placeholder'));
+                    return false;
+                }
+            }
+            const idCard = parentFrom.find('.teamCardType').val() === '身份证' ? parentFrom.find('.identifyId').val():'';
+            const data = {
+                "bankBranch": parentFrom.find('.teamBankBranch').val(),
+                "bankNum": parentFrom.find('.teamBankNo').val(),
+                "bankOfDeposit": parentFrom.find('.teamBankDeposit').val(),
+                "idNum": idCard,
+                "idType": parentFrom.find('.teamCardType').val(),
+                "nameOfTheAccountOpener": parentFrom.find('.teamBankName').val(),
+                "id": $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):''
+            };
+            $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+            getResponse({
+                type: 'post',
+                url: '/team/setTeamSettleWay',
+                data: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }).then(res => {
+                if(res.message === 'success'){
+                    $.success('保存成功');
+                    getIdentyResult();
+                }else{
+                    $.error(res.message);
+                }
+                $(_this).removeAttr('disabled').html('保存');
+            })
+        })
+    }
+
 //获取认证信息
     function getIdentyResult (){
         getResponse({
@@ -1260,11 +1459,18 @@ const personalServer = (function (window, document, $, undefined) {
                 cardEl = $('.certificateType');
             if(res.message === 'success'){
                 const baseinfo = res.data.userExtension || {};
-                if(baseinfo.nationality.includes('中国大陆')){
-                    cardEl.html('<option value="身份证">身份证</option>')
+                if(baseinfo.nationality){
+                    if(baseinfo.nationality.includes('中国大陆')){
+                        cardEl.html('<option value="身份证">身份证</option>')
+                    }else{
+                        $('.cardTip').remove();
+                        cardEl.html(`<option value="港澳通行证">港澳通行证</option>
+                                <option value="往来台湾通行证">往来台湾通行证</option>
+                                <option value="护照">护照</option>`);
+                    }
                 }else{
-                    $('.cardTip').remove();
-                    cardEl.html(`<option value="港澳通行证">港澳通行证</option>
+                    cardEl.html(`<option value="身份证">身份证</option>
+                                <option value="港澳通行证">港澳通行证</option>
                                 <option value="往来台湾通行证">往来台湾通行证</option>
                                 <option value="护照">护照</option>`);
                 }
@@ -1293,7 +1499,10 @@ const personalServer = (function (window, document, $, undefined) {
                                             style="background: #00BDC5;">查看完整信息</button>
                                 </div>
                                 <div class="operation sy-font-md">
-                                    <div class="sy-hidden syHiddenData">${JSON.stringify({cardId: baseinfo.certificateNum})}</div>
+                                    <div class="sy-hidden syHiddenData">${JSON.stringify({
+                                        cardId: baseinfo.certificateNum,
+                                        cardType: baseinfo.certificateType
+                                    })}</div>
                                     ${idEdit}
                                 </div>
                             </div>`;
@@ -1303,7 +1512,11 @@ const personalServer = (function (window, document, $, undefined) {
                     $('.identifyId').val(baseinfo.certificateNum);
                     $('span.identy').addClass('identy-yes').html('已认证');
                     identyForm.next().html(identifyStr);
-                    baseinfo.certificateType.includes('身份证') && identyForm.remove();
+                    if(baseinfo.certificateType.includes('身份证')){
+                        identyForm.remove();
+                    }else {
+                        identyForm.addClass('sy-hidden');
+                    }
                 }else{
                     identyForm.removeClass('sy-hidden');
                 }
@@ -1321,12 +1534,6 @@ const personalServer = (function (window, document, $, undefined) {
                             isSHowAlipayForm = true,
                             isSHowPaypalForm = true;
                         settleList.forEach(item => {
-                            $('input[name=payWay]').each(function() {
-                                if(this.value === item.selttleName){
-                                    this.removeAttribute('disabled');
-                                    item.settleDefault === 1 && this.setAttribute('checked', true);
-                                }
-                            });
                             if(item.selttleName === '支付宝'){
                                 isSHowAlipayForm = false;
                                 aliPayStr += `
@@ -1457,220 +1664,6 @@ const personalServer = (function (window, document, $, undefined) {
             }
         })
     }
-//提交身份认证
-    $('.certificateBtn').on('click', function () {
-        const _this = this,
-            parentFrom = $(_this).parents('.add-form'),
-            requiredEles = parentFrom.find('input[required],select[required],textarea[required]');
-        const data = {};
-        for(let i = 0; i < requiredEles.length; i++){
-            const el = requiredEles[i];
-            if(el.value.trim() === ''){
-                el.focus();
-                $.warning($(el).attr('placeholder'));
-                return false;
-            }else{
-                data[el.className] = el.value;
-            }
-        }
-        if(data['certificateType'].includes('身份证') && !/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(data['identifyId'])){
-            $.warning('请输入正确的身份证号码');
-            return false;
-        }
-        data.userId = sessionStorage.getItem('sy_rm_client_ud');
-        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        getResponse({
-            type: 'post',
-            url: '/userExtension/identityUser',
-            data: data
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('身份验证通过');
-                getIdentyResult();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled').html('提交');
-        })
-    });
-//银行卡结算
-    $('.setBankPayBtn').on('click', function () {
-        const _this = this,
-            parentFrom = $(_this).parents('.add-form'),
-            requiredEles = parentFrom.find('input[required],select[required]');
-        const data = {};
-        for(let i = 0; i < requiredEles.length; i++){
-            const el = requiredEles[i];
-            if(el.value.trim() === ''){
-                el.focus();
-                $.warning($(el).attr('placeholder'));
-                return false;
-            }else{
-                data[el.className] = el.value;
-                if(el.className === 'identifyId'){
-                    delete data[el.className];
-                    data.identityId = el.value;
-                }
-            }
-        }
-        if(!/(^\d{16}$)|(^\d{17}$)|(^\d{19}$)/.test(data.bankNo)){
-            $.warning('请输入正确的银行卡号');
-            return false;
-        }
-        data.userId = sessionStorage.getItem('sy_rm_client_ud');
-        data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        getResponse({
-            type: 'post',
-            url: '/userExtension/setSettleByBank',
-            data: data
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('银行卡信息验证通过');
-                getIdentyResult();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled').html('保存');
-        })
-    });
-//支付宝结算
-    $('.setAliPayBtn').on('click', function () {
-        const _this = this,
-            parentFrom = $(_this).parents('.add-form'),
-            requiredEles = parentFrom.find('input[required],select[required]');
-        const data = {};
-        for(let i = 0; i < requiredEles.length; i++){
-            const el = requiredEles[i];
-            if(el.value.trim() === ''){
-                el.focus();
-                $.warning($(el).attr('placeholder'));
-                return false;
-            }else {
-                if(!$(el).hasClass('identifyId')){
-                    data[el.className] = el.value;
-                }
-            }
-        }
-        data.userId = sessionStorage.getItem('sy_rm_client_ud');
-        data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        getResponse({
-            type: 'post',
-            url: '/userExtension/setSettleByAlipay',
-            data: data
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('保存成功');
-                getIdentyResult();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled').html('保存');
-        })
-    });
-//paypal结算
-    $('.setPayPalBtn').on('click', function () {
-        const _this = this,
-            parentFrom = $(_this).parents('.add-form'),
-            requiredEles = parentFrom.find('input[required],select[required]');
-        const data = {};
-        for(let i = 0; i < requiredEles.length; i++){
-            const el = requiredEles[i];
-            if(el.value.trim() === ''){
-                el.focus();
-                $.warning($(el).attr('placeholder'));
-                return false;
-            }else {
-                if(!$(el).hasClass('identifyId')){
-                    data[el.className] = el.value;
-                }
-            }
-        }
-        data.defaultOrNot = '';
-        data.paypalAccount = $('.PaypalCode').val();
-        data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
-        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        getResponse({
-            type: 'post',
-            url: '/finance/setSettleWayByPaypal',
-            data: data
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('保存成功');
-                getIdentyResult();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled').html('保存');
-        })
-    });
-//设置默认结算方式
-    $('div.identification input[name=payWay]').on('click', function () {
-        const h3El = $(this).parents('h3'),
-            formEl = h3El.next('.add-form'),
-            infoEl = formEl.next('.show-info'),
-            elHtml = infoEl.find('.operation').find('.sy-hidden').html();
-        if(!elHtml){
-            $.warning('请先绑定该结算方式');
-            return null;
-        }
-        const data = elHtml && JSON.parse(elHtml);
-        if(data){
-            getResponse({
-                type: 'put',
-                url: '/userExtension/setDefaultSettle',
-                data: {
-                    settleId: data.id
-                }
-            }).then(res => {
-                res.message === 'success'
-                    ? $.success('设置成功')
-                    : $.error(res.message);
-            })
-        }
-    });
-//团队结算
-    $('.setTeamBankPayBtn').on('click', function() {
-        const _this = this,
-            parentFrom = $(_this).parents('.add-form'),
-            requiredEles = parentFrom.find('input[required],select[required]');
-        for(let i = 0; i < requiredEles.length; i++){
-            const el = requiredEles[i];
-            if(el.value.trim() === ''){
-                el.focus();
-                $.warning($(el).attr('placeholder'));
-                return false;
-            }
-        }
-        const idCard = parentFrom.find('.teamCardType').val() === '身份证' ? parentFrom.find('.identifyId').val():'';
-        const data = {
-            "bankBranch": parentFrom.find('.teamBankBranch').val(),
-            "bankNum": parentFrom.find('.teamBankNo').val(),
-            "bankOfDeposit": parentFrom.find('.teamBankDeposit').val(),
-            "idNum": idCard,
-            "idType": parentFrom.find('.teamCardType').val(),
-            "nameOfTheAccountOpener": parentFrom.find('.teamBankName').val(),
-            "id": $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):''
-        };
-        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
-        getResponse({
-            type: 'post',
-            url: '/team/setTeamSettleWay',
-            data: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        }).then(res => {
-            if(res.message === 'success'){
-                $.success('保存成功');
-                getIdentyResult();
-            }else{
-                $.error(res.message);
-            }
-            $(_this).removeAttr('disabled').html('保存');
-        })
-    });
 
 /*
 *
@@ -1687,7 +1680,6 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }).then(res => {
             if(res.message === 'success'){
-                $('#telPhone').val(res.data.telephone);
                 if(+res.data.userExtension.bindEmail === 1){
                     const elDiv = $('.updateCode');
                     $('#updateEmail').val(res.data.email);
@@ -1700,6 +1692,18 @@ const personalServer = (function (window, document, $, undefined) {
                     telBtn.prev().addClass('sy-hidden');
                     telBtn.parents('.item').nextAll('.item').addClass('sy-hidden');
                 }
+                const selEl = $('.accountList'),
+                    telEl = $('#telPhone');
+                if(res.data.telephone){
+                    selEl.append(`<option value="${res.data.telephone}">手机号</option>`)
+                }
+                if(res.data.email){
+                    selEl.append(`<option value="${res.data.email}">邮箱</option>`)
+                }
+                selEl.change(() => {
+                    const selVal = $('.accountList>option:selected').val();
+                    telEl.val(selVal)
+                })
             }
         });
     }
@@ -1750,26 +1754,40 @@ const personalServer = (function (window, document, $, undefined) {
             $(_this).removeAttr('disabled').html('保存');
         })
     }
-//获取手机验证码
+//获取手机/邮箱验证码
     function getValidateCode (btn){
         const _this = btn;
         const sMobile = $('#telPhone').val();
-        if(!(/^1[1-9][0-9]{9}$/.test(sMobile))){
-            $.warning('请输入正确的手机号');
+        if(!(/^1[1-9][0-9]{9}$/.test(sMobile) || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(sMobile))){
+            $.warning('请输入正确的手机号/邮箱');
             return false;
         }
         countDown(_this);
-        getResponse({
-            url: '/userExtension/sendCode',
-            data: {
-                validateCodeType: '4',
-                telephone: sMobile
-            }
-        }).then(res => {
-            res.message === 'success'
-                ? $.success('验证码发送成功')
-                : $.error(res.message);
-        })
+        if(sMobile.includes('@')){
+            getResponse({
+                type: 'POST',
+                url: '/userExtension/setSettlePasswordVerifyEmail',
+                data: {
+                    email: sMobile
+                }
+            }).then(res => {
+                res.message === 'success'
+                    ? $.success('验证码已发送')
+                    : $.error(res.message);
+            })
+        }else {
+            getResponse({
+                url: '/userExtension/sendCode',
+                data: {
+                    validateCodeType: '4',
+                    telephone: sMobile
+                }
+            }).then(res => {
+                res.message === 'success'
+                    ? $.success('验证码已发送')
+                    : $.error(res.message);
+            })
+        }
     }
 //结算密码
     function settlePwd(btn){
@@ -1809,8 +1827,8 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }).then(res => {
             if(res.message === 'success'){
-                $.success('结算密码设置成功');
-                requiredEles.val('');
+                $.success('操作成功');
+                setTimeout('location.reload()', 1000)
             }else{
                 $.error(res.message);
             }
@@ -1951,7 +1969,7 @@ const personalServer = (function (window, document, $, undefined) {
                 }
             }
         });
-        return App;
+        return App
     }
 
 /*
@@ -1960,9 +1978,56 @@ const personalServer = (function (window, document, $, undefined) {
 *       消息通知
 *
 * */
+//获取未读消息条目
+    function getWaitingTotalMsg (){
+        getResponse({
+            url:　'/notice/getNoReadCount',
+            data: {
+                status: 0
+            }
+        }).then(data => {
+            if(data.message === 'success'){
+                $('.messageProps').html(+data.data ? data.data : '');
+            }
+        })
+    }
+//获取订单/其他未读消息
+    function getWaitingMsg (){
+        //获取订单未读消息
+        getResponse({
+            url: '/notice/noticeList',
+            data: {
+                status: 0,
+                noticeType: 0,
+                pageNo: 0,
+                pageSize: 10
+            }
+        }).then(res => {
+            if(res.message === 'success'){
+                const label = $('label.orderMsg');
+                res.data.totalElements > 0 ? label.addClass('will') : label.removeClass('will')
+            }
+        });
+        //获取其他未读消息
+        getResponse({
+            url: '/notice/noticeList',
+            data: {
+                status: 0,
+                noticeType: 1,
+                pageNo: 0,
+                pageSize: 10
+            }
+        }).then(res => {
+            if(res.message === 'success'){
+                const label = $('label.otherMsg');
+                res.data.totalElements > 0 ? label.addClass('will') : label.removeClass('will')
+            }
+        })
+    }
+
 //获取消息通知，type默认为0（订单消息）
     function getPageMessage (type = '0'){
-        $.loading('获取数据...');
+        $.loading('获取数据');
         let GetMessage = new ChPaging("#pagination",{
             limit: 10,
             viewOpt : [10,20,50],
@@ -1990,19 +2055,21 @@ const personalServer = (function (window, document, $, undefined) {
             operationCallback (msg, res){//处理数据
                 $('.my-loading').remove();
                 if(res.message === 'success'){
-                    const data = res.data.content;
+                    const data = res.data.content,
+                        filterHTML = /<[^<>]+>/g;
                     let mesStr = "", strArr = [];
                     data.forEach(item => {
                         let isHref = '';
                         if(item.url){
                             isHref = `<div class="readMsg" 
+                                           data-type="${item.type}"
                                            data-url="${item.url}"
                                            data-mid="${item.id}"
-                                           data-status="${item.status}">${item.content}</div>`
+                                           data-status="${item.status}">${item.content.replace(filterHTML,'')}</div>`
                         }else{
                             isHref = `<div class="readMsg"
                                            data-mid="${item.id}"
-                                           data-status="${item.status}">${item.content}</div>`
+                                           data-status="${item.status}">${item.content.replace(filterHTML,'')}</div>`
                         }
                         mesStr = `
                             <tr class="${item.status === 0 ? 'will' : ''}">
@@ -2019,6 +2086,7 @@ const personalServer = (function (window, document, $, undefined) {
                 }
             }
         });
+        getWaitingMsg();
         return GetMessage;
     }
 /*
@@ -2028,9 +2096,10 @@ const personalServer = (function (window, document, $, undefined) {
 *
 * */
 //反馈列表 page 页数， size 每页条目
-    function getAdviceList(pageNo = 0,pageSize = 10) {
+    function getAdviceList(pageNo = 0, pageSize = 5) {
         const container = $('.contentList'),
             moreBtn = $(".loadMoreBtn");
+        let page = +moreBtn.attr('data-page');
         getResponse({
             url:　'/feedback/listFeedBack',
             data: {
@@ -2040,15 +2109,13 @@ const personalServer = (function (window, document, $, undefined) {
                 page: pageNo
             }
         }).then(res => {
-            pageNo === 0 && moreBtn.attr('data-page', 0) && container.html('');
-            let page = +moreBtn.attr('data-page');
+            pageNo === 0 && moreBtn.attr('data-page', 0) && container.empty();
             if(res.message === 'success'){
-                page ++;
                 const { data: { content } } = res;
                 let listStr = "";
                 content.forEach(function (item) {
                     let imgStr = "",
-                        imgArr = JSON.parse(item.feedbackAttatch);
+                        imgArr = item.feedbackAttatch && JSON.parse(item.feedbackAttatch) || [];
                     imgArr.forEach(function (src) {
                         imgStr += `<img src="${src}" title="点击查看大图" alt="">`;
                     });
@@ -2059,18 +2126,21 @@ const personalServer = (function (window, document, $, undefined) {
                                         <div>${imgStr}</div>
                                     </div>`;
                 });
+                page ++;
+                moreBtn.attr('data-page', page);
                 if(content.length > 0){
                     moreBtn.removeClass('sy-hidden');
-                }else{
-                    res.data.totalElements > 0 && $.warning('暂无更多反馈');
-                    moreBtn.addClass('sy-hidden');
-                    return null;
-                }
-                if(res.data.totalElements === 0){
+                }else if(res.data.totalElements === 0){
                     listStr = `<div class="empty"></div>`;
+                    moreBtn.addClass('sy-hidden');
+                }
+                if(res.data.totalPages === page){
+                    moreBtn.addClass('sy-hidden');
                 }
                 container.append(listStr);
-                moreBtn.attr('data-page', page);
+            }else{
+                $.error(res.message);
+                container.html('<div class="empty"></div>')
             }
             moreBtn.removeAttr('disabled').html('加载更多');
         })
@@ -2081,12 +2151,60 @@ const personalServer = (function (window, document, $, undefined) {
 *       我的评价
 *
 * */
+    function initAppraise (){
+
+        const baseinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {},
+            filter = document.getElementsByClassName('nav-filter')[0];
+
+    //获取XX值
+        getResponse({
+            type: 'post',
+            url: '/orderAndComment/getTotalScoreInfo',
+            data: {
+                userCode: getQueryString('u')
+            }
+        }).then(res => {
+            if(res){
+                res.totalScore && $('.value_Appraise').html(parseInt(res.totalScore));
+                res.startTime && $(".preTime_Appraise>span").html(res.startTime.slice(0,10));
+            }
+        });
+
+        //获取标签统计
+        getResponse({
+            url: '/orderAndComment/labelStatistics',
+            data: {
+                userCode: baseinfo.userCode
+            }
+        }).then(res => {
+            if(res && typeof(res) === 'object'){
+                let labelStr = '';
+                for(let prop in res){
+                    labelStr += `<span>${prop} + ${res[prop]}</span>`;
+                }
+                $('.labelList').html(labelStr);
+            }
+        });
+        //统计评价数目
+        getResponse({
+            url: '/orderAndComment/getMyCommentStatistics'
+        }).then(res => {
+            if(res){
+                filter.getElementsByClassName('all')[0].innerHTML = res['全部'];
+                filter.getElementsByClassName('well')[0].innerHTML = res['好评'];
+                filter.getElementsByClassName('medium')[0].innerHTML = res['中评'];
+                filter.getElementsByClassName('bad')[0].innerHTML = res['差评'];
+            }
+        })
+
+    }
+
 //我的评价（好评/中评/差评）
     function getAppraiseList (level = 0, pagesize = 10){
-        let moreBtn = $(".appraiseLoadMoreBtn"),
-            pageEl = $('.appraisePageNo'),
+        let moreBtn = $(".loadMoreBtn"),
+            pageEl = $('.pageNo'),
             pageNo = +pageEl.val();
-        $.loading('获取数据...');
+        $.loading('获取数据');
         getResponse({
             url: '/orderAndComment/getMyOrderComments',
             data: {
@@ -2096,9 +2214,9 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }).then(res => {
             $('.my-loading').remove();
+            pageNo <= 1 && $('.list.appraiseList').empty();
             if(res.message === 'success'){
                 let bodyStr = "", listArr = [];
-                pageNo += 1;
                 res.data.results.forEach(item => {
                     //评价标签
                     const attitudeArr = item.attitudeDesc && item.attitudeDesc.split(',') || [],
@@ -2163,22 +2281,22 @@ const personalServer = (function (window, document, $, undefined) {
                                     </div>`;
                     listArr.push(listStr);
                 });
+                pageNo += 1;
+                pageEl.val(pageNo);
                 if(res.data.results.length > 0){
                     bodyStr = listArr.join('');
                     moreBtn.removeClass('sy-hidden');
-                }else if(res.data.totalCount !== 0 && res.data.results.length === 0){
-                    $.warning('暂无更多数据');
-                    moreBtn.addClass('sy-hidden');
-                    return null;
-                }
-                if(res.data.totalCount === 0){
+                }else if(res.data.totalCount === 0){
                     bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                pageEl.val(pageNo);
+                if(Math.ceil(res.data.totalCount/res.data.pageSize) === pageNo - 1){
+                    moreBtn.addClass('sy-hidden');
+                }
                 $('.appraiseList').append(bodyStr);
             }else{
-                $.warning(res.message);
+                $.error(res.message);
+                $('.appraiseList').html('<div class="empty"></div>')
             }
             moreBtn.removeAttr('disabled').html('加载更多');
         });
@@ -2200,41 +2318,42 @@ const personalServer = (function (window, document, $, undefined) {
             default: return '';
         }
     }
-    
-    function formatMoneyShort(type) {
-        switch (type.toLowerCase()){
-            case 'cny': return '￥';
-            case 'usd': return '＄';
-            case 'eur': return '€';
-            case 'gbp': return '￡';
-            default: return '';
-        }
-    }
-    
+
     function getJudgeResult() {
+        const activeEl = $('.cashFilter>a.active');
         const judge = JSON.parse($('.judgeStr').text() || '{}');
         let result = '';
-        if(judge.certificateType === '身份证'){ //大陆
-            const activeEl = $('.cashFilter>a.active');
+        if(judge.mainlandOrNot && judge.certificateType === '身份证'){ //大陆
             if(activeEl[0].className.includes('CNY')){//人民币结算
                 if(judge.ageReuire){//18-60周岁
-                    result = '社保51';
+                    if(!judge.billingType){
+                        result = '社保51';
+                    }else if(judge.billingType === '非全日制'){
+                        result = '非全日制';
+                    }else if (judge.billingType === '校企合作'){
+                        result = '校企合作';
+                    }
                 }else{//非18-60周岁
-                    result = '云账户';
+                    if(!judge.billingType){
+                        result = '云账户';
+                    }else if(judge.billingType === '非全日制'){
+                        result = '非全日制';
+                    }else if (judge.billingType === '校企合作'){
+                        result = '校企合作';
+                    }
                 }
             } else { //非人民币结算
                 result = 'paypal';
             }
         }else{//非大陆
-            if(judge.currencyCode.toLowerCase() === 'cny'){//人民币结算
+            if(activeEl[0].className.includes('CNY')){//人民币结算
                 result = '云账户';
             } else { //非人民币结算
                 result = 'PayPal';
             }
         }
         return {
-            result: result,
-            billingType: judge.billingType
+            result: result
         }
     }
 
@@ -2277,18 +2396,26 @@ const personalServer = (function (window, document, $, undefined) {
                 if(res.message === 'success'){
                     let mesStr = '',
                         dataList = res.data.results;
-                    const moneyType = formatMoneyType,
-                        moneyShort = formatMoneyShort;
                     dataList.forEach(item => {
+                        let remark = '';
+                        if(item.exchangeType === '红包收入'){
+                            remark = item.readBagType;
+                        }else if(item.exchangeType === '申请提现'){
+                            remark = item.payType + ' - ' + item.settleNo;
+                        }else{
+                            remark = item.exchangeType;
+                        }
+                        let amountCls = item.exchangeType.indexOf('提现') > -1,
+                            amountCol = amountCls ? '#F1562A' : '#00BDC5';
                         mesStr += `<tr>
                                       <td>${item.gmtCreate}</td>
-                                      <td>${moneyShort(item.currencyCode)+item.amount}</td>
-                                      <td>${moneyType(item.currencyCode)}</td>
-                                      <td>${item.bank} - ${item.account}</td>
-                                      <td>${item.exchangeType} ${item.taskNo ? '【'+item.taskNo+'】':''}</td>
+                                      <td style="color:${amountCol}">${amountCls ? '-'+item.amount : '+'+item.amount}</td>
+                                      <td>${formatMoneyType(item.currencyCode)}</td>
+                                      <td>${item.account}</td>
+                                      <td style="padding: 0 5px">${remark}</td>
                                    </tr>`;
                     });
-                    $('tbody.incomeFinanceList').html(dataList.length > 0 ? mesStr:`<tr class="empty"><td colspan="4">暂无明细</td></tr>`);
+                    $('tbody.incomeFinanceList').html(dataList.length > 0 ? mesStr:`<tr class="empty"><td colspan="5">暂无明细</td></tr>`);
                 }else{
                     $.error(res.message);
                 }
@@ -2336,8 +2463,13 @@ const personalServer = (function (window, document, $, undefined) {
                 $('.accountItem.'+tarCls).removeClass('sy-hidden').siblings('.accountItem').addClass('sy-hidden');
                 judgeBtn.removeAttr('disabled').html('申请提现');
 
+                //首先判断，是否在提现时间内
+                if(!judge.currentDayRequire){
+                    judgeBtn.prop({'disabled': true, 'title': "当前不在提现时间内"}).html('申请提现');
+                    return null;
+                }
                 const stateMap = judge.cashStateHashMap;
-                //首先判断每个币种，是否还有提现未完成的操作
+                //再判断每个币种，是否还有提现未完成的操作
                 if(Object.keys(stateMap || {}).length === 0){
                     //若不存在，无需判断
 
@@ -2364,31 +2496,75 @@ const personalServer = (function (window, document, $, undefined) {
                 $.warning('暂时无法操作');
                 return null
             }
+            //未身份认证
+            if(!__api__.isAuth.isPassIdentity){
+                $.warning('请先进行身份认证');
+                setTimeout(() => {
+                   location.href = '/personal/identification'
+                }, 1000);
+                return null
+            }
+            //未财务认证
+            if(!__api__.isAuth.isPassFinance){
+                $.warning('请先进行财务认证');
+                setTimeout(() => {
+                    location.href = '/personal/identification'
+                }, 1000);
+                return null
+            }
+
             const cashElCls = cashTypeEl[0].classList[0],
                 tarTypeEl = $('.accountItem.'+cashElCls);
-
             if(cashTypeEl.length < 1 && tarTypeEl.length < 1){
                 $.warning('请选择币种');
                 return null
             }
+
             const judge = getJudgeResult(),
+                judgeInfo = JSON.parse($('.judgeStr').text() || '{}'),
                 drawInfo = JSON.parse(cashTypeEl.attr('data') || '{}');
-            if(!judge.billingType){
-                switch (judge.result.toLowerCase()){
-                    case 'paypal':
-                        $.cashOut_paypal(drawInfo);
-                        break;
-                    case '社保51':
-                        $.cashOut_cny(drawInfo);
-                        break;
-                    case '云账户':
-                        $.cashOutOther_cny(drawInfo);
-                        break;
-                }
-            }else if(judge.billingType === '非全日制'){
-                $.cashOut_fulltime(drawInfo);
-            }else if(judge.billingType === '校企合作'){
-                $.cashOut_cooperation(drawInfo);
+
+            switch (judge.result.toLowerCase()){
+                case 'paypal':
+                    if(!judgeInfo.paypal){
+                        $.warning('请前去完善PayPal信息');
+                        setTimeout('location.href="/personal/identification"', 1500);
+                        return false
+                    }
+                    $.cashOut_paypal(drawInfo);
+                    break;
+                case '社保51':
+                    if(!judgeInfo.alipay && !judgeInfo.bank){
+                        $.warning('请前去完善银行卡/支付宝信息');
+                        setTimeout('location.href="/personal/identification"', 1500);
+                        return false
+                    }
+                    $.cashOut_cny(drawInfo, judgeInfo);
+                    break;
+                case '云账户':
+                    if(!judgeInfo.bank){
+                        $.warning('请前去完善银行卡信息');
+                        setTimeout('location.href="/personal/identification"', 1500);
+                        return false
+                    }
+                    $.cashOutOther_cny(drawInfo, judge);
+                    break;
+                case '非全日制':
+                    if(!judgeInfo.bank){
+                        $.warning('请前去完善银行卡信息');
+                        setTimeout('location.href="/personal/identification"', 1500);
+                        return false
+                    }
+                    $.cashOut_fulltime(drawInfo);
+                    break;
+                case '校企合作':
+                    if(!judgeInfo.bank){
+                        $.warning('请前去完善银行卡信息');
+                        setTimeout('location.href="/personal/identification"', 1500);
+                        return false
+                    }
+                    $.cashOut_cooperation(drawInfo);
+                    break;
             }
 
             // 确认提现
@@ -2477,7 +2653,7 @@ const personalServer = (function (window, document, $, undefined) {
                                         </div>
                                         <div class="am-u-lg-4">
                                             <p class="totalMoney_Balance" 
-                                               data-num="${data.cNY_TotalIncome}">${'￥'+data.cNY_TotalIncome}</p>
+                                               data-num="${'￥'+data.cNY_TotalIncome}">${'￥'+data.cNY_TotalIncome}</p>
                                             <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
                                         </div>
                                      </div>`);
@@ -2498,7 +2674,7 @@ const personalServer = (function (window, document, $, undefined) {
                                         </div>
                                         <div class="am-u-lg-4">
                                             <p class="totalMoney_Balance" 
-                                               data-num="${data.uSD_TotalIncome}">${'＄'+data.uSD_TotalIncome}</p>
+                                               data-num="${'＄'+data.uSD_TotalIncome}">${'＄'+data.uSD_TotalIncome}</p>
                                             <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
                                         </div>
                                      </div>`);
@@ -2519,7 +2695,7 @@ const personalServer = (function (window, document, $, undefined) {
                                         </div>
                                         <div class="am-u-lg-4">
                                             <p class="totalMoney_Balance" 
-                                               data-num="${data.eUR_TotalIncome}">${'€'+data.eUR_TotalIncome}</p>
+                                               data-num="${'€'+data.eUR_TotalIncome}">${'€'+data.eUR_TotalIncome}</p>
                                             <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
                                         </div>
                                      </div>`);
@@ -2540,7 +2716,7 @@ const personalServer = (function (window, document, $, undefined) {
                                         </div>
                                         <div class="am-u-lg-4">
                                             <p class="totalMoney_Balance" 
-                                               data-num="${data.gBP_TotalIncome}">${'￡'+data.gBP_TotalIncome}</p>
+                                               data-num="${'￡'+data.gBP_TotalIncome}">${'￡'+data.gBP_TotalIncome}</p>
                                             <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
                                         </div>
                                      </div>`);
@@ -2600,6 +2776,9 @@ const personalServer = (function (window, document, $, undefined) {
     *
     * */    
     function getUserAllInfo() {
+
+        const userinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
+
         //获取信息完整度
         getResponse({
             url: '/userExtension/calInfoIntegrity'
@@ -2631,8 +2810,8 @@ const personalServer = (function (window, document, $, undefined) {
                     isPassSkill = false,
                     isPassFinance = false;
                 if(data.userExtension){
-                    isPassCertificate = data.userExtension.certificatePassed>0?true:false;
-                    isPassFinance = data.userExtension.settleCertificatePassed>0?true:false;
+                    isPassCertificate = data.userExtension.certificatePassed?true:false;
+                    isPassFinance = data.userExtension.settleCertificatePassed?true:false;
                 }
                 if(data.userExtendList){
                     for(let i = 0,len=data.userExtendList.length; i<len; i++){
@@ -2643,54 +2822,63 @@ const personalServer = (function (window, document, $, undefined) {
                         }
                     }
                 }
-                isPassSkill && $('.skill_identify')
-                    .addClass('complete')
-                    .html(`<span class="sy-info-icon"></span>已通过技能认证`);
-                isPassCertificate && $('.card_identify')
-                    .addClass('complete')
-                    .html(`<span class="sy-info-icon"></span>已通过身份认证`);
-                isPassFinance && $('.finance_identify')
-                    .addClass('complete')
-                    .html(`<span class="sy-info-icon"></span>已认证财务信息`);
-            }
-            return new Promise(resolve => {
-              resolve(res.data.userCode);
-            })
-        }).then(code => {
-            //获取订单预览，通过userCode
-            if(code){
-                getResponse({
-                    url: '/task/listCurrentUserTask',
-                    data: {
-                        userCode: code
-                    }
-                }).then(res => {
-                    if(res.success){
-                        const { data } = res;
-                        $('.orderStatus_doing').attr('href', '/order/#10');
-                        $('.orderStatus_doing>span').html(data.taskNumIng);
-                        $('.orderStatus_waiting').attr('href', '/order/#20');
-                        $('.orderStatus_waiting>span').html(data.taskNumNoConfirmed);
-                        $('.orderStatus_done').attr('href', '/order/#25');
-                        $('.orderStatus_done>span').html(data.taskNumEnd);
-                        $('.orderStatus_font').html(data.transWorkNum);
-                    }
-                })
+                isPassSkill && $('.skill_identify').addClass('complete').html(`<span class="sy-info-icon"></span>已通过技能认证`);
+                isPassCertificate && $('.card_identify').addClass('complete').html(`<span class="sy-info-icon"></span>已通过身份认证`);
+                isPassFinance && $('.finance_identify').addClass('complete').html(`<span class="sy-info-icon"></span>已认证财务信息`);
             }
         });
-        //获取账户余额
+
+        //获取订单预览，通过userCode
         getResponse({
-            url: '/finance/getFinanceInfo'
+            url: '/task/listCurrentUserTask',
+            data: {
+                userCode: userinfo.userCode
+            }
         }).then(res => {
-            if(res.message === 'success' && res.data){
-                $('.amountMoney')
-                    .attr('data-num',res.data.accountBalance)
-                    .html(res.data.accountBalance);
-                $('.drawMoney')
-                    .attr('data-num',res.data.withdrawBalance)
-                    .html(res.data.withdrawBalance);
+            if(res.success){
+                const { data } = res;
+                $('.orderStatus_doing').attr('href', '/order/#10');
+                $('.orderStatus_doing>span').html(data.taskNumIng);
+                $('.orderStatus_waiting').attr('href', '/order/#20');
+                $('.orderStatus_waiting>span').html(data.taskNumNoConfirmed);
+                $('.orderStatus_done').attr('href', '/order/#25');
+                $('.orderStatus_done>span').html(data.taskNumEnd);
+                $('.orderStatus_font').html(data.transWorkNum);
             }
         });
+
+        /*
+
+ //获取账户余额
+        getResponse({
+            url: '/financeNew/listPersonAccountSummary',
+            data: { userCode: userinfo.userCode }
+        }).then(res => {
+            if(res.message === 'success'){
+                const { data } = res;
+                const amountEl = $('.amountMoney'),
+                    drawEl = $('.drawMoney');
+                if(data.cNY_TotalIncome !== null && +data.cNY_TotalIncome >= 0){
+                    amountEl.attr('data-num','￥'+data.cNY_Balance).html('￥'+data.cNY_Balance);
+                    drawEl.attr('data-num','￥'+data.cNY_Withdrawable).html('￥'+data.cNY_Withdrawable);
+                    return null;
+                }else if(data.uSD_TotalIncome !== null &&+data.uSD_TotalIncome >= 0){
+                    amountEl.attr('data-num','＄'+data.uSD_Balance).html('＄'+data.uSD_Balance);
+                    drawEl.attr('data-num','＄'+data.uSD_Withdrawable).html('＄'+data.uSD_Withdrawable);
+                    return null;
+                }else if(data.eUR_TotalIncome !== null &&+data.eUR_TotalIncome >= 0){
+                    amountEl.attr('data-num','€'+data.eUR_Balance).html('€'+data.eUR_Balance);
+                    drawEl.attr('data-num','€'+data.eUR_Withdrawable).html('€'+data.eUR_Withdrawable);
+                    return null;
+                }else if(data.gBP_TotalIncome !== null &&+data.gBP_TotalIncome >= 0){
+                    amountEl.attr('data-num','￡'+data.gBP_Balance).html('￡'+data.gBP_Balance);
+                    drawEl.attr('data-num','￡'+data.gBP_Withdrawable).html('￡'+data.gBP_Withdrawable);
+                }
+            }
+        });
+
+         */
+
         //获取消息通知
         getResponse({
             url: '/notice/noticeList',
@@ -2702,16 +2890,16 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }).then(res => {
             if(res.message === 'success'){
-                let mesStrArr = [];
-                res.data.content.forEach(item => {
-                    let repStr = item.content.replace('{', `<a href="/">`).replace('}','</a>');
-                    mesStrArr.push(`<div class="message-item">
-                                       <div>${repStr}</div>
+                let mesStrArr = [],
+                    list = res.data.content.slice(0, 3);
+                const filterHTML = /<[^<>]+>/g;
+                list.forEach(item => {
+                    mesStrArr.push(`<div class="message-item" onclick="location.href='/personal/message'">
+                                       <div>${item.content.replace(filterHTML,'')}</div>
                                        <span class="sy-float-r">${item.publishTime}</span>
                                     </div>`);
                 });
-                mesStrArr.length > 3 && (mesStrArr.length = 3);
-                $('.messageCnt').html(res.data.content.length > 0 ? mesStrArr.join('') : `<p class="empty sy-left">暂无消息</p>`);
+                $('.messageCnt').html(res.data.content.length > 0 ? mesStrArr.join('') : `<p class="empty sy-left">暂无消息通知</p>`);
             }
         });
         //获取语言对
@@ -2730,10 +2918,12 @@ const personalServer = (function (window, document, $, undefined) {
                         });
                     }
                     const obj = {
-                        originName: item.originLanguageName.split('-')[0].trim(),
+                        originName: item.originLanguageName,
                         originCode: item.originLanguageCode,
-                        targetName: item.targetLanguageName.split('-')[0].trim(),
+                        originShortCode: item.originLanguageSimpleCode,
+                        targetName: item.targetLanguageName,
                         targetCode: item.targetLanguageCode,
+                        targetShortCode: item.targetLanguageSimpleCode,
                         row: [{
                             domain: JSON.parse(item.domain).toString(),
                             subDomain: JSON.parse(item.subDomain),
@@ -2774,12 +2964,12 @@ const personalServer = (function (window, document, $, undefined) {
                     lanHtml += `<div class="language-item">
                                     <div class="left">
                                         <strong>${item.originName} → ${item.targetName}</strong>
-                                        <span>${item.originCode} → ${item.targetCode}</span>
+                                        <span>${item.originShortCode} → ${item.targetShortCode}</span>
                                     </div>
                                     <div class="right">${rowStr}</div>
                                 </div>`;
                 });
-                $('.languageCnt').html(data.length > 0 ? lanHtml : `<p class="empty">暂未选择语言对</p>`);
+                $('.languageCnt').html(data.length > 0 ? lanHtml : `<p class="empty">暂无语言信息</p>`);
             }
         });
     }
@@ -2793,6 +2983,7 @@ const personalServer = (function (window, document, $, undefined) {
         getBaseInfo,
         commitBaseInfo,
         commitBaseTeamInfo,
+        initResume,
         getResumeInfo,
         getResumeBaseInfo,
         getAdeptLanguageList,
@@ -2802,12 +2993,16 @@ const personalServer = (function (window, document, $, undefined) {
         createTransTest,
         tempCommitTrans,
         confirmCommitTrans,
+        initIdenty,
         getIdentyResult,
         getPageMessage,
+        getWaitingMsg,
+        getWaitingTotalMsg,
         getApplication,
         getApplicationCode,
         getAdviceList,
         getAppraiseList,
+        initAppraise,
         initAccount,
         getIncomeDetail,
         getTaxRate,

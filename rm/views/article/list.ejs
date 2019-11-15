@@ -8,8 +8,12 @@
             <div class="info">
                 <div class="column-2 lan-pair lanPair">
                     <% for (var i = 0; i < data.lanPair.length; i++){ %>
+                    <% origin = data.lanPair[i].sourceLanguageName.split('-')[0] %>
+                    <% target = data.lanPair[i].targetLanguageName.split('-')[0] %>
+                    <% domain = data.lanPair[i].areaName && JSON.parse(data.lanPair[i].areaName).toString() %>
                     <div class="lan">
-                        <span><%= data.lanPair[i].sourceLanguageName.split('-')[0] %>- <%= data.lanPair[i].targetLanguageName.split('-')[0] %></span>
+                        <span><%= origin %> - <%= target %></span>
+                        <span class="domain"><%= domain %></span>
                         <span class="lv"><%= data.lanPair[i].levelName %></span>
                     </div>
                     <% } %>
@@ -32,8 +36,8 @@
             <a href="/article/list?uid=<%= data.base.id %>" class="active">文章</a>
         </aside>
         <div class="article_cnt">
-            <div class="cnt notUserArticleCnt">
-
+            <div class="cnt notUserArticleCnt sy-default-transition sy-show-transition">
+                <div class="empty"></div>
             </div>
             <div class="sy-mg-t-30 sy-center more">
                 <button class="sy-btn loadMoreBtn_Not sy-hidden" type="button">加载更多</button>
@@ -44,9 +48,12 @@
     </div>
 </div>
 <script>
-    __api__.userNotListArticle();
+    (function () {
 
-    $('.loadMoreBtn_Not')[0].addEventListener('click', function () {
         __api__.userNotListArticle();
-    }, false);
+
+        $('.loadMoreBtn_Not')[0].addEventListener('click', function () {
+            __api__.userNotListArticle();
+        }, false)
+    }())
 </script>

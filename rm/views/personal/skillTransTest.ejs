@@ -52,16 +52,12 @@
     <!--</div>-->
 </div>
 <script>
-    (function ($) {
-        var getQuery = __bundle__.getQueryString;
+    (function () {
 
-        var id = getQuery('id');
+        var getQuery = __bundle__.getQueryString,
+            id = getQuery('id');
+
         __api__.createTransTest(id);
 
-    })(jQuery)
-
-    //刷新页面时弹出提醒
-    window.onbeforeunload = function (event) {
-        event.returnValue = "确定离开当前页面吗？"
-    }
+    })()
 </script>

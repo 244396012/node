@@ -45,8 +45,6 @@ import './modal';
             $.warning('请先拖动滑块进行安全验证');
             return false;
         }
-        //倒计时120s
-        countDown(_this);
         getResponse({
             baseUrl: loginUrl,
             url: '/customer/sendCode',
@@ -55,9 +53,13 @@ import './modal';
                 telephone: account
             }
         }).then(res => {
-            res.message === 'success'
-                ? $.success('验证码发送成功')
-                : $.error(res.message);
+            if(res.message === 'success'){
+                $.success('验证码发送成功');
+                //倒计时120s
+                countDown(_this);
+            }else{
+                $.error(res.message);
+            }
         })
     };
 // 个人用户注册
@@ -140,6 +142,7 @@ import './modal';
                 client_id: '1',
                 client_secret: 'server',
                 grant_type: 'password',
+                usertype: '0',
                 username: account.trim(),
                 password: pwd
             }

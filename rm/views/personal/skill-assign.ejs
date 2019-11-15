@@ -21,7 +21,7 @@
             <div class="am-u-lg-12 labels">
                 <div>外派特长：</div>
                 <div>
-                    <% good = JSON.parse(data.data.expatriateExpertise) %>
+                    <% good = data.data.expatriateExpertise && JSON.parse(data.data.expatriateExpertise) || [] %>
                     <% for(var i = 0; i<good.length; i++) { %>
                     <span><%= good[i] %></span>
                     <% } %>
@@ -35,7 +35,7 @@
                         <tr><th>擅长语言</th><th>一级领域</th><th>二级领域</th></tr>
                         </thead>
                         <tbody>
-                        <% language = JSON.parse(data.data.languageInfo) %>
+                        <% language = data.data.languageInfo && JSON.parse(data.data.languageInfo) || [] %>
                         <% for(var i = 0; i<language.length; i++) { %>
                         <tr>
                             <td><%= language[i].langaugeName %></td>

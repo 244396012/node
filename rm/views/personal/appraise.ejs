@@ -22,95 +22,52 @@
         <label data-type="3" >差评(<span class="bad">0</span>)</label>
     </div>
     <div class="list appraiseList">
-
+        <div class="empty"></div>
     </div>
     <div class="sy-mg-t-30 sy-mg-b-30 sy-center">
-        <input class="appraisePageNo" type="hidden" value="1">
-        <button class="sy-btn sy-hidden appraiseLoadMoreBtn" type="button">加载更多</button>
+        <input class="pageNo" type="hidden" value="1">
+        <button class="sy-btn sy-hidden loadMoreBtn" type="button">加载更多</button>
     </div>
 </div>
 <script>
-    (function (document, $) {
+    (function (window, document, $) {
 
-        //初始化列表
-        __api__.getAppraiseList();
+        __api__.initAppraise()
+        __api__.getAppraiseList()
 
-        document.addEventListener('DOMContentLoaded', function () {
-            //加载更多
-            var loadMore = document.getElementsByClassName('appraiseLoadMoreBtn')[0];
-            loadMore.addEventListener('click', function () {
-                var cur = $('.nav-filter>label.active');
-                this.setAttribute('disabled', true);
-                this.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
-                __api__.getAppraiseList(cur.attr('data-type'));
-            }, false);
+        //加载更多
+        var loadMore = document.getElementsByClassName('loadMoreBtn')[0];
+        loadMore.addEventListener('click', function () {
+            var cur = $('.nav-filter>label.active');
+            this.setAttribute('disabled', true);
+            this.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
+            __api__.getAppraiseList(cur.attr('data-type'));
+        }, false);
 
-            //筛选评价
-            var filter = document.getElementsByClassName('nav-filter')[0],
-                pageno = document.getElementsByClassName('appraisePageNo')[0],
-                container = document.getElementsByClassName('appraiseList')[0];
-            filter.addEventListener('click', function (e) {
-                var event = e || window.event,
-                    tarEl = event.target;
-                if(tarEl.nodeName === 'LABEL' && tarEl.className !== 'active'
-                    || tarEl.nodeName === 'SPAN' && tarEl.parentNode.className !== 'active'){
-                    tarEl.nodeName === 'SPAN' && (tarEl = tarEl.parentNode);
-                    var labelEl = this.children,
-                        level = tarEl.getAttribute('data-type');
-                    for(var i = 0, len = labelEl.length; i<len; i++){
-                        var el = labelEl[i];
-                        if(el.nodeName === 'LABEL'){
-                            el.className = '';
-                        }
+        //筛选评价
+        var filter = document.getElementsByClassName('nav-filter')[0],
+            pageno = document.getElementsByClassName('pageNo')[0],
+            container = document.getElementsByClassName('appraiseList')[0];
+        filter.addEventListener('click', function (e) {
+            var event = e || window.event,
+                tarEl = event.target;
+            if(tarEl.nodeName === 'LABEL' && tarEl.className !== 'active'
+                || tarEl.nodeName === 'SPAN' && tarEl.parentNode.className !== 'active'){
+                tarEl.nodeName === 'SPAN' && (tarEl = tarEl.parentNode);
+                var labelEl = this.children,
+                    level = tarEl.getAttribute('data-type');
+                for(var i = 0, len = labelEl.length; i<len; i++){
+                    var el = labelEl[i];
+                    if(el.nodeName === 'LABEL'){
+                        el.className = '';
                     }
-                    tarEl.className = 'active';
-                    pageno.value = 1;
-                    container.innerHTML = '';
-                    __api__.getAppraiseList(level);
                 }
-            }, false);
-            //获取XX值
-            __api__.getResponse({
-                type: 'post',
-                url: '/orderAndComment/getTotalScoreInfo',
-                data: {
-                    userCode: __bundle__.getQueryString('uc')
-                }
-            }).then(res => {
-                if(res){
-                    res.totalScore && $('.value_Appraise').html(parseInt(res.totalScore));
-                    res.startTime && $(".preTime_Appraise>span").html(res.startTime.slice(0,10));
-                }
-            });
+                tarEl.className = 'active';
+                pageno.value = 1;
+                container.innerHTML = '';
+                __api__.getAppraiseList(level);
+            }
+        }, false);
 
-            //获取标签统计
-            __api__.getResponse({
-                url: '/orderAndComment/labelStatistics',
-                data: {
-                    userCode: __bundle__.getQueryString('uc')
-                }
-            }).then(res => {
-                if(res && typeof(res) === 'object'){
-                    var labelStr = '';
-                    for(var prop in res){
-                        labelStr += `<span>${prop} + ${res[prop]}</span>`;
-                    }
-                    $('.labelList').html(labelStr);
-                }
-            });
-            //统计评价数目
-            __api__.getResponse({
-                url: '/orderAndComment/getMyCommentStatistics'
-            }).then(res => {
-                if(res){
-                    filter.getElementsByClassName('all')[0].innerHTML = res['全部'];
-                    filter.getElementsByClassName('well')[0].innerHTML = res['好评'];
-                    filter.getElementsByClassName('medium')[0].innerHTML = res['中评'];
-                    filter.getElementsByClassName('bad')[0].innerHTML = res['差评'];
-                }
-            });
-
-        }, false)
-
-    })(document, jQuery)
+    })(window, document, jQuery)
 </script>

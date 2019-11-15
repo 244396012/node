@@ -5,16 +5,60 @@
 *
 * */
 
-import { baseRMUrl } from "./interceptor";
-import { getResponse } from "./asyncAjax";
-import {  } from "./utils";
-
-
 ;(function (window, document, $, api) {
 
-    //临时用
     if(location.pathname === '/'){
 
+        const token = sessionStorage.getItem('sy_rm_client_access_token');
+
+        if(token){
+            //设置index首页，slider中“成为译员”按钮跳转
+            $('.sliderTranslator').html('立即前往 >>').on('click',function (e){
+                e.preventDefault();
+                location.href = '/personal'
+            });
+            $('.toTranslatorBtn').remove()
+        }
+
+        //我要接单\我要发表\图书招募
+        $('#getOrderBtn_Index, #releaseBtn_Index, #OrderPageBtn').click(function (e) {
+            const auth = __api__.isAuth || {},
+                id = this.id;
+            if(!auth){
+                return null
+            }
+            e.preventDefault();
+            //未技能认证
+            if(!auth.isPassSkill){
+                if(id === 'releaseBtn_Index'){
+                    $.warning('你当前还不能发表文章，快去完善信息吧')
+                }else {
+                    $.warning('你当前还不能接单，快去完善信息吧')
+                }
+                setTimeout("location.href = '/personal/skill'", 1000);
+                return null
+            }
+            //未身份或财务认证
+            if(!auth.isPassIdentity){
+                if(id === 'releaseBtn_Index'){
+                    $.warning('你当前还不能发表文章，快去完善信息吧')
+                }else {
+                    $.warning('你当前还不能接单，快去完善信息吧')
+                }
+                setTimeout("location.href = '/personal/identification'", 1000);
+                return null
+            }
+            //已认证
+            if(id === 'releaseBtn_Index'){
+                location.href = "/p-article/create"
+            }else {
+                location.href = '/order'
+            }
+        });
+
+    /*
+    * 临时用
+    * */
         //从数组中随机抽取几个元素
         function getRandomItem(arr, count) {
             let shuffled = arr.slice(0),
@@ -68,7 +112,7 @@ import {  } from "./utils";
         hoursList.sort(function (a, b) {
             return a - b;
         });
-        addList.forEach((item, index) => {
+        addList.forEach(function (item, index){
             let hours = hoursList[index] < 10 ? '0'+hoursList[index] : hoursList[index],
                 minutes = getRandomNum(60);
             orderStr += `<li>

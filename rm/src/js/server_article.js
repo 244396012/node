@@ -90,7 +90,7 @@ const articleServer = (function (global, document, $, undefined){
                 },
                 success: function (res) {
                     if(res.code === '200'){
-                        $.success('已添加评论');
+                        $.success('评论成功');
                         $('.commentList').empty();
                         $('.commentPageNo').val(1);
                         textArea[0].value = '';
@@ -136,7 +136,7 @@ const articleServer = (function (global, document, $, undefined){
                 },
                 success: function (res) {
                     if(res.code === '200'){
-                        $.success('已添加回复');
+                        $.success('回复成功');
                         $('.commentList').empty();
                         $('.commentPageNo').val(1);
                         textArea.value = '';
@@ -170,7 +170,7 @@ const articleServer = (function (global, document, $, undefined){
                         if(res.message === 'success'){
                             $.success('文章已删除');
                             setTimeout(() => {
-                                location.href = '/personalArticle/list?t='+token+'&u='+uid;
+                                location.href = '/p-article/list?t='+token+'&u='+uid;
                             }, 1000);
                         }else{
                             $.error(res.message);
@@ -187,6 +187,8 @@ const articleServer = (function (global, document, $, undefined){
         let moreBtn = $(".loadMoreCommentBtn"),
             pageEl = $('.commentPageNo'),
             pageNo = +pageEl.val();
+        const articleAuthor = getQueryString('ofi') !== '1' ? $('h5.name').text() : '4028c6536e5e3c2c016e5f69ffc50000',
+            baseInfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
         getResponse({
             type: 'post',
             url: '/commentAndLog/getCommentAndReply',
@@ -201,22 +203,15 @@ const articleServer = (function (global, document, $, undefined){
                 res.results.forEach(item => {
                     let replyStr = '';
                     item.replies.forEach(item1 => {
-                        const tempObj1 = {
-                            commentId: item1.id,
-                            replyTarget: item1.userNickName
-                        };
+                        const isAuthor1 = articleAuthor === item1.userNickName;
                         replyStr += `<div class="item">
                                         <div class="head">
                                             <img src="${item1.userHeadId ? item1.userHeadId:'/static/image/index-default-head.png'}" width="60" height="60" alt="">
                                         </div>
                                         <div class="comment-cnt">
-                                            <h5 class="title">${item1.userNickName}</h5>
+                                            <h5 class="title ${isAuthor1 ? 'author' : ''}">${item1.userNickName}</h5>
                                             <span class="time">${item1.replyTime}</span>
                                             <div class="txt">${item1.content}</div>
-                                            <div class="reply">
-                                                <div class="replyData sy-hidden">${JSON.stringify(tempObj1)}</div>
-                                                <div class="reply-icon replyIcon">回复</div>
-                                            </div>
                                         </div>
                                     </div>`;
                     });
@@ -224,20 +219,23 @@ const articleServer = (function (global, document, $, undefined){
                         commentId: item.id,
                         replyTarget: item.userNickName
                     };
+                    const isSelf = baseInfo.nickName === item.userNickName,
+                        isAuthor = articleAuthor === item.userNickName,
+                        isReply = !isSelf ? `<div class="reply">
+                                                    <div class="replyData sy-hidden">${JSON.stringify(tempObj)}</div>
+                                                    <div class="reply-icon replyIcon">回复</div>
+                                                    ${replyStr}
+                                                </div>` : '';
                     replyArr.push(`<div class="item">
                                     <div class="head">
                                         <img src="${item.userHeadId ? item.userHeadId:'/static/image/index-default-head.png'}" width="60" height="60" alt="">
                                     </div>
                                     <div class="comment-cnt">
                                         <!-- 作者本人，添加class：author -->
-                                        <h5 class="title">${item.userNickName}</h5>
+                                        <h5 class="title ${isAuthor ? 'author' : ''}">${item.userNickName}</h5>
                                         <span class="time">${item.createTime}</span>
                                         <div class="txt">${item.content}</div>
-                                        <div class="reply">
-                                            <div class="replyData sy-hidden">${JSON.stringify(tempObj)}</div>
-                                            <div class="reply-icon replyIcon">回复</div>
-                                            ${replyStr}
-                                        </div>
+                                        ${isReply}
                                     </div>
                                 </div>`);
                 });
@@ -258,116 +256,41 @@ const articleServer = (function (global, document, $, undefined){
             moreBtn.removeAttr('disabled').html('加载更多');
         })
     }
-//首页 “文章精选、行业资讯”
-    function getIndexGoodArticle(page = 0, size = 2){
-
-        //文章精选
-        getResponse({
-            url: '/interpreterArticle/interpreterArticleListSelect',
-            data: {
-                pageNo: page,
-                pageSize: size
-            }
-        }).then(res => {
-            if(res.message ==='success'){
-                let mesStr = '';
-                res.data.content.forEach(item => {
-                   mesStr += `<div class="item">
-                                <div class="img"><img src="${item.coverId}" alt=""></div>
-                                <div class="item-cnt">
-                                    <a href="/information/detail?aid=${item.id}&uid=${item.publishUserId}">
-                                        <h5>${item.articleTitle}</h5>
-                                    </a>
-                                    <p>${item.partContent}</p>
-                                    <div class="am-g">
-                                        <div class="am-u-sm-2">
-                                            <a href="/article?uid=${item.publishUserId}"><img src="/static/image/index-default-head.png" alt="">${item.publishUser}</a>
-                                        </div>
-                                        <div class="am-u-sm-4">${item.publishTime?item.publishTime:'--'}</div>
-                                        <div class="am-u-sm-2 sy-center">
-                                            <i class="sy-icon icon-eye"></i>${item.viewCount}
-                                        </div>
-                                        <div class="am-u-sm-2 sy-center">
-                                            <i class="sy-icon icon-thumbs"></i>${item.likeNumber}
-                                        </div>
-                                        <div class="am-u-sm-2 sy-center">
-                                            <i class="sy-icon icon-commenting"></i>${item.commentsNumber}
-                                        </div>
-                                    </div>
-                                </div>
-                             </div>`;
-                });
-                res.data.content.length > 0 && $('.indexSaying').removeClass('sy-hidden');
-                $('div.goodArticleCnt>.more').before(mesStr);
-            }
-        });
-        //行业资讯
-        getResponse({
-            url: '/officialArticle/listOfficialArticle',
-            data: {
-                pageNo: page,
-                pageSize: size
-            }
-        }).then(res => {
-            if(res.message ==='success'){
-                let mesStr = '';
-                res.data.content.forEach(item => {
-                    mesStr += `<div class="item">
-                                <div class="img"><img src="${item.coverId}" alt=""></div>
-                                <div class="item-cnt">
-                                    <a href="/information/industryDetail?aid=${item.id}&ofi=true">
-                                        <h5>${item.articleTitle}</h5>
-                                    </a>
-                                    <p>${item.partContent}</p>
-                                    <div class="am-g">
-                                        <div class="am-u-sm-6">${item.publishTime?item.publishTime:''}</div>
-                                        <div class="am-u-sm-2 sy-center">
-                                            <i class="sy-icon icon-eye"></i>${item.viewCount}
-                                        </div>
-                                        <div class="am-u-sm-2 sy-center">
-                                            <i class="sy-icon icon-thumbs"></i>${item.likeCount}
-                                        </div>
-                                        <div class="am-u-sm-2 sy-center">
-                                            <i class="sy-icon icon-commenting"></i>${item.commentsCount}
-                                        </div>
-                                    </div>
-                                </div>
-                             </div>`;
-                });
-                res.data.content.length > 0 && $('.indexInfo').removeClass('sy-hidden');
-                $('div.industryArticleCnt>.more').before(mesStr);
-            }
-        })
-    }
-//文章精选列表 - '/information/'
+//啄语者列表
     function getGoodArticle(size = 10) {
         let moreBtn = $(".loadMoreBtn_Speaker"),
             pageEl = $('.loadMorePageNo_Speaker'),
             pageNo = +pageEl.val();
+        $.loading('获取数据');
         getResponse({
             url: '/interpreterArticle/interpreterArticleListSelect',
             data: {
                 pageNo: pageNo,
-                pageSize: size
+                pageSize: size,
+                userId: '0'
             }
         }).then(res => {
+            pageNo < 1 && $('div.goodArticleCnt').empty();
             if(res.message ==='success'){
-                let bodyStr = '', listArr = [];
-                res.data.content.forEach(item => {
+                let bodyStr = '', listArr = [],
+                    content = res.data.content;
+                content.forEach(item => {
                     //为精选时，添加class：well
                     listArr.push(`<div class="item ${item.isFeatured?'well':''}">
                                    <div class="img"><img src="${item.coverId}" alt=""></div>
                                    <div class="absolute">${item.lable}</div>
                                    <div class="item-cnt">
-                                       <a href="/information/detail?aid=${item.id}&uid=${item.publishUserId}">
+                                       <a href="/article/detail?aid=${item.id}&uid=${item.publishUserId}">
                                            <h5>${item.articleTitle}</h5>
                                        </a>
                                        <p>${item.partContent}</p>
                                        <div class="am-g">
-                                           <div class="am-u-sm-2">
-                                               <a href="/article?uid=${item.publishUserId}"><img src="/static/image/index-default-head.png" alt="">${item.publishUser}</a>
+                                           <div class="am-u-sm-2 short-nick-name">
+                                               <a href="/article?uid=${item.publishUserId}">
+                                                  <img src="/static/image/index-default-head.png" alt="">${item.publishNickName}
+                                               </a>
                                            </div>
-                                           <div class="am-u-sm-8">${item.publishTime?item.publishTime:''}</div>
+                                           <div class="am-u-sm-7">${item.publishTime?item.publishTime:''}</div>
                                            <div class="am-u-sm-1">
                                                <i class="sy-icon icon-eye"></i>${item.viewCount}
                                            </div>
@@ -393,16 +316,21 @@ const articleServer = (function (global, document, $, undefined){
                 if(res.data.totalPages === pageNo){
                     moreBtn.addClass('sy-hidden');
                 }
-                $('div.goodArticleCnt>.more').before(bodyStr);
+                $('.goodArticleCnt').append(bodyStr);
+            }else{
+                $.error(res.message);
+                $('.personalArticleList').html('<div class="empty"></div>')
             }
             moreBtn.removeAttr('disabled').html('加载更多');
+            $('.my-loading').remove()
         });
     }
-//行业资讯列表 - '/information/industry'
+//行业资讯列表
     function getIndustryArticle(size = 10){
         let moreBtn = $(".loadMoreBtn_Industry"),
             pageEl = $('.loadMorePageNo_Industry'),
             pageNo = +pageEl.val();
+        $.loading('获取数据');
         getResponse({
             url: '/officialArticle/listOfficialArticle',
             data: {
@@ -410,25 +338,27 @@ const articleServer = (function (global, document, $, undefined){
                 pageSize: size
             }
         }).then(res => {
+            pageNo < 1 && $('div.goodArticleCnt').empty();
             if(res.message ==='success'){
-                let bodyStr = '', listArr = [];
-                res.data.content.forEach(item => {
+                let bodyStr = '', listArr = [],
+                    content = res.data.content;
+                content.forEach(item => {
                     listArr.push(`<div class="item">
                                 <div class="img"><img src="${item.coverId}" alt=""></div>
                                 <div class="item-cnt">
-                                    <a href="/information/industryDetail?aid=${item.id}&ofi=true">
+                                    <a href="/article/i-detail?ofi=1&aid=${item.id}">
                                         <h5>${item.articleTitle}</h5>
                                     </a>
                                     <p>${item.partContent}</p>
                                     <div class="am-g">
                                         <div class="am-u-sm-6" style="width: 70%">${item.publishTime?item.publishTime:''}</div>
-                                        <div class="am-u-sm-2 sy-center" style="width: 10%">
+                                        <div class="am-u-sm-2 sy-right" style="width: 10%">
                                             <i class="sy-icon icon-eye"></i>${item.viewCount}
                                         </div>
-                                        <div class="am-u-sm-2 sy-center" style="width: 10%">
+                                        <div class="am-u-sm-2 sy-right" style="width: 10%">
                                             <i class="sy-icon icon-thumbs"></i>${item.likeCount}
                                         </div>
-                                        <div class="am-u-sm-2 sy-center" style="width: 10%">
+                                        <div class="am-u-sm-2 sy-right" style="width: 10%">
                                             <i class="sy-icon icon-commenting"></i>${item.commentsCount}
                                         </div>
                                     </div>
@@ -447,9 +377,10 @@ const articleServer = (function (global, document, $, undefined){
                 if(res.data.totalPages === pageNo){
                     moreBtn.addClass('sy-hidden');
                 }
-                $('div.goodArticleCnt>.more').before(bodyStr);
+                $('.goodArticleCnt').append(bodyStr);
             }
             moreBtn.removeAttr('disabled').html('加载更多');
+            $('.my-loading').remove()
         })
     }
 
@@ -499,7 +430,7 @@ const articleServer = (function (global, document, $, undefined){
             picture: user.picture
         };
         sessionStorage.setItem('previewArticle', JSON.stringify(previewData));
-        window.open("/personalArticle/preview", "_blank");
+        window.open("/p-article/preview", "_blank");
     }
 //“发布/编辑”发布文章（草稿、正式发布）
     function releaseArticle(e, status = 0){
@@ -552,9 +483,9 @@ const articleServer = (function (global, document, $, undefined){
             data: data
         }).then(res => {
             if(res.message === 'success'){
-                $.success('发布成功');
+                $.success('操作成功');
                 setTimeout(function () {
-                   location.href = '/personalArticle/list?t='+token+'&u='+userId;
+                   location.href = '/p-article/list?t='+token+'&u='+userId;
                 },1000);
             }
             event.target.removeAttribute('disabled');
@@ -566,7 +497,7 @@ const articleServer = (function (global, document, $, undefined){
         let moreBtn = $(".article_LoadMoreBtn"),
             pageEl = $('.article_PageNo'),
             pageNo = +pageEl.val();
-        $.loading('获取数据...');
+        $.loading('获取数据');
         getResponse({
             url: '/interpreterArticle/interpreterArticleList',
             data: {
@@ -576,6 +507,7 @@ const articleServer = (function (global, document, $, undefined){
             }
         }).then(res => {
             const token = sessionStorage.getItem('sy_rm_client_access_token');
+            pageNo < 1 && $('div.personalArticleList').empty();
             if(res.message === 'success'){
                 const list = res.data.content;
                 let bodyStr = "", listArr = [];
@@ -603,7 +535,7 @@ const articleServer = (function (global, document, $, undefined){
                                     <div class="img"><img src="${item.coverId}" alt=""></div>
                                     <div class="absolute">${statusLabel}</div>
                                     <div class="item-cnt">
-                                        <a href="/personalArticle/detail?t=${token}&aid=${item.id}">
+                                        <a href="/p-article/detail?t=${token}&aid=${item.id}">
                                             <h5>${item.articleTitle}</h5>
                                         </a>
                                         <!-- 该出文字长度用js做限制 -->
@@ -629,6 +561,9 @@ const articleServer = (function (global, document, $, undefined){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.personalArticleList').append(bodyStr);
+            }else{
+                $.error(res.message);
+                $('.personalArticleList').html('<div class="empty"></div>')
             }
             moreBtn.removeAttr('disabled').html('加载更多');
             $('.my-loading').remove()
@@ -653,6 +588,7 @@ const articleServer = (function (global, document, $, undefined){
                 pageSize: pagesize
             }
         }).then(res => {
+            pageNo < 1 && $('div.notUserArticleCnt').empty();
             if(res.message === 'success'){
                 let bodyStr = "", listArr = [];
                 res.data.content.forEach(item => {
@@ -692,6 +628,9 @@ const articleServer = (function (global, document, $, undefined){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.notUserArticleCnt').append(bodyStr);
+            }else{
+                $.error(res.message);
+                $('.notUserArticleCnt').html('<div class="empty"></div>')
             }
             moreBtn.removeAttr('disabled').html('加载更多');
         });
@@ -705,7 +644,6 @@ const articleServer = (function (global, document, $, undefined){
         previewArticle,
         releaseArticle,
         userListArticle,
-        getIndexGoodArticle,
         getGoodArticle,
         getIndustryArticle,
         userNotListArticle,

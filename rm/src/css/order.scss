@@ -34,6 +34,7 @@
       }
     }
     nav.nav{
+      min-height: 74px;
       font-size: 0;
       &>.nav{
         border-bottom: 2px solid $baseColor;
@@ -93,7 +94,6 @@
     }
     section.cnt{
       &.extra{
-        padding-top: 20px;
         &>.item>.detail{
           padding: 0 50px;
         }
@@ -109,8 +109,10 @@
         }
       }
       &>.item{
-        margin-top: 18px;
         border: 1px solid #eee;
+        &+.item{
+          margin-top: 18px;
+        }
         &>.base{
           height: 40px;
           padding: 8px 10px 0;

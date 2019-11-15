@@ -142,7 +142,7 @@ jQuery.extend({
     * 提现页面，多种模态框
     * */
     //人民币提现 (18-60岁)
-    cashOut_cny: function (config = {total: 0, type: '', typeName: ''}) {
+    cashOut_cny: function (config = {total: 0, type: '', typeName: ''}, payConfig = {}) {
         const el = `<div class="am-modal am-modal-confirm apply-detail cashOutModal cashOut_cny">
                         <div class="am-modal-dialog">
                             <div class="am-modal-hd">申请提现
@@ -179,7 +179,7 @@ jQuery.extend({
                                                          onclick="this.checked 
                                                                     ? $('.cashOutBtn_cny').removeAttr('disabled')
                                                                     : $('.cashOutBtn_cny').prop('disabled','true')">
-                                                  阅读并同意<a href="" class="sy-link" target="_blank">《协议》</a>，接收信息尽快签约提现。
+                                                  阅读并同意<a href="/agreement/51.html" class="sy-link" target="_blank">《协议》</a>，接收信息尽快签约提现。
                                                 </label>
                                             </div>
                                         </div>
@@ -204,7 +204,9 @@ jQuery.extend({
             const amountEl = document.querySelector('.drawAmount');
             amountEl.value = config.total;
             __api__.getTaxRate(amountEl, config)
-        }, 500))
+        }, 500));
+        !payConfig.alipay && $('.alipayCheck').remove();
+        !payConfig.bank && $('.bankCheck').remove();
     },
     //人民币提现 （国籍为中国大陆的，年龄不是18~60周岁）/（国籍为非中国大陆的，提现币种为人民币首次提交结算）
     cashOutOther_cny: function (config = {total: 0, type: '', typeName: ''}) {
@@ -241,7 +243,7 @@ jQuery.extend({
                                                          onclick="this.checked 
                                                                     ? $('.cashOutBtn_cny').removeAttr('disabled')
                                                                     : $('.cashOutBtn_cny').prop('disabled','true')">
-                                                  阅读并同意<a href="" class="sy-link" target="_blank">《协议》</a>，接收信息尽快签约提现。
+                                                  阅读并同意<a href="/agreement/yun.html" class="sy-link" target="_blank">《协议》</a>，接收信息尽快签约提现。
                                                 </label>
                                             </div>
                                         </div>
@@ -424,6 +426,11 @@ jQuery.extend({
                                             <div>
                                                 <span>输入结算密码：</span>
                                                 <input class="drawPwd" type="password" required placeholder="请输入结算密码">
+                                            </div>
+                                            <div style="color:#999;font-size: 12px">
+                                             发票抬头：数译（成都）信息技术有限公司 <br>
+                                             税号：91510100MA67A339X0 <br>
+                                             邮寄地址：四川省成都市高新区天府大道北段1288号1号楼8层
                                             </div>
                                         </div>
                                     </div>

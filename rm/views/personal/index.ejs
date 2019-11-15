@@ -2,7 +2,7 @@
     <div class="am-g">
         <div class="left-info">
             <div class="title">我的信息</div>
-            <div class="cnt">
+            <div class="cnt sy-default-transition sy-show-transition">
                 <div>
                     信息完整度
                     <div class="sy-progress">
@@ -55,19 +55,19 @@
             <div class="cnt">
                 <div class="account-item">
                     <span>账户余额</span>
-                    <strong class="amountMoney" data-num="0">--</strong>
+                    <strong class="amountMoney" data-num="--">--</strong>
                     <i class="sy-float-r toggleAccount eye-icon on"></i>
                 </div>
                 <div class="account-item">
                     <span>可提现</span>
-                    <strong class="drawMoney" data-num="0">--</strong>
+                    <strong class="drawMoney" data-num="--">--</strong>
                     <i class="sy-float-r toggleAccount eye-icon on"></i>
                 </div>
             </div>
         </div>
         <div class="right-short">
             <div class="title">消息通知<a class="sy-float-r" href="/personal/message">查看</a></div>
-            <div class="cnt messageCnt">
+            <div class="cnt messageCnt sy-default-transition sy-show-transition">
                 <p class="empty sy-left">暂无消息</p>
             </div>
         </div>
@@ -75,8 +75,8 @@
     <div class="am-g">
         <div class="language">
             <div class="title">我的语言</div>
-            <div class="cnt languageCnt">
-
+            <div class="cnt languageCnt sy-default-transition sy-show-transition">
+                <p class="empty">暂未选择语言对</p>
             </div>
         </div>
     </div>
@@ -84,7 +84,6 @@
 <script>
     (function () {
 
-        //获取用户所有信息
         __api__.getUserAllInfo();
 
         //展示/隐藏余额

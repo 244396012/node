@@ -21,7 +21,7 @@
                     <% _area = data.data.province
                         +' ' + data.data.city
                         +" " + data.data.area %>
-                    <% device = JSON.parse(data.data.equipmentInfo) %>
+                    <% device = data.data.equipmentInfo && JSON.parse(data.data.equipmentInfo) || [] %>
                     <% for(var i = 0; i<device.length; i++) { %>
                     <tr>
                         <td><%= _area %></td>

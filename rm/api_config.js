@@ -3,8 +3,8 @@
 * */
 // const domain = {
 //     api: "http://pangu1.lan-bridge.cn:5791",
-//     orderApi: 'http://pm.lan-bridge.cn:3005/#/',
-//     orderOtherApi: 'http://199.lan-bridge.cn:60002'
+//     orderApi: 'http://pm.lan-bridge.cn/#', //前端
+//     orderOtherApi: 'http://pmr1.lan-bridge.cn'
 // };
 
 /*

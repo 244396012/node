@@ -13,7 +13,7 @@
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <input type="text" id="accountPut" class="sy-input" placeholder="手机号/邮箱" required>
+                        <input type="text" id="accountPut" class="sy-input" placeholder="手机号/邮箱" autocomplete="off" required>
                     </div>
                 </div>
                 <div class="am-form-group">
@@ -30,7 +30,7 @@
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-7" style="padding-right: 0;">
-                        <input id="accountCode" type="text" class="form-control sy-input sy-radius-left" placeholder="验证码" required>
+                        <input id="accountCode" type="text" class="form-control sy-input sy-radius-left" placeholder="验证码" autocomplete="off" required>
                     </div>
                     <div class="am-u-sm-5" style="padding-left: 0;">
                         <button data-type="1"
@@ -41,13 +41,13 @@
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
                         <i class="sy-icon-eye am-icon-eye-slash" onclick="__bundle__.togglePassword(this);"></i>
-                        <input id="password" type="password" class="sy-input" placeholder="密码" required autocomplete="off">
+                        <input id="password" type="password" class="sy-input" placeholder="密码" autocomplete="off" required>
                         <p class="tips">*请输入长度为6-20位的密码</p>
                     </div>
                 </div>
                 <div class="am-form-group">
                     <div class="am-u-sm-12">
-                        <input id="applyCode" type="text" class="sy-input" placeholder="邀请码">
+                        <input id="applyCode" type="text" class="sy-input" placeholder="邀请码" autocomplete="off">
                     </div>
                 </div>
                 <div class="am-form-group extra sy-font-sm">
@@ -69,7 +69,7 @@
     </div>
 </div>
 <script>
-    (function () {
+    (function (document, $) {
 
         //填充邀请码
         var YQM = __bundle__.getQueryString('YQM');
@@ -83,5 +83,5 @@
             }
         }, false);
 
-    }());
+    }(document, jQuery))
 </script>

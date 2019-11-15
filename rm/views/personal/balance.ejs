@@ -1,4 +1,8 @@
-<div class="personal balance">
+<div class="personal balance" style="position: relative">
+    <div class="sy-center"
+         style="position: absolute;line-height: 740px;z-index: 99999;top: 0;left: 0;bottom: 0;right: 0;background: rgba(0,0,0,.8);color: #fff;font-size: 30px">
+        功能暂未开放，请前往<a class="sy-orange" href="http://freelancer.lan-bridge.cn/" target="_blank" style="text-decoration: underline">freelancer.lan-bridge.cn</a>进行提现！
+    </div>
     <div class="am-g">
         <div class="am-u-lg-6 sy-font-md">
             申请提现时间：北京时间<span class="sy-orange">每月16-20日</span>，每条数据<span class="sy-orange">每月</span>只可提现<span class="sy-orange">一次</span></div>
@@ -25,11 +29,11 @@
                 <span>账户余额</span>
             </div>
             <div class="am-u-lg-4">
-                <p class="outMoney_Balance" data-num="0">--</p>
+                <p class="outMoney_Balance" data-num="--">--</p>
                 <span>可提现</span>
             </div>
             <div class="am-u-lg-4">
-                <p class="totalMoney_Balance" data-num="0">--</p>
+                <p class="totalMoney_Balance" data-num="--">--</p>
                 <span style="padding-left: 5px">收入总计 <i class="toggleTotal eye-icon on"></i></span>
             </div>
         </div>
@@ -52,15 +56,15 @@
             <table class="am-table am-table-striped am-table-centered am-table-hover sy-font-md">
                 <thead>
                 <tr>
-                    <td>时间</td>
-                    <td>金额</td>
-                    <td>币种</td>
-                    <td>账户信息</td>
-                    <td>说明</td>
+                    <td style="width: 120px">时间</td>
+                    <td style="width: 80px">金额</td>
+                    <td style="width: 80px">币种</td>
+                    <td style="width: 280px">账户信息</td>
+                    <td style="width: 350px">说明</td>
                 </tr>
                 </thead>
                 <tbody class="incomeFinanceList">
-                    <tr class="empty"><td colspan="4">暂无明细</td></tr>
+                    <tr class="empty"><td colspan="5">暂无明细</td></tr>
                 </tbody>
             </table>
         </div>
@@ -72,35 +76,35 @@
 <script>
 (function (document, $) {
 
-    __api__.initAccount();
+    // __api__.initAccount();
 
-    var incomeDetail = __api__.getIncomeDetail();
-
-    $('.personal.balance').on('click', function (e) {
-
-        var target = e.target;
-        //显示/隐藏金额
-        if($(target).hasClass('toggleTotal')){
-            var el = $('.totalMoney_Balance'),
-                money = el.attr('data-num');
-            $(target).toggleClass('on');
-            $(target).hasClass('on') ? el.html(money) : el.html('****');
-        //筛选收入明细
-        }else if($(target).hasClass('incomeFilter')){
-            incomeDetail.o.current = 1;
-            incomeDetail.o.limit = 10;
-            incomeDetail.set({
-                xhr : {
-                    data : {
-                        filterStr: target.getAttribute('data-type'),
-                        pageNo: incomeDetail.get('current')-1,
-                        pageSize: incomeDetail.get('limit')
-                    }
-                }
-            }, true);
-            $(target).addClass('active').siblings().removeClass('active');
-        }
-    });
+    // var incomeDetail = __api__.getIncomeDetail();
+    //
+    // $('.personal.balance').on('click', function (e) {
+    //
+    //     var target = e.target;
+    //     //显示/隐藏金额
+    //     if($(target).hasClass('toggleTotal')){
+    //         var el = $(target).parent().prev('.totalMoney_Balance'),
+    //             money = el.attr('data-num');
+    //         $(target).toggleClass('on');
+    //         $(target).hasClass('on') ? el.html(money) : el.html('****');
+    //     //筛选收入明细
+    //     }else if($(target).hasClass('incomeFilter')){
+    //         incomeDetail.o.current = 1;
+    //         incomeDetail.o.limit = 10;
+    //         incomeDetail.set({
+    //             xhr : {
+    //                 data : {
+    //                     filterStr: target.getAttribute('data-type'),
+    //                     pageNo: incomeDetail.get('current')-1,
+    //                     pageSize: incomeDetail.get('limit')
+    //                 }
+    //             }
+    //         }, true);
+    //         $(target).addClass('active').siblings().removeClass('active');
+    //     }
+    // })
 
 }(document, jQuery))
 </script>

@@ -4,16 +4,16 @@
             <div class="am-u-lg-8 content-left extra">
                 <nav class="nav">
                     <% include order-nav.ejs %>
-                    <div class="filter">
+                    <div class="filter sy-hidden">
                         <a class="item active" href="#" data-event-click>待领取<span>0</span></a>
                         <a class="item" href="#10" data-event-click>进行中<span>0</span></a>
-                        <a class="item" href="#20" data-event-click>已提交<span>0</span></a>
+                        <a class="item" href="#14" data-event-click>待审核<span>0</span></a>
                         <a class="item" href="#25" data-event-click>已完成<span>0</span></a>
                         <a class="item" href="#21" data-event-click>退稿/终止<span>0</span></a>
                     </div>
                 </nav>
                 <section class="cnt orderContent">
-
+                    <div class="empty"></div>
                 </section>
                 <div class="sy-center more">
                     <input class="order_PageNo" type="hidden" value="1">
@@ -26,11 +26,16 @@
 <script>
     (function (window, document, $) {
 
-        location.hash = '';
-
         var unclaimedUrl = '/DTPTask/getNotReceiveTask', //未领取
             claimedUrl = '/transTask/getTaskList', //除未领取
             rowCountUrl = '/transTask/allTransListCount'; //各状态条目
+        var hash = location.hash;
+
+        $('.filter>a.item').each(function () {
+            if($(this).attr('href') === hash){
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        })
 
         //初始获取状态条目
         __api__.getOrderStatusNum({
@@ -38,17 +43,21 @@
             type: 4
         });
 
-        //初始获取"待领取"列表
-        __api__.getOrderDtp({
-            method: 'get',
+        __api__.getNoAcceptNum({
             url: unclaimedUrl,
             data: {
-                "page": $('.order_PageNo').val(),
+                "page": 1,
                 "limit": 5,
                 "sort":'requireTime',
                 "desc":'desc'
             }
         });
+
+        filterConfig({
+            el: $('.order_PageNo')[0],
+            type: 4
+        })
+
 
         var pageOrder = document.getElementsByClassName('order_page').item(0),
             container = document.getElementsByClassName('orderContent').item(0),
@@ -59,13 +68,11 @@
         pageOrder.addEventListener('click', function (e) {
             var event = e || window.event,
                 target = event.target || event.srcElement;
-            var type = 4, status = 10;
-            var url = '', method = '', data = null;
             //包含属性'data-event-click'的元素触发事件
             if(target.getAttribute('data-event-click') !== null){
                 if($('.filter').attr('disabled')){
                     event.preventDefault();
-                    $.warning('正在获取数据');
+                    $.warning('请稍等，正在获取数据');
                     return false;
                 }
             }
@@ -82,37 +89,49 @@
             }
             //发送ajax
             if(target.getAttribute('data-event-click') !== null){
-                status = location.hash ? location.hash.slice(1) : '';
-                if(!status){ //未领取订单传递的数据，get请求
-                    url = unclaimedUrl;
-                    method = 'get';
-                    data = {
-                        "page": $('.order_PageNo').val(),
-                        "limit": 5,
-                        "sort":'requireTime',
-                        "desc":'desc'
-                    };
-                }else{
-                    url = claimedUrl;
-                    method = 'post';
-                    data = {
-                        jsonStr: JSON.stringify({
-                            "page":{
-                                "page": $('.order_PageNo').val(),
-                                "limit": 5
-                            },
-                            "status": status,
-                            "type": type
-                        })
-                    }
-                }
-                __api__.getOrderDtp({
-                    method: method,
-                    url: url,
-                    data: data
-                });
+
+                filterConfig({
+                    el: $('.order_PageNo')[0],
+                    type: 4
+                })
             }
         }, false);
-
+        
+        function filterConfig(config) {
+            var status = location.hash ? location.hash.slice(1) : '',
+                type = config.type,
+                url = '',
+                method = '',
+                data = null;
+            if(!status){ //未领取订单传递的数据，get请求
+                url = unclaimedUrl;
+                method = 'get';
+                data = {
+                    "page": config.el.value,
+                    "limit": 5,
+                    "sort":'requireTime',
+                    "desc":'desc'
+                };
+            }else{
+                url = claimedUrl;
+                method = 'post';
+                data = {
+                    jsonStr: JSON.stringify({
+                        "page":{
+                            "page": config.el.value,
+                            "limit": 5
+                        },
+                        "status": status,
+                        "type": type
+                    })
+                }
+            }
+            __api__.getOrderDtp({
+                method: method,
+                url: url,
+                data: data
+            });
+        }
+        
     }(window, document, jQuery));
 </script>

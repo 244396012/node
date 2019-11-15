@@ -15,7 +15,7 @@
             <div class="upload-btn sy-center"
                  data-am-popover="{content: '仅支持jpg、png、jpeg、gif图片', trigger: 'hover focus'}"
                  onclick="$('a.uploadify-button').click()">
-                <i class="sy-personal-icon sy-personal-icon-head"></i>
+                <i class="sy-personal-icon sy-personal-icon-head"></i>点击上传
             </div>
             <p class="tips sy-orange" style="margin-top: 5px;padding-right: 12px">* 图片大小不超过3M</p>
         </div>
@@ -31,8 +31,7 @@
                                    autocomplete="off"
                                    prop="昵称"
                                    placeholder="快给自己想一个拉风的名字吧！>_<"
-                                   value="<%= data.data.nickName?data.data.nickName:'' %>"
-                                    <%= data.data.nickName?'disabled':'' %> >
+                                   value="<%= data.data.nickName?data.data.nickName:'' %>">
                             <p class="tips">* 昵称可由中文、字母和数字组合，长度4-20位，确认后不能修改</p>
                         </div>
                     </div>
@@ -62,7 +61,7 @@
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>母语：</div>
-                        <div><select id="motherTogue" required class="languageOption"></select></div>
+                        <div><select id="motherTogue" class="languageOption" required prop="母语"></select></div>
                     </div>
                     <div class="item">
                         <div>出生日期：</div>
@@ -230,7 +229,7 @@
 <script type="text/javascript" src="/static/lib/area.js"></script>
 <script src="/static/lib/Huploadify.js"></script>
 <script>
-(function($, window, document) {
+(function($, window) {
 
     laydate.render({ elem: '.birthDay' });
 
@@ -241,7 +240,6 @@
 
     new PCAS("deliverprovince", "delivercity", "deliverarea");
 
-    //初始化
     __api__.getBaseInfo();
 
     //添加“click”事件委托
@@ -252,46 +250,50 @@
         if($(target).hasClass('edit')){
             var hiddenEl = $('.hiddenData'),
                 targetDiv = $(target).parents('.am-g').next('.am-g'),
-				isFill = $('#realName').val();
+				isFill = $('input#realName').val();
             var hiddenData = JSON.parse(hiddenEl.html());
 			if(!isFill){
-				for(var prop in hiddenData.data){
-					$('#'+prop).val(hiddenData.data[prop]);
-				}
-				for(var prop in hiddenData.data.userExtension){
-					var itemDt = hiddenData.data.userExtension[prop];
-					if(prop === 'birthday'){
-						$('#birthday').val(itemDt && itemDt.split(' ')[0]);
-					}else if(prop === 'currencyCode'){
-						$('#currencyType').val(itemDt);
-					}else if(prop === 'nationality' && itemDt.indexOf(' ') > -1){
-					    var nationArr = itemDt.split(' ');
-                        $('select#areaSandbar').val(nationArr[0]).change();
-                        $('select#areaNationality').val(nationArr[1]);
-                    }else if(prop === 'permanentAddress'){
-						var localArr = itemDt.split(' ');
-						$('select.province').val(localArr[0]).change();
-						$('select.city').val(localArr[1]);
-						$('select.area').val(localArr[2]);
-					}else if(prop === 'contactInfo'){
-						var arr = itemDt && JSON.parse(itemDt) || [],
-							itemStr = '';
-						for(var i = 0, len = arr.length; i<len; i++){
-							var item = arr[i];
-							itemStr += `
-									<div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
-										<div>${Object.keys(item)}：</div>
-										<div>
-											<input type="text" class="extra" value="${Object.values(item)}" readonly>
-											<button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
-										</div>
-									</div>`;
-						}
-						$('.addItemTarget').before(itemStr);
-					}else {
-						$('#'+prop).val(itemDt);
-					}
-				}
+
+			    var userEx = hiddenData.data.userExtension;
+
+                $('#nickName').val(hiddenData.data['nickName']);
+                $('#sex').val(hiddenData.data['sex']);
+                $('#email').val(hiddenData.data['email']);
+                $('#telephone').val(hiddenData.data['telephone']);
+			    $('#realName').val(userEx['realName']);
+                $('#motherTogue').val(userEx['motherTongue']);
+                $('#currencyType').val(userEx['currencyCode']);
+                $('#translateYear').val(userEx['translateYear']);
+
+                if(userEx['birthday']){
+                    $('#birthday').val(userEx['birthday'].split(' ')[0]);
+                }
+			    if(userEx['nationality'] && userEx['nationality'].indexOf(' ') > -1){
+			        var sandbar = userEx['nationality'].split(' ');
+                    $('#areaSandbar').val(sandbar[0]).change();
+                    $('#areaNationality').val(sandbar[1]);
+                }
+                if(userEx['permanentAddress']){
+			        var address = userEx['permanentAddress'].split(' ');
+                    $('#deliverprovince').val(address[0]).change();
+                    $('#delivercity').val(address[1]);
+                    $('#deliverarea').val(address[2]);
+                }
+                if(userEx['contactInfo'] || !userEx['contactInfo']){
+                    var conInfo = JSON.parse(userEx['contactInfo']) || [],
+                        itemStr = '';
+                    for(var i = 0, len = conInfo.length; i<len; i++){
+                        var item = conInfo[i];
+                        itemStr += `<div class="item addItem" data='${JSON.stringify(item)}' ${Object.keys(item)}>
+                                        <div>${Object.keys(item)}：</div>
+                                        <div>
+                                            <input type="text" class="extra" value="${Object.values(item)}" readonly>
+                                            <button class="sy-btn sy-btn-default sy-btn-sm del delItemBtn">删除</button>
+                                        </div>
+                                    </div>`;
+                    }
+                    $('.addItemTarget').before(itemStr);
+                }
 			}
             targetDiv.find('form').removeClass('sy-hidden');
             targetDiv.find('div.show-info').addClass('sy-hidden');
@@ -329,5 +331,5 @@
             delItem.remove();
         }
     });
-}(jQuery, window, document));
+}(jQuery, window));
 </script>

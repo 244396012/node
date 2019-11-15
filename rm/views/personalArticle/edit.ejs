@@ -39,55 +39,55 @@
 <script src="/static/lib/wangEditor.min.js"></script>
 <script src="/static/lib/wangEditorConfig.js"></script>
 <script>
-$(function (){
+    (function (document, $) {
 
-    var contentHtml = $('.targetContentHtml').html();
-    $('.w-e-text').html(contentHtml);
+        var contentHtml = $('.targetContentHtml').html();
+        $('.w-e-text').html(contentHtml);
 
-    //上传封面图
-    setTimeout(function () {
-        $('#uploadCover').Huploadify({
-            auto: true,
-            multi: false,
-            fileTypeExts: '*.jpg;*.png;',
-            fileObjName: 'multipartFile',
-            formData: {
-                userId: sessionStorage.getItem('sy_rm_client_ud')
-            },
-            token: 'bearer '+sessionStorage.getItem('sy_rm_client_access_token'),
-            fileSizeLimit: 1024,
-            uploader: __api__.baseRMUrl + '/interpreterArticle/uploadCover',
-            onUploadStart: function () {
-                $.loading('正在上传');
-            },
-            onUploadComplete: function(file, res){
-                var resJson = JSON.parse(res);
-                if(resJson.message === 'success'){
-                    $('.my-loading').remove();
-                    if(resJson.data){
-                        $('.editArticle_Img').attr('src', resJson.data);
-                        $('.createArticle_CoverUrl').val(resJson.data);
+        //上传封面图
+        setTimeout(function () {
+            $('#uploadCover').Huploadify({
+                auto: true,
+                multi: false,
+                fileTypeExts: '*.jpg;*.png;',
+                fileObjName: 'multipartFile',
+                formData: {
+                    userId: sessionStorage.getItem('sy_rm_client_ud')
+                },
+                token: 'bearer '+sessionStorage.getItem('sy_rm_client_access_token'),
+                fileSizeLimit: 1024,
+                uploader: __api__.baseRMUrl + '/interpreterArticle/uploadCover',
+                onUploadStart: function () {
+                    $.loading('正在上传');
+                },
+                onUploadComplete: function(file, res){
+                    var resJson = JSON.parse(res);
+                    if(resJson.message === 'success'){
+                        $('.my-loading').remove();
+                        if(resJson.data){
+                            $('.editArticle_Img').attr('src', resJson.data);
+                            $('.createArticle_CoverUrl').val(resJson.data);
+                        }
                     }
+                },
+                onUploadError: function(file, res){
+                    var resJson = JSON.parse(res);
+                    $('.my-loading').remove();
+                    $.error(resJson.message);
                 }
-            },
-            onUploadError: function(file, res){
-                var resJson = JSON.parse(res);
-                $('.my-loading').remove();
-                $.error(resJson.message);
-            }
-        });
-    }, 1000);
+            });
+        }, 1000);
 
-    var previewBtn = document.getElementsByClassName('editArticle_PreviewBtn')[0],
-        draftBtn = document.getElementsByClassName('editArticle_DraftBtn')[0],
-        sendBtn = document.getElementsByClassName('editArticle_SendBtn')[0];
+        var previewBtn = document.getElementsByClassName('editArticle_PreviewBtn')[0],
+            draftBtn = document.getElementsByClassName('editArticle_DraftBtn')[0],
+            sendBtn = document.getElementsByClassName('editArticle_SendBtn')[0];
 
-    //预览文章
-    previewBtn.addEventListener('click', __api__.previewArticle, false);
-    //保存草稿
-    draftBtn.addEventListener('click', __api__.releaseArticle, false);
-    //确认发布
-    sendBtn.addEventListener('click', __api__.releaseArticle, false);
+        //预览文章
+        previewBtn.addEventListener('click', __api__.previewArticle, false);
+        //保存草稿
+        draftBtn.addEventListener('click', __api__.releaseArticle, false);
+        //确认发布
+        sendBtn.addEventListener('click', __api__.releaseArticle, false);
 
-});
+    }(document, jQuery))
 </script>

@@ -10,7 +10,7 @@
         </div>
         <div class="am-g identify-cnt">
             <div class="am-u-lg-12">
-                <div class="sy-personal-cnt">
+                <div class="sy-personal-cnt" style="min-height: 200px">
                     <div class="add-form identyForm sy-hidden">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -34,7 +34,7 @@
                             <span class="cardTip"><i class="sy-info-icon"></i> 认证成功后不可修改</span>
                         </div>
                     </div>
-                    <div class="show-info"></div>
+                    <div class="show-info sy-default-transition sy-show-transition"></div>
                 </div>
             </div>
         </div>
@@ -50,13 +50,8 @@
         </div>
         <div class="am-g identify-cnt identifyUser sy-hidden">
             <div class="am-u-lg-12">
-                <div class="sy-personal-cnt">
-                    <h3>
-                        银行卡结算
-                        <!--<label class="am-radio am-success">-->
-                            <!--<input type="radio" name="payWay" value="银行卡" data-am-ucheck disabled> 设为默认结算方式-->
-                        <!--</label>-->
-                    </h3>
+                <div class="sy-personal-cnt" style="min-height: 500px">
+                    <h3>银行卡结算</h3>
                     <div class="add-form bankForm">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -86,13 +81,8 @@
                             <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh setBankPayBtn">保存</button>
                         </div>
                     </div>
-                    <div class="show-info bankPay"></div>
-                    <h3>
-                        支付宝结算
-                        <!--<label class="am-radio am-success">-->
-                            <!--<input type="radio" name="payWay" value="支付宝" data-am-ucheck disabled> 设为默认结算方式-->
-                        <!--</label>-->
-                    </h3>
+                    <div class="show-info bankPay sy-default-transition sy-show-transition"></div>
+                    <h3>支付宝结算</h3>
                     <div class="add-form alipayForm">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -114,13 +104,8 @@
                             <button data-sy-confirm type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh setAliPayBtn">保存</button>
                         </div>
                     </div>
-                    <div class="show-info aliPay"></div>
-                    <h3>
-                        Paypal结算
-                        <!--<label class="am-radio am-success">-->
-                            <!--<input type="radio" name="payWay" value="Paypal" data-am-ucheck disabled> 设为默认结算方式-->
-                        <!--</label>-->
-                    </h3>
+                    <div class="show-info aliPay sy-default-transition sy-show-transition"></div>
+                    <h3>PayPal结算</h3>
                     <div class="add-form PaypalForm">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -132,8 +117,8 @@
                                 <div><input class="identifyId" type="text" required disabled placeholder="未加载证件号码"></div>
                             </div>
                             <div class="item">
-                                <div><i class="required">*</i>Paypal账号：</div>
-                                <div><input class="PaypalCode" type="text" required placeholder="请输入Paypal账号"/></div>
+                                <div><i class="required">*</i>PayPal账号：</div>
+                                <div><input class="PaypalCode" type="text" required placeholder="请输入PayPal账号"/></div>
                             </div>
                         </form>
                         <div class="sy-btns sy-font-md">
@@ -198,10 +183,9 @@
 <script>
     (function ($) {
 
-        //获取已提交的验证信息
-        __api__.getIdentyResult();
+        __api__.initIdenty()
+        __api__.getIdentyResult()
 
-        //添加"click"事件委托
         $('div.identification').on('click',function (e) {
             var target = e.target;
             // 显示/隐藏身份证号码
@@ -273,6 +257,7 @@
                         addForm.find('.PaypalCode').val(data.settleAccount);
                     }else {
                         addForm.find('.identifyId').val(data.cardId);
+                        addForm.find('.certificateType').val(data.cardType);
                     }
                 }
             // 显示/隐藏(银行卡、支付宝、Paypal账号)
@@ -289,7 +274,7 @@
                 }
             }
         })
-    })(jQuery);
+    })(jQuery)
 
     function changeCard(_this, ele){
         var val = _this.value,
