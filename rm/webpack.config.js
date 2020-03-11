@@ -29,7 +29,7 @@ module.exports = [
             ignored: /node_modules/
         },
         entry: {
-            bundle: './src/ts/freelancer.ts'
+            bundle: './src/ts/test.ts'
         },
         output: {
             path: path.resolve(__dirname, './src/ts'),
@@ -59,11 +59,9 @@ module.exports = [
         },
         module: {
             rules: [
-                {   //打包css、sass文件
+                {  
                     test: /\.(scss|css)$/,
-					//打包除这个文件之外的文件
-                    exclude: path.resolve(__dirname,"./node_modules"),
-                    //打包且压缩
+                    exclude: /node_modules/,
                     use: ExtractTextPlugin.extract({
                         use:[{
                                 loader:'css-loader',
@@ -85,6 +83,7 @@ module.exports = [
         watchOptions: {
             ignored: /node_modules/
         },
+        mode: "production", 
         //入口文件的配置项
         entry: {
             bundle: './src/js/bundle.js',
@@ -92,7 +91,7 @@ module.exports = [
         },
         //出口文件的配置项
         output: {
-            path: path.resolve(__dirname, './public/js'),
+            path: path.join(__dirname, './public/js'),
             filename: '[name].js'
         },
         //模块：例如解读CSS,图片如何转换，压缩
@@ -102,9 +101,9 @@ module.exports = [
                     //判断是否为.js，若是就进行es6转换
                     test: /\.js$/,
                     //打包除这个文件之外的文件
-                    exclude: path.resolve(__dirname,"./node_modules"),
+                    exclude: /node_modules/,
                     //打包包括的文件
-                    include: path.resolve(__dirname, "./src/js"),
+                    include: path.join(__dirname, "./src/js"),
                     loader: "babel-loader"
                 }
             ]
