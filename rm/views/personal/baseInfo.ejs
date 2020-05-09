@@ -39,6 +39,7 @@
                         <div>姓名：</div>
                         <div>
                             <input id="realName" type="text" placeholder="请输入真实姓名" autocomplete="off"
+                                   value="<%= data.data.userExtension && data.data.userExtension.realName %>"
                                     <%= data.data.userExtension && data.data.userExtension.certificatePassed >= 1 ?'disabled':'' %> >
                         </div>
                     </div>
@@ -61,7 +62,11 @@
                     </div>
                     <div class="item">
                         <div><i class="required">*</i>母语：</div>
-                        <div><select id="motherTogue" class="languageOption" required prop="母语"></select></div>
+                        <div>
+                            <select id="motherTogue"
+                                    class="languageOption"
+                                    required multiple data-am-selected="{maxHeight: 300}" prop="母语"></select>
+                        </div>
                     </div>
                     <div class="item">
                         <div>出生日期：</div>
@@ -95,8 +100,8 @@
                             <select id="currencyType" required prop="币种">
                                 <option value="CNY">人民币</option>
                                 <option value="USD">美元</option>
-                                <option value="Euro">欧元</option>
-                                <option value="Pound">英镑</option>
+                                <option value="EUR">欧元</option>
+                                <option value="GBP">英镑</option>
                             </select>
                         </div>
                     </div>
@@ -158,29 +163,28 @@
             <div class="sy-personal-cnt">
                 <form class="sy-personal-form sy-personal-base <%= data.data.nickName?'sy-hidden':'' %>">
                     <div class="item">
-                        <div>手机：</div>
+                        <div>手机帐号：</div>
                         <div><input id="telephone"
                                     type="tel"
                                     autocomplete="off"
-                                    placeholder="请输入手机号"
-                                    value="<%= data.data.telephone ? data.data.telephone:'' %>"
-                                    <%= data.data.telephone ? 'disabled':'' %> ></div>
+                                    disabled
+                                    value="<%= data.data.telephone ? data.data.telephone:'' %>"></div>
                     </div>
                     <div class="item">
-                        <div>邮箱：</div>
-                        <div><input id="email" type="email"
+                        <div>邮箱账号：</div>
+                        <div><input id="email"
+                                    type="email"
                                     autocomplete="off"
-                                    placeholder="请输入邮箱地址"
-                                    value="<%= data.data.userExtension && data.data.userExtension.bindEmail>0 ? data.data.email:'' %>"
-                                    <%= data.data.userExtension && data.data.userExtension.bindEmail>0?'disabled':'' %> ></div>
+                                    disabled
+                                    value="<%= data.data.email ? data.data.email:'' %>"></div>
                     </div>
                     <div class="item addItemTarget">
                         <div>
                             <select class="otherContact">
-                                <option value="">其他联系方式</option>
-                                <option value="QQ">QQ</option>
-                                <option value="微信">微信</option>
+                                <option value="手机号">手机号</option>
                                 <option value="座机">座机</option>
+                                <option value="微信">微信</option>
+                                <option value="QQ">QQ</option>
                                 <option value="Skype">Skype</option>
                             </select>
                         </div>
@@ -192,11 +196,11 @@
                 </form>
                 <div class="show-info <%= data.data.nickName ? '':'sy-hidden' %>">
                     <div class="item">
-                        <div>手机号码：</div>
+                        <div>手机帐号：</div>
                         <div><%= data.data.telephone %></div>
                     </div>
                     <div class="item">
-                        <div>邮箱帐号：</div>
+                        <div>邮箱账号：</div>
                         <div><%= data.data.email %></div>
                     </div>
                     <% if(data.data.userExtension.contactInfo){ %>
@@ -250,20 +254,31 @@
         if($(target).hasClass('edit')){
             var hiddenEl = $('.hiddenData'),
                 targetDiv = $(target).parents('.am-g').next('.am-g'),
-				isFill = $('input#realName').val();
+				isFill = hiddenEl.attr('data-fill');
+            hiddenEl.attr('data-fill', '1');
             var hiddenData = JSON.parse(hiddenEl.html());
-			if(!isFill){
+            if(!isFill){
 
-			    var userEx = hiddenData.data.userExtension;
+                var userEx = hiddenData.data.userExtension;
 
                 $('#nickName').val(hiddenData.data['nickName']);
                 $('#sex').val(hiddenData.data['sex']);
                 $('#email').val(hiddenData.data['email']);
                 $('#telephone').val(hiddenData.data['telephone']);
 			    $('#realName').val(userEx['realName']);
-                $('#motherTogue').val(userEx['motherTongue']);
                 $('#currencyType').val(userEx['currencyCode']);
                 $('#translateYear').val(userEx['translateYear']);
+
+                if(userEx['motherTongue']){
+                    var motherTongue = userEx['motherTongue'];
+                    $('#motherTogue').find('option').each(function () {
+                        if(motherTongue.indexOf(this.value) > -1){
+                            this.setAttribute('selected', true);
+
+                        }
+                    });
+                    $('.languageOption').trigger('changed.selected.amui');
+                }
 
                 if(userEx['birthday']){
                     $('#birthday').val(userEx['birthday'].split(' ')[0]);
@@ -280,7 +295,7 @@
                     $('#deliverarea').val(address[2]);
                 }
                 if(userEx['contactInfo'] || !userEx['contactInfo']){
-                    var conInfo = JSON.parse(userEx['contactInfo']) || [],
+                    var conInfo = userEx['contactInfo'] && JSON.parse(userEx['contactInfo']) || [],
                         itemStr = '';
                     for(var i = 0, len = conInfo.length; i<len; i++){
                         var item = conInfo[i];
@@ -305,6 +320,10 @@
                 conPutVal = $('.otherContactPut').val();
             if(conTypeVal === '' || conPutVal.trim() === ''){
                 $.warning('请输入联系方式');
+                return false;
+            }
+            if(conTypeVal === '手机号' && !/^1[1-9][0-9]{9}$/.test(conPutVal)){
+                $.warning('请输入正确的手机号');
                 return false;
             }
             var items = $('.addItem');

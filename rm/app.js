@@ -1,4 +1,3 @@
-
 // const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -57,13 +56,21 @@ const pageRoute = require('./routes'),
       pageArticleRoute = require('./routes/articleRoute');
 const pageActivityRoute = require('./routes/activityRoute');
 
+const checkApi = function (req, res, next){
+    res.cookie('ENV', process.env.NODE_ENV, {
+        path: '/',
+        maxAge: 60*60*60,
+      })
+    next()
+}
+
 //使用路由，控制页面跳转、加载
-app.use('/', pageRoute);
-app.use('/order', pageOrderRoute);
-app.use('/personal', pageUserRoute);
-app.use('/p-article', pageUserArticleRoute);
-app.use('/article', pageArticleRoute);
-app.use('/activity', pageActivityRoute);
+app.use('/', checkApi, pageRoute);
+app.use('/order', checkApi, pageOrderRoute);
+app.use('/personal', checkApi, pageUserRoute);
+app.use('/p-article', checkApi, pageUserArticleRoute);
+app.use('/article', checkApi, pageArticleRoute);
+app.use('/activity', checkApi, pageActivityRoute);
 
 //临时文件
 const tempApi = require('./routes/temp');
@@ -102,8 +109,8 @@ app.use(function (err, req, res, next) {
         case 404:
             res.render('shared/404', {
                 title: '404 页面不存在',
-                layout: 'shared/404',
-                mark: ''
+                mark: '',
+                layout: 'shared/404'
             });
             break;
         default:

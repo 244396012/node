@@ -141,7 +141,7 @@ export function hiddenAccount(str) {
     return str.replace(/(\d{3})(\d{4})/, '$1****')
 }
 
-//数组去重（hash）
+//数组去重（hash）(维度o(n))
 Array.prototype.unique = function () {
     const newArr = [],
         tempArr = [];
@@ -151,8 +151,8 @@ Array.prototype.unique = function () {
            newArr.push(item);
        }
     });
-    return newArr;
-};
+    return newArr
+}
 
 //socket连接
 export function connectSocket(url, callback) {
@@ -186,7 +186,27 @@ export function connectSocket(url, callback) {
         console.log("Disconnected");
     }
 
-    connect();
+    connect()
 }
 
+export function formatMoneyTypeEn (type){
+    if(!type) return '￥';
+    switch (type.toLowerCase()){
+        case 'cny': return '￥';
+        case 'usd': return '＄';
+        case 'eur': return '€';
+        case 'gbp': return '￡';
+        default: return '￥';
+    }
+}
 
+export function formatMoneyType (type){
+    if(!type) return '人民币';
+    switch (type.toLowerCase()){
+        case 'cny': return '人民币';
+        case 'usd': return '美元';
+        case 'eur': return '欧元';
+        case 'gbp': return '英镑';
+        default: return '人民币';
+    }
+}

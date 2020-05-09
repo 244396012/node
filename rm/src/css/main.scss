@@ -50,7 +50,6 @@ body,.wrapper{
   }
   .nav-login{
     height: 70px;
-    padding-right: 22px;
     &>a.am-btn{
       margin-top: 20px;
       padding: 6px 22px;
@@ -132,6 +131,10 @@ body,.wrapper{
       color: #fff;
       border-radius: 10px;
     }
+    .header-dropDown:before{
+      left: auto;
+      right: 15px;
+    }
   }
   .header-dropDown{
     visibility: hidden;
@@ -149,7 +152,7 @@ body,.wrapper{
     }
     &.nav_dropDown_Header{
       width: 100px;
-      right: 20px;
+      right: 130px;
       &>a{
         margin-bottom: 8px;
         font-size: 16px;
@@ -191,6 +194,7 @@ body,.wrapper{
 .sy-font-sm{font-size: 12px;}
 .sy-font-fm{font-family: "Microsoft yahei", Verdana, Geneva, sans-serif}
 .sy-bold{font-weight: 700;}
+.sy-bold-normal{font-weight: 400;}
 .sy-link{ color: #36A1B8; }
 .sy-left{text-align: left!important;}
 .sy-center{text-align: center!important;}
@@ -466,13 +470,13 @@ input[type=radio]{vertical-align: text-top}
   font-size: 14px;
 }
 .my-tip{
-  position:fixed;
-  z-index:10001;
-  left:50%;
-  top:35%;
-  transform:translate(-50%,-50%);
+  position: fixed;
+  z-index: 10001;
+  left: 50%;
+  top: 35%;
+  transform: translate(-50%,-50%);
   min-width: 150px;
-  padding: 15px 20px;
+  padding: 8px 20px;
   border-radius: 3px;
   font-size: 16px;
   text-align: center;

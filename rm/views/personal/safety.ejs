@@ -55,7 +55,7 @@
                                 </select>：
                             </div>
                             <div>
-                                <input id="telPhone" type="tel" required disabled placeholder="未加载设置方式">
+                                <input id="telPhone" type="tel" required disabled placeholder="未选择设置方式">
                                 <button type="button"
                                         class="btn btn-default sy-btn sy-btn-green sy-btn-sh safety"
                                         onclick="__api__.getValidateCode(this)">获取验证码</button>
@@ -98,10 +98,10 @@
                 <div class="add-form">
                     <h3 style="font-size: 15px;">邮箱绑定</h3>
                     <form class="sy-personal-form sy-personal-base">
-                        <div class="item code updateCode sy-hidden">
+                        <div class="item code updateCode bindingMail sy-hidden">
                             <div>邮箱地址：</div>
                             <div>
-                                <input id="updateEmail" type="email" disabled>
+                                <input type="email" disabled>
                                 <button id="updateEmailBtn" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">重新绑定</button>
                             </div>
                         </div>
@@ -115,8 +115,8 @@
                             </div>
                         </div>
                         <div class="item">
-                            <div>输入验证码：</div>
-                            <div><input id="emailCode" type="text" required placeholder="请确认验证码"/></div>
+                            <div>邮箱验证码：</div>
+                            <div><input id="emailCode" type="text" required placeholder="请确认邮箱验证码"/></div>
                         </div>
                         <div class="item">
                             <div></div>
@@ -124,7 +124,39 @@
                                 <button data-sy-confirm
                                         type="button"
                                         class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
-                                        onclick="__api__.bindingEmail(this)">提交</button>
+                                        onclick="__api__.bindingAccount(this)">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                    <h3 style="font-size: 15px;">绑定手机号</h3>
+                    <form class="sy-personal-form sy-personal-base">
+                        <div class="item code updateCode bindingTel sy-hidden">
+                            <div>手机号：</div>
+                            <div>
+                                <input type="tel" disabled>
+                                <button id="updatePhoneBtn" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">重新绑定</button>
+                            </div>
+                        </div>
+                        <div class="item code">
+                            <div>新手机号：</div>
+                            <div>
+                                <input class="bindingPhone" type="tel" required placeholder="请输入新手机号">
+                                <button type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
+                                        onclick="__api__.getPhoneCode(this)">获取验证码</button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div>短信验证码：</div>
+                            <div><input class="bindingPhoneCode" type="text" required placeholder="请确认短信验证码"/></div>
+                        </div>
+                        <div class="item">
+                            <div></div>
+                            <div>
+                                <button data-sy-confirm
+                                        type="button"
+                                        class="btn btn-default sy-btn sy-btn-green sy-btn-sh"
+                                        onclick="__api__.bindingAccount(this, 1)">提交</button>
                             </div>
                         </div>
                     </form>
@@ -160,11 +192,12 @@
             $(this).addClass('sy-hidden');
         });
 
-        $('#updateEmailBtn').click(function () {
-            var elDiv = $('.updateCode');
+        $('#updateEmailBtn,#updatePhoneBtn').click(function () {
+            var elDiv = $(this).parents('.updateCode');
             elDiv.addClass('sy-hidden');
             elDiv.nextAll('.item').removeClass('sy-hidden');
         });
 
+        __bundle__.getQueryString('st') && $('label[data-sy-type="balance-pwd"]').click();
     }(jQuery))
 </script>

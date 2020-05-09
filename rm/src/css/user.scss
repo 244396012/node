@@ -344,7 +344,12 @@ header{
           height: 144px;
           padding-bottom: 30px;
         }
-        p{margin: 0}
+        p{
+          margin: 0;
+          position: absolute;
+          right: 0px;
+          bottom: -22px;
+        }
       }
     }
     div.item-date-two{
@@ -551,6 +556,12 @@ header{
     }
     tr.empty>td{
       color: #999;
+    }
+    &.exact{
+      td:first-child,
+      td:nth-child(2){
+        width: auto;
+      }
     }
   }
 
@@ -933,6 +944,9 @@ header{
     }
     .sy-btn{
       margin-right: 15px;
+    }
+    form.sy-personal-form div.item-date-two>.am-form-field{
+      width: 200px!important;
     }
     .sy-resume-title{
       color: #2FC9D0;
@@ -1856,25 +1870,28 @@ header{
     .income-detail{
       div.income-filter{
         padding: 15px 0 10px;
-      }
-      label.income-filter{
-        display: inline-block;
-        width: 64px;
-        height: 26px;
-        line-height: 24px;
-        margin-left: 3px;
-        border: 1px solid #bfbfbf;
-        border-radius: 3px;
-        text-align: center;
-        &.active{
-          color: #fff;
-          background: $baseColorDeep;
-          border-color: $baseColorDeep;;
+        label{
+          margin-right: 5px;
         }
-        &:not(.active):hover{
-          cursor: pointer;
-          border-color: $baseColorDeep;
-          color: $baseColorDeep;
+        input{
+          display: inline;
+          height: 32px;
+          line-height: 32px;
+          width: 110px;
+          padding: 0 8px;
+          border-radius: 2px;
+          outline: none;
+          border: 1px solid #BFBFBF;
+          color: #333;
+          font-size: 14px;
+          &:focus{
+            border-color: $baseColor;
+          }
+        }
+        button{
+          height: 32px;
+          line-height: 30px;
+          border-radius: 0;
         }
       }
     }

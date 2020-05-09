@@ -60,7 +60,9 @@
             }
             setTimeout(function () {
                 if(url){
-                    if(type.indexOf('订单') > -1 && url.indexOf('/order') < 0){
+					if(url.indexOf('/appraise') > 0){
+						window.open(url)
+					}else if(type.indexOf('订单') > -1 && url.indexOf('/order') < 0){
                         window.open(__api__.orderApi+url, tk)
                     }else {
                         window.open(url, '_blank')

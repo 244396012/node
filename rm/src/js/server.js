@@ -15,7 +15,10 @@ import './server_freelancer';
 import './activity';
 
 //url 对外api接口
-(function (api, global) {
+;(function (api, global) {
+
+    "use strict";
+    console.log(typeof asd)
 
     api.baseUrl = baseUrl;
     api.loginUrl = loginUrl;
@@ -29,7 +32,7 @@ import './activity';
 })(window.__api__||{}, window);
 
 // 个人中心 对外api调用
-(function (global){
+;(function (global){
 
     const __api__ = {
         getBaseInfo: serverPersonal.getBaseInfo,
@@ -64,7 +67,8 @@ import './activity';
         getValidateCode: serverPersonal.getValidateCode,
         settlePwd: serverPersonal.settlePwd,
         getEmailCode: serverPersonal.getEmailCode,
-        bindingEmail: serverPersonal.bindingEmail
+        getPhoneCode: serverPersonal.getPhoneCode,
+        bindingAccount: serverPersonal.bindingAccount
     };
 
     //注册到global全局
@@ -77,7 +81,7 @@ import './activity';
 }(window));
 
 // 订单中心 对外api
-(function (api, global) {
+;(function (api, global) {
 
     api.receiveOrder = serverOrder.receiveOrder;
     api.getOrderStatusNum = serverOrder.getOrderStatusNum;
@@ -92,7 +96,7 @@ import './activity';
 })(window.__api__||{}, window);
 
 // 文章管理 对外api
-(function (api, global) {
+;(function (api, global) {
 
     api.previewArticle = serverArticle.previewArticle;
     api.releaseArticle = serverArticle.releaseArticle;

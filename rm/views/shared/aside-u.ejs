@@ -47,9 +47,9 @@
         <li class="sy-user-title">其他设置</li>
         <li><a href="/personal/advice">意见反馈</a></li>
     </ul>
-    <ul class="sy-personal sy-user-menu sy-center">
-        <li><a class="application" href="/personal/application">邀请注册 领红包！</a></li>
-    </ul>
+    <!--<ul class="sy-personal sy-user-menu sy-center">-->
+        <!--<li><a class="application" href="/personal/application">邀请注册 领红包！</a></li>-->
+    <!--</ul>-->
 </aside>
 <script>
     (function (window, document) {
@@ -76,6 +76,8 @@
             }
             baseData.isTeam === 1 && (getEl('a.myResume').innerHTML = '技能证书');
 
+            /*
+
             //滑动时，固定左侧“个人中心”导航栏
             var aside = document.querySelector('#userMenuAside'),
                 scroll = 0;
@@ -87,7 +89,7 @@
                     aside.classList.remove('aside-u-fixed')
                 }
             }, 20)
-
+*/
         }, false);
 
         getEl('a.myBaseInfo').onclick = function (e) {

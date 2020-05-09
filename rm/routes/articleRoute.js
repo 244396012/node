@@ -98,14 +98,14 @@ routes.get('/detail', function (req, res){
 
 /*
 *
-* 啄语者说
+* 译员风采
 *
 * */
 //主页
 routes.get('/pecker', function(req, res){
     res.render('article/pecker', {
         mark: 'information',
-        title: '啄语者说',
+        title: '译员风采',
         layout: 'shared/layout'
     });
 });

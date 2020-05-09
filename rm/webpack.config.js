@@ -24,9 +24,11 @@ function getCSSEntries(config) {
 
 module.exports = [
     //转换typescript
-    {
+    {   
+        watch: true, // 监听文件修改，默认false
         watchOptions: {
-            ignored: /node_modules/
+            ignored: /node_modules/,
+            aggregateTimeout: 300 // 300ms后再去执行，默认值
         },
         entry: {
             bundle: './src/ts/test.ts'
@@ -47,8 +49,10 @@ module.exports = [
     },
 // 打包css
     {
+        watch: true,
         watchOptions: {
-            ignored: /node_modules/
+            ignored: /node_modules/,
+            aggregateTimeout: 300
         },
         devtool: 'cheap-module-eval-source-map',
         context: path.resolve(__dirname),
@@ -80,8 +84,10 @@ module.exports = [
     },
 // 打包js
     {
+        watch: true,
         watchOptions: {
-            ignored: /node_modules/
+            ignored: /node_modules/,
+            aggregateTimeout: 300 
         },
         mode: "production", 
         //入口文件的配置项

@@ -15,7 +15,7 @@
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
                                 <div><i class="required">*</i>真实姓名：</div>
-                                <div><input class="realName idcardName" type="text" disabled required placeholder="未加载真实姓名"></div>
+                                <div><input class="realName" type="text" disabled required placeholder="未加载真实姓名"></div>
                             </div>
                             <div class="item">
                                 <div><i class="required">*</i>证件类型：</div>
@@ -82,7 +82,7 @@
                         </div>
                     </div>
                     <div class="show-info bankPay sy-default-transition sy-show-transition"></div>
-                    <h3>支付宝结算</h3>
+                    <h3>支付宝结算<span class="sy-orange sy-font-sm sy-bold-normal">（此结算方式与签订的协议有关，若无此项，可不填写）</span></h3>
                     <div class="add-form alipayForm">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <div class="show-info aliPay sy-default-transition sy-show-transition"></div>
-                    <h3>PayPal结算</h3>
+                    <h3>PayPal结算<span class="sy-orange sy-font-sm sy-bold-normal">（此结算方式只适合外币结算，若无此项，可不填写）</span></h3>
                     <div class="add-form PaypalForm">
                         <form class="sy-personal-form sy-personal-base">
                             <div class="item">
@@ -140,13 +140,10 @@
                     <div class="item">
                         <div><i class="required">*</i>证件类型：</div>
                         <div>
-                            <select class="teamCardType" required onchange="changeCard(this, $('.hideEl'))">
-                                <option value="身份证">身份证</option>
-                                <option value="公司账户">公司账户</option>
-                            </select>
+                            <select class="teamCardType" required placeholder="请选择证件类型"></select>
                         </div>
                     </div>
-                    <div class="item hideEl">
+                    <div class="item cardEl">
                         <div><i class="required">*</i>证件号码：</div>
                         <div><input class="identifyId" type="text" required disabled placeholder="未加载证件号码"/></div>
                     </div>
@@ -177,6 +174,7 @@
             <div class="show-info teamPay">
 
             </div>
+			<input class="isInvoice" type="hidden" value="" />
         </div>
     </div>
 </div>
@@ -188,17 +186,8 @@
 
         $('div.identification').on('click',function (e) {
             var target = e.target;
-            // 显示/隐藏身份证号码
-            if($(target).hasClass('showIDCard')) {
-                var txt = $(target).text();
-                target.innerText = txt === '隐藏信息' ? '查看完整信息' : '隐藏信息';
-                $('div.certificateNum').each(function () {
-                    $(this).hasClass('sy-hidden')
-                        ? $(this).removeClass('sy-hidden')
-                        : $(this).addClass('sy-hidden');
-                });
             // 收缩、展示内容
-            }else if($(target).hasClass('toggle')){
+            if($(target).hasClass('toggle')){
                 var outDiv = $(target).parents('.identify-item'),
                     targetDiv = outDiv.find('.identify-cnt');
                 if($(target).hasClass('am-icon-angle-down')){
@@ -230,19 +219,16 @@
                     addForm.removeClass('sy-hidden');
                     addForm.find('button[data-sy-confirm]').attr('data-u-id', data.id);
                     if(addForm.hasClass('teamForm')){
-                        var hideEl = $('.hideEl'),
-                            divEl = $('div.teamTip'),
+                        var divEl = $('div.teamTip'),
                             spanEl = $('span.teamTip');
                         if(data.certificateType !== '身份证'){
-                            hideEl.addClass('sy-hidden');
+                            $('.cardEl').addClass('sy-hidden');
                             divEl.addClass('sy-hidden');
                             spanEl.removeClass('sy-hidden');
                         }else{
-                            hideEl.removeClass('sy-hidden');
                             divEl.removeClass('sy-hidden');
                             spanEl.addClass('sy-hidden');
                         }
-                        addForm.find('.teamCardType').val(data.certificateType);
                         addForm.find('.teamBankName').val(data.realName);
                         addForm.find('.teamBankNo').val(data.settleAccount);
                         addForm.find('.teamBankDeposit').val(data.bankDeposit);
@@ -260,37 +246,34 @@
                         addForm.find('.certificateType').val(data.cardType);
                     }
                 }
+            // 显示/隐藏身份证号码
+            }else if($(target).hasClass('showIDCard')) {
+                var tarEl = $('div.certificateNum'),
+                    data = tarEl.attr('data'),
+                    btnTxt = $(target).text();
+                if(btnTxt === '隐藏信息'){
+                    target.innerText = '查看完整信息';
+                    tarEl.html(data.replace(/(\w{3})(\w*)/, function (reg, $1, $2) {
+                        return $1 + $2.replace(/\w/g, '*')
+                    }));
+                }else{
+                    target.innerText = '隐藏信息';
+                    tarEl.html(data);
+                }
             // 显示/隐藏(银行卡、支付宝、Paypal账号)
             }else if($(target).hasClass('iconShow')){
-                var tarEl = $(target).prev('span');
-                var dataEl = $(target).parents('.info-item').find('.syHiddenData'),
-                    data = JSON.parse(dataEl.text());
+                var tarEl = $(target).prev('span'),
+                    data = tarEl.attr('data');
                 if($(target).hasClass('am-icon-eye-slash')){
-                    tarEl.html(data.settleAccount);
+                    tarEl.html(data);
                     $(target).addClass('am-icon-eye').removeClass('am-icon-eye-slash');
                 }else{
-                    tarEl.html(data.settleAccountFuzzy);
+                    tarEl.html(data.replace(/(\w{1})(\w*)/, function (reg,$1,$2) {
+                        return $1 + $2.replace(/\w/g, "*")
+                    }))
                     $(target).addClass('am-icon-eye-slash').removeClass('am-icon-eye');
                 }
             }
         })
     })(jQuery)
-
-    function changeCard(_this, ele){
-        var val = _this.value,
-            nameEl = $('.teamBankName'),
-            divEl = $('div.teamTip'),
-            spanEl = $('span.teamTip');
-        if(val === '身份证'){
-            ele.removeClass('sy-hidden');
-            nameEl.val(nameEl.attr('data-name'));
-            divEl.removeClass('sy-hidden');
-            spanEl.addClass('sy-hidden');
-            return null;
-        }
-        nameEl.val('');
-        divEl.addClass('sy-hidden');
-        spanEl.removeClass('sy-hidden');
-        ele.addClass('sy-hidden')
-    }
 </script>

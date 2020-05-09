@@ -29,7 +29,7 @@
                             <div class="item">
                                 <div><i class="required">*</i>学历：</div>
                                 <div>
-                                    <select id="degree" required placeholder="请选择学历">
+                                    <select id="degree" class="extra" required placeholder="请选择学历">
                                         <option value="博士">博士</option>
                                         <option value="硕士">硕士</option>
                                         <option value="本科" selected>本科</option>
@@ -45,7 +45,7 @@
                         </form>
                         <div class="sy-btns sy-font-md">
                             <button data-sy-cancel type="button" class="btn btn-default sy-btn sy-btn-default sy-btn-sh">取消</button>
-                            <button data-sy-confirm id="degreeBtn_Resume" type="button" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
+                            <button data-sy-confirm type="button" id="degreeBtn_Resume" class="btn btn-default sy-btn sy-btn-green sy-btn-sh">保存</button>
                         </div>
                     </div>
                     <div class="show-info sy-default-transition sy-show-transition"></div>
@@ -348,11 +348,10 @@
                     formDiv = outDiv.find('.add-form');
                 formDiv.removeClass('sy-hidden');
         //取消保存
-            }else if(target.nodeName === 'BUTTON' && $(target).attr('data-sy-cancel') === ''){
+            }else if(target.nodeName === 'BUTTON' && typeof $(target).attr('data-sy-cancel') === 'string'){
                 var outDiv = $(target).parents('.add-form'),
                     targerEl = outDiv.find('input,select,textarea');
                 $(target).next().removeAttr('data-u-id');
-                outDiv.addClass('sy-hidden');
                 targerEl.each(function () {
                     if(!$(this).hasClass('extra')){
                         $(this).val('');
@@ -361,6 +360,10 @@
                         $(this).next().html(`<span>0</span>/300`);
                     }
                 });
+                if(outDiv.next('div').children().length < 1){
+                    return null
+                }
+                outDiv.addClass('sy-hidden');
         //取消标签
             }else if(target.nodeName === 'BUTTON' && $(target).attr('data-sy-reset') === ''){
                 var parentForm = $(target).parents('.add-form');

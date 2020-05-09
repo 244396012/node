@@ -7,11 +7,23 @@
                     <div class="filter sy-hidden">
                         <a class="item active" href="#" data-event-click>待领取<span>0</span></a>
                         <a class="item" href="#10" data-event-click>进行中<span>0</span></a>
-                        <a class="item" href="#14" data-event-click>待审核<span>0</span></a>
+                        <!--<a class="item" href="#14" data-event-click>待审核<span>0</span></a>-->
                         <a class="item" href="#25" data-event-click>已完成<span>0</span></a>
                         <a class="item" href="#21" data-event-click>退稿/终止<span>0</span></a>
                     </div>
                 </nav>
+                <div class="search-box md searchBox sy-hidden">
+                    <label for="">项目编号：
+                        <input data-cd="01" data-fd="projectId" class="taskNo md" type="text" placeholder="输入项目编号"></label>
+                    <label for="">任务编号：
+                        <input data-cd="01" data-fd="taskId" class="taskNo md" type="text" placeholder="输入任务编号"></label>
+                    <label for="">完成时间：
+                        <input data-cd="11" data-fd="realCompletTimeQuery" type="text" class="am-form-field comStartTime" placeholder="选择开始时间"> -
+                        <input data-cd="14" data-fd="realCompletTimeQuery" type="text" class="am-form-field comEndTime" placeholder="选择结束时间">
+                    </label>
+                    <label for=""><button class="sy-btn sy-btn-green sy-btn-sm searchBtn">搜索</button></label>
+                </div>
+                <div class="totalBox sy-right" style="padding-bottom: 10px"></div>
                 <section class="cnt orderContent">
                     <div class="empty"></div>
                 </section>
@@ -23,17 +35,25 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script>
     (function (window, document, $) {
+
+        laydate.render({ elem: '.comStartTime' });
+        laydate.render({ elem: '.comEndTime' });
 
         var unclaimedUrl = '/DTPTask/getNotReceiveTask', //未领取
             claimedUrl = '/transTask/getTaskList', //除未领取
             rowCountUrl = '/transTask/allTransListCount'; //各状态条目
         var hash = location.hash;
 
+        var searchBox = $('.searchBox'),
+            searchBtn = $('.searchBtn');
+
         $('.filter>a.item').each(function () {
             if($(this).attr('href') === hash){
                 $(this).addClass('active').siblings().removeClass('active');
+                hash === '#25' && searchBox.removeClass('sy-hidden')
             }
         })
 
@@ -47,9 +67,7 @@
             url: unclaimedUrl,
             data: {
                 "page": 1,
-                "limit": 5,
-                "sort":'requireTime',
-                "desc":'desc'
+                "limit": 5
             }
         });
 
@@ -57,7 +75,6 @@
             el: $('.order_PageNo')[0],
             type: 4
         })
-
 
         var pageOrder = document.getElementsByClassName('order_page').item(0),
             container = document.getElementsByClassName('orderContent').item(0),
@@ -75,13 +92,18 @@
                     $.warning('请稍等，正在获取数据');
                     return false;
                 }
+                $('.totalBox').empty()
             }
             //切换“状态”
             if(target.nodeName === 'A' && $(target).hasClass('item')) {
+                var getClickHash = target.getAttribute('href').slice(1);
+                searchBox.addClass('sy-hidden');
                 pageEl.value = 1;
                 container.innerHTML = '';
-                location.hash = target.getAttribute('href').slice(1);
+                location.hash = getClickHash;
                 $(target).addClass('active').siblings().removeClass('active');
+                getClickHash === '25' && searchBox.removeClass('sy-hidden');
+                $('button.order_LoadMoreBtn').removeAttr('data-sh')
             //加载更多
             }else if($(target).hasClass('order_LoadMoreBtn')){
                 target.setAttribute('disabled', true);
@@ -92,11 +114,26 @@
 
                 filterConfig({
                     el: $('.order_PageNo')[0],
-                    type: 4
+                    type: 4,
+                    isSearch: $('button.order_LoadMoreBtn').attr('data-sh')
                 })
             }
         }, false);
-        
+
+        //"已完成"状态，可搜索
+        searchBtn.click(function () {
+            $('input.order_PageNo').val('1');
+            $('.order_LoadMoreBtn').attr('data-sh', '1');
+            $('.orderContent').empty();
+            $('.totalBox').empty();
+            filterConfig({
+                el: $('.order_PageNo')[0],
+                type: 4,
+                isSearch: $('button.order_LoadMoreBtn').attr('data-sh')
+            })
+        });
+
+        //接口配置
         function filterConfig(config) {
             var status = location.hash ? location.hash.slice(1) : '',
                 type = config.type,
@@ -113,17 +150,35 @@
                     "desc":'desc'
                 };
             }else{
+                var defaultCondition = {
+                    "page":{
+                        "page": config.el.value,
+                        "limit": 5,
+                        "sort": status === '25' ? 'realCompletTime' : 'requireTime',
+                        "desc": 'desc'
+                    },
+                    "status": status,
+                    "type": type
+                }
+                //“已完成”状态，添加搜索条件
+                if(config.isSearch){
+                    var conditionArr = [];
+                    $('.searchBox input').each(function () {
+                        this.value && conditionArr.push({
+                            condition: this.getAttribute('data-cd'),
+                            field: this.getAttribute('data-fd'),
+                            value: this.value
+                        })
+                    });
+                    defaultCondition.conditionVo = {
+                        conditionType: 'and',
+                        queryVos: conditionArr
+                    }
+                }
                 url = claimedUrl;
                 method = 'post';
                 data = {
-                    jsonStr: JSON.stringify({
-                        "page":{
-                            "page": config.el.value,
-                            "limit": 5
-                        },
-                        "status": status,
-                        "type": type
-                    })
+                    jsonStr: JSON.stringify(defaultCondition)
                 }
             }
             __api__.getOrderDtp({

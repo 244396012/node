@@ -1,13 +1,13 @@
 <div class="order_page">
     <div class="content">
         <div class="am-g">
-            <div class="am-u-lg-8 content-left">
+            <div class="am-u-lg-8 content-left extra">
                 <nav class="nav">
                     <% include order-nav.ejs %>
                     <div class="filter sy-hidden">
                         <a class="item active" href="#" data-event-click>待领取<span>0</span></a>
                         <a class="item" href="#10" data-event-click>进行中<span>0</span></a>
-                        <a class="item extra sy-hidden" href="#20" data-event-click>已提交<span>0</span></a>
+                        <!--<a class="item extra sy-hidden" href="#20" data-event-click>已提交<span>0</span></a>-->
                         <a class="item" href="#25" data-event-click>已完成<span>0</span></a>
                         <a class="item extra sy-hidden" href="#21" data-event-click>退稿/终止<span>0</span></a>
                         <div class="sy-float-r">
@@ -19,7 +19,29 @@
                             </label>
                         </div>
                     </div>
+                    <div class="explain sy-font-sm sy-orange"
+                         title="点击查看"
+                         onclick="$.toolinfo({
+                            title: '图书翻译类型说明',
+                            txt: __bundle__.promptTxt.bookExplain
+                         })">图书翻译类型说明</div>
                 </nav>
+                <div class="search-box md searchBox sy-hidden">
+                    <label for="">项目编号：
+                        <input data-cd="01" data-fd="projectId" class="taskNo md" type="text" placeholder="输入项目编号"></label>
+                    <label for="">任务编号：
+                        <input data-cd="01" data-fd="taskId" class="taskNo md" type="text" placeholder="输入任务编号"></label>
+                    <label for="">完成时间：
+                        <input data-cd="11" data-fd="realCompletTimeQuery" type="text" class="am-form-field comStartTime" placeholder="选择开始时间"> -
+                        <input data-cd="14" data-fd="realCompletTimeQuery" type="text" class="am-form-field comEndTime" placeholder="选择结束时间">
+                    </label>
+                    <label for="">结算时间：
+                        <input data-cd="11" data-fd="jsTimeQuery" type="text" class="am-form-field settleStartTime" placeholder="选择开始时间"> -
+                        <input data-cd="14" data-fd="jsTimeQuery" type="text" class="am-form-field settleEndTime" placeholder="选择结束时间">
+                    </label>
+                    <label for=""><button class="sy-btn sy-btn-green sy-btn-sm searchBtn">搜索</button></label>
+                </div>
+                <div class="totalBox sy-right" style="padding-bottom: 10px"></div>
                 <section class="cnt orderContent">
                     <div class="empty"></div>
                 </section>
@@ -28,23 +50,17 @@
                     <button class="sy-btn order_LoadMoreBtn sy-hidden" type="button" data-event-click>加载更多</button>
                 </div>
             </div>
-            <div class="am-u-lg-4 content-right">
-                <div class="h-40"></div>
-                <div class="detail">
-                    <div class="title">图书翻译类型说明</div>
-                    <div class="cnt">
-                        <span>图书试译</span>
-                        <p>图书翻译项目持续周期长、能力要求高，译员正式接单之前需进行试译。试译片段均节选自待翻译图书，试译稿件质量直接影响译员是否能够接单。</p>
-                        <span>图书翻译</span>
-                        <p>图书翻译是传统的笔译项目最早的服务内容之一。图书翻译项目涵盖各类书籍杂志，可分为社会科学和自然科学类，图书翻译内容包括小说、儿童读物、非小说类、专业书、工具书、手册、书目、剧本、报告、日记、书集、摄影绘画集，主要语种含有中文、英语、西班牙语、德语、意大利语、葡萄牙语、马来西亚语等中外语种。</p>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
+<script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script>
     (function (window, document, $) {
+
+        laydate.render({ elem: '.comStartTime' });
+        laydate.render({ elem: '.comEndTime' });
+        laydate.render({ elem: '.settleStartTime', type: 'month' });
+        laydate.render({ elem: '.settleEndTime', type: 'month' });
 
         (location.hash === '#20' || location.hash === '#21') && (location.hash = '');
 
@@ -56,9 +72,13 @@
             rowCountUrl_try = '/tryTransTask/allTransListCount'; //试译各状态条目
         var hash = location.hash;
 
+        var searchBox = $('.searchBox'),
+            searchBtn = $('.searchBtn');
+
         $('.filter>a.item').each(function () {
             if($(this).attr('href') === hash){
                 $(this).addClass('active').siblings().removeClass('active');
+                hash === '#25' && $('input[name=fileType]:checked')[0].value === '2' && searchBox.removeClass('sy-hidden')
             }
         });
 
@@ -95,7 +115,9 @@
                 target = event.target || event.srcElement;
             var extraEl = $(".filter>a.item.extra"),
                 checkedEl = $('input[name=fileType]:checked');
-            var type = "1", url = '', method = 'get';
+            var type = checkedEl[0].value,
+                url = '',
+                method = 'get';
             //包含属性'data-event-click'的元素触发事件
             if(target.getAttribute('data-event-click') !== null){
                 if($('.filter').attr('disabled')){
@@ -103,30 +125,41 @@
                     $.warning('请稍等，正在获取数据');
                     return false;
                 }
-                type = checkedEl[0].value;
+                $('.totalBox').empty()
             }
             //切换“订单状态”
             if(target.nodeName === 'A' && $(target).hasClass('item')) {
+                var getClickHash = target.getAttribute('href').slice(1);
+                searchBox.addClass('sy-hidden');
                 pageEl.value = 1;
                 container.innerHTML = '';
-                location.hash = target.getAttribute('href').slice(1);
+                location.hash = getClickHash;
                 $(target).addClass('active').siblings().removeClass('active');
+                type === '2' && getClickHash === '25' && searchBox.removeClass('sy-hidden');
+                $('button.order_LoadMoreBtn').removeAttr('data-sh')
             //切换“订单类型”
             }else if(target.nodeName === 'INPUT' && ($(target).hasClass('am-ucheck-checkbox') || $(target).hasClass('am-ucheck-radio'))) {
                 pageEl.value = 1;
                 container.innerHTML = '';
-                type === "1" ? extraEl.addClass('sy-hidden') : extraEl.removeClass('sy-hidden');
                 __api__.getOrderStatusNum({
                     url: type === "1" ? rowCountUrl_try : rowCountUrl,
                     type: type === "1" ? '' : '3'
                 });
+                $('button.order_LoadMoreBtn').removeAttr('data-sh');
                 //当在“已提交、退稿状态时”，切换到试译，重置hash
                 if(location.hash === '#20' || location.hash === '#21'){
                     location.hash = '';
                     $('.filter>a.item').eq(0).addClass('active').siblings().removeClass('active');
                 }
-                //加载更多
-            }else if($(target).hasClass('order_LoadMoreBtn')){
+                //图书翻译时，可搜索
+                if(type === "1"){
+                    extraEl.addClass('sy-hidden');
+                    searchBox.addClass('sy-hidden')
+                }else{
+                    extraEl.removeClass('sy-hidden');
+                    location.hash === '#25' && searchBox.removeClass('sy-hidden')
+                }
+            }else if($(target).hasClass('order_LoadMoreBtn')){//加载更多
                 target.setAttribute('disabled', true);
                 target.innerHTML = '<i class="am-icon-spinner am-icon-pulse"></i>';
             }
@@ -137,11 +170,28 @@
                     el: $('.order_PageNo')[0],
                     type: type,
                     method: method,
-                    url: url
+                    url: url,
+                    isSearch: $('button.order_LoadMoreBtn').attr('data-sh')
                 })
             }
-        }, false)
+        }, false);
 
+        //"已完成"状态 && 图书翻译，可搜索
+        searchBtn.click(function () {
+            $('input.order_PageNo').val('1');
+            $('.order_LoadMoreBtn').attr('data-sh', '1');
+            $('.orderContent').empty();
+            $('.totalBox').empty();
+            filterConfig({
+                el: $('.order_PageNo')[0],
+                type: '3',
+                method: 'POST',
+                url: claimedUrl,
+                isSearch: $('button.order_LoadMoreBtn').attr('data-sh')
+            })
+        });
+
+        //接口配置
         function filterConfig(config) {
             var status = location.hash ? location.hash.slice(1) : '',
                 type = config.type,
@@ -168,17 +218,35 @@
                     url = unclaimedUrl;
                     reqData.type = '3';
                 }else{
+                    var defaultCondition = {
+                        "page":{
+                            "page": config.el.value,
+                            "limit": 5,
+                            "sort": status === '25' ? 'realCompletTime' : 'requireTime',
+                            "desc": 'desc'
+                        },
+                        "status": status,
+                        "type": '3'
+                    }
+                    //“已完成”状态 && 图书翻译，添加搜索条件
+                    if(config.isSearch){
+                        var conditionArr = [];
+                        $('.searchBox input').each(function () {
+                            this.value && conditionArr.push({
+                                condition: this.getAttribute('data-cd'),
+                                field: this.getAttribute('data-fd'),
+                                value: this.value
+                            })
+                        });
+                        defaultCondition.conditionVo = {
+                            conditionType: 'and',
+                            queryVos: conditionArr
+                        }
+                    }
                     method = 'POST';
                     url = claimedUrl;
                     reqData = {
-                        jsonStr: JSON.stringify({
-                            "page":{
-                                "page": config.el.value,
-                                "limit": 5
-                            },
-                            "status": status,
-                            "type": '3'
-                        })
+                        jsonStr: JSON.stringify(defaultCondition)
                     }
                 }
             }

@@ -162,7 +162,7 @@ import './modal';
                 let date = new Date(),
                     moreDate = date.getTime() + 24*60*60*1000;
                 sessionStorage.setItem('sy_rm_client_access_token', resLog.access_token);
-                document.cookie = "sy_rm_client_tk="+ resLog.access_token + ";expires=" + new Date(moreDate);
+                document.cookie = "sy_rm_client_tk="+ resLog.access_token + ";expires=" + new Date(moreDate)+';';
                 //登录成功后，再获取userId
                 getResponse({
                     baseUrl: baseUrl,
@@ -178,7 +178,6 @@ import './modal';
                             userCode: user.userCode,
                             nickName: user.nickName,
                             realName: user.userExtension.realName,
-                            phone: user.telephone,
                             picture: user.picturePath,
                             receipt: user.userExtension.receipt,
                             isTeam: user.userExtension.wheatherTeam
@@ -193,7 +192,7 @@ import './modal';
                             }else{
                                 location.href = '/personal/';
                             }
-                        }, 500);
+                        }, 500)
                     }
                 });
             }
@@ -260,7 +259,7 @@ import './modal';
                 $.error(res.message);
             }
             $(_this).removeAttr('disabled').html('下一步');
-        });
+        })
     };
 // 2、第二步，重置密码
     const forgetPwdStep_2 = function (_this) {
@@ -305,7 +304,7 @@ import './modal';
                 $.warning(res.message);
             }
             $(_this).removeAttr('disabled').html('提 交');
-        });
+        })
     };
 
     $('.forgetPwdStepBtn_1_acc').click(function () {

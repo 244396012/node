@@ -7,14 +7,15 @@
 * */
 import { basePMUrl, orderApi, orderOtherApi } from "./interceptor";
 import { getResponse } from "./asyncAjax";
+import { formatMoneyTypeEn, formatMoneyType } from './utils';
 import './modal';
 
 const orderServer = (function (global, document, $, undefined) {
 
-    'use strict';
+    'use strict'; 
 
     function isEmpty(str) {
-        return str || '--';
+        return typeof(str) === "number" ? str : str || '--';
     }
 
     //证件类型
@@ -146,7 +147,7 @@ const orderServer = (function (global, document, $, undefined) {
         }).then(res => {
             const unClaimed = config.data.type;
             const tempJson = config.data.jsonStr && JSON.parse(config.data.jsonStr) || {},
-                isOn = +tempJson.status === 10;
+                isOn = tempJson.status === '10';
             const tk = sessionStorage.getItem('sy_rm_client_access_token');
             pageNo <= 1 && $('section.cnt.orderContent').empty();
             if(res.success){
@@ -155,12 +156,12 @@ const orderServer = (function (global, document, $, undefined) {
                 let result = res.data.list ? res.data.list : [];
                 unClaimed && $('.filter>a.item').eq(0).find('span').html(res.data.totalRow);
                 result.forEach(item => {
-                    let totalPrice = '', totalWork = '';
+                    let unitPrice = '', totalWork = '';
                     let operateStr = '';
                     //文档翻译
                     if(+item.orderType === 1){
-                        totalPrice = `<em>￥${isEmpty(item.unitPrice)}/千字</em>`;
-                        totalWork = `<span>约${isEmpty(item.workLoad)}字</span>`;
+                        unitPrice = `<em>${formatMoneyTypeEn(item.currencyType)+isEmpty(item.unitPrice)}/千字</em>`;
+                        totalWork = `<span>${tempJson.status === '25' ? isEmpty(item.ratioWords) : '约'+isEmpty(item.workLoad)}字</span>`;
                         if(unClaimed){
                             operateStr = `<a href="javascript:;"
                                              onclick="window.open('${basePMUrl}/DTPTask/view?fileId=${item.fileId}&staffNum=${baseInfo.userCode}&path=','_blank')"
@@ -175,21 +176,21 @@ const orderServer = (function (global, document, $, undefined) {
                             workArr.forEach((item, index) => {
                                 if(index < 1){
                                     oneWork = `${certificate(item.cerType)} ${item.cerNum}份 ...`;
-                                    onePrice = `￥${item.cerPirce}/份 ...`
+                                    onePrice = `${formatMoneyTypeEn(item.currencyType)+item.cerPirce}/份 ...`
                                 }
                                 mulWork += `${certificate(item.cerType)} ${item.cerNum}份；`;
-                                mulPrice += `${certificate(item.cerType)} ￥${item.cerPirce}/份；`;
+                                mulPrice += `${certificate(item.cerType)} ${formatMoneyTypeEn(item.currencyType)+item.cerPirce}/份；`;
                             })
                         }
-                        totalPrice = `<em class="popoverPrice"
-                                          data-am-popover="{content:'${mulPrice}', trigger:'hover'}">${isEmpty(onePrice)}</em>`;
+                        unitPrice = `<em class="popoverPrice"
+                                         data-am-popover="{content:'${mulPrice}', trigger:'hover'}">${isEmpty(onePrice)}</em>`;
                         totalWork = `<span class="popoverWork" 
                                            data-am-popover="{content:'${mulWork}', trigger:'hover'}">${isEmpty(oneWork)}</span>`;
                     }
                     //待领取状态
                     if(unClaimed){
                         operateStr += `<a href="javascript:;"
-                                         ${item.receiveIs === '1'?'disabled':''}
+                                          ${item.receiveIs === '1'?'disabled':''}
                                           onclick="__api__.receiveOrder({
                                             params: {
                                                 taskId: '${item.taskId}',
@@ -217,10 +218,15 @@ const orderServer = (function (global, document, $, undefined) {
                     }
                     joinArr.push(`<div class="item" key="${item.taskId}">
                                     <div class="base">
-                                        <label>${ isEmpty(item.responsibilityTypeZh) }</label>
-                                        <span>订单编号：${ item.taskId }</span>
-                                        <span>${item.sourceLanZh}-${item.targetLanZh}</span>
-                                        <span class="sy-float-r">要求返稿时间：${item.requireTime.slice(0, -3)}</span>
+                                        <label>${isEmpty(item.responsibilityTypeZh)}</label>
+                                        <span>项目编号：${item.projectId}</span>
+                                        <span>任务编号：${item.taskId}</span>
+                                        ${item.jsTimeQuery ? `<span class="sy-float-r">结算时间：${isEmpty(item.jsTimeQuery)}</span>` : ''}
+                                        <span class="sy-float-r">${
+                                            tempJson.status === '25' 
+                                                ? `完成时间：${item.realCompletTime.slice(0,16)}` 
+                                                : `要求返稿时间：${item.requireTime.slice(0,16)}`
+                                        }</span>
                                     </div>
                                     <div class="detail">
                                         <div>
@@ -229,11 +235,15 @@ const orderServer = (function (global, document, $, undefined) {
                                         </div>
                                         <div>
                                             <em>${isEmpty(item.orderTypeZh)}</em>
-                                            <span>${+item.orderType === 1 ? isEmpty(item.qualityGradeZh) : ''}</span>
+                                            <span>${item.sourceLanZh}-${item.targetLanZh}</span>
                                         </div>
                                         <div>
-                                            ${totalPrice}
-                                            <span>${isEmpty(item.settlementTypeZh)}</span>
+                                            ${unitPrice}
+                                            <span>${
+                                                tempJson.status === '25'
+                                                    ? `总金额：${isEmpty(item.totalPrice) !== '--' ? formatMoneyTypeEn(item.currencyType)+isEmpty(item.totalPrice) : '--'}`
+                                                    : ` `
+                                            }</span>
                                         </div>
                                         <div>${operateStr}</div>
                                     </div>
@@ -248,12 +258,23 @@ const orderServer = (function (global, document, $, undefined) {
                     bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                if(res.data.totalPage === pageNo-1){
+                //最后一页，隐藏加载更多按钮
+                if(res.data.totalPage === pageNo - 1){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.orderContent').append(bodyStr);
                 $('.popoverPrice').popover();
                 $('.popoverWork').popover();
+                //总价计算
+                if(res.data.link.totalPrice){
+                    let totalArr = [];
+                    for(let i = 0, len = res.data.link.totalPrice.length; i < len; i++){
+                        const price = res.data.link.totalPrice[i],
+                            currencyEn = formatMoneyTypeEn(price.currencyType);
+                        totalArr.push(currencyEn + price.totalPrice);
+                    }
+                    location.hash === '#25' && $('.totalBox').html(res.data.totalRow > 0 && `总金额：${totalArr.join(',')}`);
+                }
             }else{
                 $.error(res.msg);
                 $('section.orderContent').html(`<div class="empty"></div>`)
@@ -309,12 +330,20 @@ const orderServer = (function (global, document, $, undefined) {
                         isWait = !(config.data.status || config.data.jsonStr);  //待领取状态
                     tempObj.prop1 = item.responsibilityTypeZh;
                     if(typeResult === '图书试译'){
+                        const isComp = config.data.status === '0';
                         tempObj.prop2 = typeWait ? item.tryTaskId : item.tryTransId;
                         tempObj.prop3 = item.languageZh;
-                        tempObj.prop4 = item.requireReturnTraftTime.slice(0,-3);
+                        tempObj.prop4 = isComp
+                            ? `完成时间：${item.realCompletTime ? item.realCompletTime.slice(0,16) : item.requireReturnTraftTime.slice(0,16)}`
+                            : `要求返稿时间：${item.requireReturnTraftTime.slice(0,16)}`;
                         tempObj.prop5 = item.bookName;
-                        tempObj.prop6 = `约${isEmpty(item.actuallyTranslatedWord)}字`;
-                        tempObj.prop8 = `￥${isEmpty(item.unitPriceOfTranslation)}/千字`;
+                        tempObj.prop6 = isComp
+                            ? `${isEmpty(item.ratioWords ? item.ratioWords : item.actuallyTranslatedWord)}字`
+                            : `约${isEmpty(item.actuallyTranslatedWord)}字`;
+                        tempObj.prop8 = `${formatMoneyTypeEn(item.currencyType)+isEmpty(item.unitPriceOfTranslation)}/千字`;
+                        tempObj.prop9 =  isComp
+                            ? `总金额：${isEmpty(item.totalPrice) !== '--' ? formatMoneyTypeEn(item.currencyType)+isEmpty(item.totalPrice) : '--'}`
+                            : ` `;
                         if(isWait){
                             operateStr = `<a href="javascript:;"
                                              ${item.receiveIs === '1'?'disabled':''}
@@ -328,12 +357,18 @@ const orderServer = (function (global, document, $, undefined) {
                                               })" class="sy-btn sy-btn-sm sy-btn-green">${item.receiveIs === '1'?'已领取':'领取'}</a>`;
                         }
                     }else{
+                        const isComp = config.data.jsonStr && JSON.parse(config.data.jsonStr).status === '25';
                         tempObj.prop2 = item.taskId;
                         tempObj.prop3 = item.sourceLanZh + '-' + item.targetLanZh;
-                        tempObj.prop4 = item.requireTime.slice(0,-3);
+                        tempObj.prop4 = isComp
+                            ? `完成时间：${item.realCompletTime.slice(0,16)}`
+                            : `要求返稿时间：${item.requireTime.slice(0,16)}`;
                         tempObj.prop5 = item.taskName;
-                        tempObj.prop6 = `约${isEmpty(item.workLoad)}字`;
-                        tempObj.prop8 = `￥${isEmpty(item.unitPrice)}/千字`;
+                        tempObj.prop6 = isComp ? `${isEmpty(item.ratioWords)}字` : `约${isEmpty(item.workLoad)}字`;
+                        tempObj.prop8 = `${formatMoneyTypeEn(item.currencyType)+isEmpty(item.unitPrice)}/千字`;
+                        tempObj.prop9 =  isComp
+                            ? `总金额：${isEmpty(item.totalPrice) !== '--' ? formatMoneyTypeEn(item.currencyType)+isEmpty(item.totalPrice) : '--'}`
+                            : ` `;
                         if(isWait){
                             operateStr = `<a href="javascript:;"
                                              ${item.receiveIs === '1'?'disabled':''}
@@ -366,22 +401,24 @@ const orderServer = (function (global, document, $, undefined) {
                     }
                     joinArr.push(`<div class="item">
                                     <div class="base">
-                                        <label>${ isEmpty(tempObj.prop1) }</label>
-                                        <span>订单编号：${ tempObj.prop2 }</span>
-                                        <span>${ tempObj.prop3 }</span>
-                                        <span class="sy-float-r">要求返稿时间：${ tempObj.prop4 }</span>
+                                        <label>${isEmpty(tempObj.prop1)}</label>
+                                        <span>项目编号：${item.projectId}</span>
+                                        <span>任务编号：${tempObj.prop2}</span>
+                                        ${item.jsTimeQuery ? `<span class="sy-float-r">结算时间：${isEmpty(item.jsTimeQuery)}</span>` : ''}
+                                        <span class="sy-float-r">${tempObj.prop4}</span>
                                     </div>
                                     <div class="detail">
                                         <div>
-                                            <em>${ isEmpty(tempObj.prop5) }</em>
-                                            <span>${ tempObj.prop6 }</span>
+                                            <em>${isEmpty(tempObj.prop5)}</em>
+                                            <span>${tempObj.prop6}</span>
                                         </div>
                                         <div>
-                                            <em>${ typeResult?'图书试译':'图书翻译' }</em>
+                                            <em>${typeResult?'图书试译':'图书翻译'}</em>
+                                            <span>${tempObj.prop3}</span>
                                         </div>
                                         <div>
-                                            <em>${ tempObj.prop8 }</em>
-                                            <span>原文千字</span>    
+                                            <em>${tempObj.prop8}</em>
+                                            <span>${tempObj.prop9}</span>    
                                         </div>
                                         <div>${operateStr}</div>
                                     </div>
@@ -396,10 +433,22 @@ const orderServer = (function (global, document, $, undefined) {
                     bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                if(res.data.totalPage === pageNo-1){
+                //最后一页，隐藏加载更多按钮
+                if(res.data.totalPage === pageNo - 1){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.orderContent').append(bodyStr);
+                //总价计算
+                if(res.data.link.totalPrice){
+                    let totalArr = [];
+                    for(let i = 0, len = res.data.link.totalPrice.length; i < len; i++){
+                        const price = res.data.link.totalPrice[i],
+                            currencyEn = formatMoneyTypeEn(price.currencyType);
+                        totalArr.push(currencyEn + price.totalPrice);
+                    }
+                    (location.hash === '#25' && $('input[name="fileType"]:checked')[0].value === '2' )
+                    && $('.totalBox').html(res.data.totalRow > 0 && `总金额：${totalArr.join(',')}`);
+                }
             }else{
                 $.error(res.msg);
                 $('section.orderContent').html(`<div class="empty"></div>`)
@@ -480,10 +529,14 @@ const orderServer = (function (global, document, $, undefined) {
                     }
                     joinArr.push(`<div class="item">
                                     <div class="base">
-                                        <label>${ isEmpty(item.orderTypeZh) }</label>
-                                        <span>订单编号：${ item.taskId }</span>
-                                        <span style="padding-left: 200px">DTP经理：${ item.dtpManager }</span>
-                                        <span class="sy-float-r">要求返稿时间：${ item.requireTime.slice(0,-3) }</span>
+                                        <label>${isEmpty(item.orderTypeZh)}</label>
+                                        <span>项目编号：${item.projectId}</span>
+                                        <span>任务编号：${item.taskId}</span>
+                                        <span class="sy-float-r">${
+                                            tempJson.status === '25'
+                                                ? `完成时间：${item.realCompletTime.slice(0,16)}` 
+                                                : `要求返稿时间：${item.requireTime.slice(0,16)}`
+                                        }</span>
                                     </div>
                                     <div class="detail">
                                         <div>
@@ -514,10 +567,21 @@ const orderServer = (function (global, document, $, undefined) {
                     bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                if(res.data.totalPage === pageNo-1){
+                //最后一页，隐藏加载更多按钮
+                if(res.data.totalPage === pageNo - 1){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.orderContent').append(bodyStr);
+                //总价计算
+                if(res.data.link.totalPrice){
+                    let totalArr = [];
+                    for(let i = 0, len = res.data.link.totalPrice.length; i < len; i++){
+                        const price = res.data.link.totalPrice[i],
+                            currencyEn = formatMoneyTypeEn(price.currencyType);
+                        totalArr.push(currencyEn + price.totalPrice);
+                    }
+                    location.hash === '#25' && $('.totalBox').html(res.data.totalRow > 0 && `总金额：${totalArr.join(',')}`);
+                }
             }else{
                 $.error(res.msg);
                 $('section.orderContent').html(`<div class="empty"></div>`)
@@ -543,65 +607,104 @@ const orderServer = (function (global, document, $, undefined) {
         return getResponse({
             type: 'post',
             baseUrl: orderOtherApi,
+            headers: {
+                'Content-Type': 'application/json'
+            },
             url: config.url,
-            data: config.data
+            data: JSON.stringify(config.data)
         }).then(res => {
+            console.log(res);
             pageNo <= 1 && $('section.cnt.orderContent').empty();
-            if(res.Success){
+            if(res.success){
                 let bodyStr = '',
                     joinArr = [];
-                let result = res.Data.Data.rows || [];
+                let result = res.rows || [];
                 result.forEach(item => {
                     let tempStr = '',
-                        timeStr = `<span class="sy-float-r">${item.RequireTimeStart} - ${item.RequireTimeEnd}</span>`;
-                    if(config.data.taskType === 'A'){//外派
+                        timeStr = `<span class="sy-float-r">${item.requireTimeStart} - ${item.requireTimeEnd}</span>`,
+                        pmStr = `PM：${item.giverName}`,
+                        proStr = `项目编号：${item.orderId}`;
+                    if(config.url.includes('getAssignmentTaskPageList')){//外派
                         tempStr = `<div class="detail">
-                                        <div>单价：${item.Price}</div>
-                                        <div>天数：${item.dayNum}</div>
-                                        <div>其他费用：${item.OtherFee}</div>
-                                        <div>预支费用：${item.Yuzhi}</div>
-                                        <div>总价：${item.TotalMoney}</div>
+                                        <div>单价：${item.price}</div>
+                                        <div>天数：${item.attNum}</div>
+                                        <div>其他费用：${item.otherFee}</div>
+                                        <div>预支费用：${item.yuZhiFee}</div>
+                                        <div>总价：${item.payables}</div>
                                     </div>`;
-                    }else if(config.data.taskType === 'R'){ //培训
+                    }else if(config.url.includes('etTransTaskPageList')){ //培训
                         tempStr = `<div class="detail">
-                                        <div>任务需求：${item.ProjectName}</div>
-                                        <div>课时：${item.CourseHour}</div>
-                                        <div>课酬：${item.BasicCoursePrice}</div>
-                                        <div>奖金：${item.OtherPrice}</div>
-                                        <div>总价：${item.TotalMoney}</div>
+                                        <div>任务需求：${item.taskCommand}</div>
+                                        <div>课时：${item.courseHour }</div>
+                                        <div>课酬：${item.basicCoursePrice }</div>
+                                        <div>奖金：${item.otherPrice}</div>
+                                        <div>总价：${item.payables}</div>
                                     </div>`;
-                        timeStr = `<span class="sy-float-r">${item.CompleteTime}</span>`
-                    }else{//会展、设备搭建
+                        timeStr = `<span class="sy-float-r">${item.implementTime}</span>`;
+                        pmStr = `PM：${item.assignerName}`;
+                        proStr = `项目编号：${item.projectId}`;
+                    }else if(config.url.includes('getInterpretDeviceDetailPageList')){//设备搭建
+                        let infoArr = item.tbsInterpretDevicetaskDetailList || [];
+                        let oneInfo = '', mulInfo = '', mulInfoArr = [];
+                        infoArr.forEach((info, index) => {
+                            let oInfo = info.price + '/' + info.useTime + '/' + info.percentage;
+                            mulInfoArr.push(oInfo);
+                            if(index < 2){
+                                oneInfo += oInfo + ' ...'
+                            }
+                        });
+                        mulInfo = mulInfoArr.join(',');
+                        let infoHtml = `<span class="popoverInfo" style="font-size: 14px" 
+                                           data-am-popover="{content:'${mulInfo}', trigger:'hover'}">${isEmpty(oneInfo)}</span>`;
                         tempStr = `<div class="detail">
                                         <div>
-                                            <em>单价：${item.Price}</em>
-                                            <em>加班费：${item.OvertimePrice}</em>
+                                            <em style="font-weight: 700">单价/天数/比例</em>
+                                            ${infoHtml}
                                         </div>
                                         <div>
-                                            <em>天数：${item.DayNum}</em>
-                                            <em>加班时长：${item.OvertimeHours}</em>
+                                            <em>住宿费：${item.hotelFee}</em>
+                                            <em>其他费用：${item.otherFee}</em>
                                         </div>
                                         <div>
-                                            <em>住宿费：${item.HotelFee}</em>
-                                            <em>其他费用：${item.OtherFee}</em>
-                                        </div>
-                                        <div>
-                                            <em>交通费：${item.TranFee}</em>
-                                            <em>预支费用：${item.Yuzhi}</em>
+                                            <em>交通费：${item.tranFee }</em>
+                                            <em>预支费用：${item.yuZhiFee }</em>
                                         </div>
                                         <div>
                                             <em>扣款：${item.koukuan}</em>
-                                            <em>比例：${item.Percentage}</em>
                                         </div>
-                                        <div>总价：${item.TotalMoney}</div>
+                                        <div>总价：${item.payables}</div>
+                                    </div>`;
+                    }else {//会展
+                        tempStr = `<div class="detail">
+                                        <div>
+                                            <em>单价：${item.price}</em>
+                                            <em>加班费：${(item.overtimeHours*item.overtimePrice)}</em>
+                                        </div>
+                                        <div>
+                                            <em>天数：${item.dayNum}</em>
+                                            <em>加班时长：${item.overtimeHours}</em>
+                                        </div>
+                                        <div>
+                                            <em>住宿费：${item.hotelFee}</em>
+                                            <em>其他费用：${item.otherFee}</em>
+                                        </div>
+                                        <div>
+                                            <em>交通费：${item.tranFee }</em>
+                                            <em>预支费用：${item.yuZhiFee }</em>
+                                        </div>
+                                        <div>
+                                            <em>扣款：${item.koukuan}</em>
+                                            <em>比例：${item.percentage + '%'}</em>
+                                        </div>
+                                        <div>总价：${item.payables}</div>
                                     </div>`;
                     }
                     joinArr.push(`<div class="item">
                                     <div class="base">
                                         <label>普通订单</label>
-                                        <span>子订单编号：${item.ProjectID}</span>
-                                        <span style="padding-left: 120px">${item.COrgName}</span>
-                                        <span style="padding-left: 120px">PM：${item.PM}</span>
+                                        <span>${proStr}</span>
+                                        <span style="padding-left: 120px">${item.orgName}</span>
+                                        <span style="padding-left: 120px">${pmStr}</span>
                                         ${timeStr}
                                     </div>
                                     ${tempStr}
@@ -612,19 +715,23 @@ const orderServer = (function (global, document, $, undefined) {
                 if(result.length > 0){
                     bodyStr = joinArr.join('');
                     moreBtn.removeClass('sy-hidden');
-                }else if(res.Data.Data.total === 0){
+                }else if(res.total === 0){
                     bodyStr = `<div class="empty"></div>`;
                     moreBtn.addClass('sy-hidden');
                 }
-                if(Math.ceil(res.Data.Data.total/config.data.pagesize) === pageNo-1){
+                //最后一页，隐藏加载更多按钮
+                if(Math.ceil(res.total/config.data.pageSize) === pageNo - 1){
                     moreBtn.addClass('sy-hidden');
                 }
                 $('.orderContent').append(bodyStr);
+                $('.popoverInfo').popover();
+                $('.totalBox').html(res.total > 0 && ('总金额：￥'+res.sum));
             }else{
                 $.error(res.msg);
                 $('section.orderContent').html(`<div class="empty"></div>`)
             }
             $('.my-loading').remove();
+            $('.searchBtn').removeAttr('disabled');
             moreBtn.removeAttr('disabled').html('加载更多');
         })
     }

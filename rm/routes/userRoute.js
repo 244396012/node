@@ -107,7 +107,7 @@ routes.get('/skill/typeset', function (req, res) {
         }
         res.render('personal/skill-typeset', {
             mark: 'personal',
-            title: '个人中心 | 技能测试-桌面排版',
+            title: '个人中心 | 桌面排版技能测试',
             layout: 'shared/layout',
             data: data
         });
@@ -126,7 +126,7 @@ routes.get('/skill/meeting', function (req, res) {
         }
         res.render('personal/skill-meeting', {
             mark: 'personal',
-            title: '个人中心 | 技能测试-会展',
+            title: '个人中心 | 会展技能测试',
             layout: 'shared/layout',
             data: data
         })
@@ -145,7 +145,7 @@ routes.get('/skill/assign', function (req, res) {
         }
         res.render('personal/skill-assign', {
             mark: 'personal',
-            title: '个人中心 | 技能测试-外派',
+            title: '个人中心 | 外派技能测试',
             layout: 'shared/layout',
             data: data
         });
@@ -164,7 +164,7 @@ routes.get('/skill/train', function (req, res) {
         }
         res.render('personal/skill-train', {
             mark: 'personal',
-            title: '个人中心 | 技能测试-培训',
+            title: '个人中心 | 培训技能测试',
             layout: 'shared/layout',
             data: data
         });
@@ -183,7 +183,7 @@ routes.get('/skill/device', function (req, res) {
         }
         res.render('personal/skill-device', {
             mark: 'personal',
-            title: '个人中心 | 技能测试-设备',
+            title: '个人中心 | 设备技能测试',
             layout: 'shared/layout',
             data: data
         });
@@ -202,7 +202,7 @@ routes.get('/skill/setup', function (req, res) {
         }
         res.render('personal/skill-setup', {
             mark: 'personal',
-            title: '个人中心 | 技能测试-搭建',
+            title: '个人中心 | 搭建技能测试',
             layout: 'shared/layout',
             data: data
         });

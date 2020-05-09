@@ -147,13 +147,13 @@
                     }
                     targetTbody.append(
                         `<tr>
-                        <td>${hideData.equipName}</td>
-                        <td>${hideData.equipNum}</td>
-                        <td>${hideData.equipUnitPrice}</td>
-                        <td>${hideData.equipUnit}</td>
-                        <td><a href="javascript:;" class="del">删 除</a></td>
-                        <td class="itemData sy-hidden">${JSON.stringify(hideData)}</td>
-                    </tr>`);
+                            <td>${hideData.equipName}</td>
+                            <td>${hideData.equipNum}</td>
+                            <td>${hideData.equipUnitPrice}</td>
+                            <td>${hideData.equipUnit}</td>
+                            <td><a href="javascript:;" class="del">删 除</a></td>
+                            <td class="itemData sy-hidden">${JSON.stringify(hideData)}</td>
+                        </tr>`);
                     //提交信息
                 }else if($(target).hasClass('confirmBtn')) {
                     var labelEl = $('form>.labels.single,form>.labels.multiple'),

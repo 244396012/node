@@ -1,8 +1,4 @@
 <div class="personal balance" style="position: relative">
-    <div class="sy-center"
-         style="position: absolute;line-height: 740px;z-index: 99999;top: 0;left: 0;bottom: 0;right: 0;background: rgba(0,0,0,.8);color: #fff;font-size: 30px">
-        功能暂未开放，请前往<a class="sy-orange" href="http://freelancer.lan-bridge.cn/" target="_blank" style="text-decoration: underline">freelancer.lan-bridge.cn</a>进行提现！
-    </div>
     <div class="am-g">
         <div class="am-u-lg-6 sy-font-md">
             申请提现时间：北京时间<span class="sy-orange">每月16-20日</span>，每条数据<span class="sy-orange">每月</span>只可提现<span class="sy-orange">一次</span></div>
@@ -43,68 +39,89 @@
         </div>
     </div>
     <div class="income-detail">
-        <div class="am-g income-filter">
-            <div class="am-u-lg-6 sy-bold">收入明细</div>
-            <div class="am-u-lg-6 sy-right sy-font-sm">
-                <label class="income-filter incomeFilter" data-type="">全部</label>
-                <label class="income-filter incomeFilter active" data-type="三个月">三个月</label>
-                <label class="income-filter incomeFilter" data-type="半年内">半年内</label>
-                <label class="income-filter incomeFilter" data-type="一年内">一年内</label>
+        <div class="am-g">
+            <div class="am-u-lg-12 sy-bold">账户明细</div>
+        </div>
+        <div class="am-g income-filter sy-font-md">
+            <div class="am-u-lg-12">
+                <label for="">任务编号：<input type="text" class="taskNo" placeholder="输入任务编号"></label>
+                <label for="">结算时间：
+                    <input type="text" class="am-form-field settleStartTime" placeholder="选择开始时间"> -
+                    <input type="text" class="am-form-field settleEndTime" placeholder="选择结束时间">
+                </label>
+                <label for="">时间：
+                    <input type="text" class="am-form-field orderStartTime" placeholder="选择开始时间"> -
+                    <input type="text" class="am-form-field orderEndTime" placeholder="选择结束时间">
+                </label>
+                <button class="sy-btn sy-btn-green sy-btn-sm searchDetail">搜索</button>
             </div>
         </div>
-        <div class="user-table">
+        <div class="user-table exact">
             <table class="am-table am-table-striped am-table-centered am-table-hover sy-font-md">
                 <thead>
                 <tr>
                     <td style="width: 120px">时间</td>
                     <td style="width: 80px">金额</td>
-                    <td style="width: 80px">币种</td>
-                    <td style="width: 280px">账户信息</td>
-                    <td style="width: 350px">说明</td>
+                    <td style="width: 70px">币种</td>
+                    <td style="width: 80px">变动类型</td>
+                    <td style="width: 100px">结算时间</td>
+                    <td style="width: 200px">任务编号/结算编号</td>
+                    <td style="width: 210px">说明</td>
                 </tr>
                 </thead>
                 <tbody class="incomeFinanceList">
-                    <tr class="empty"><td colspan="5">暂无明细</td></tr>
+                    <tr class="empty"><td colspan="7">暂无明细</td></tr>
                 </tbody>
             </table>
+            <div class="sy-right sy-font-md totalDetail" style="padding-top: 10px"></div>
         </div>
         <div id="incomePagination" class="pagination"></div>
     </div>
 </div>
+<script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script type="text/javascript" src="/static/lib/pagination.js"></script>
 <script src="/static/lib/fileUpload/js/fileUpload.js"></script>
 <script>
 (function (document, $) {
 
-    // __api__.initAccount();
+    laydate.render({ elem: '.settleStartTime', type: 'month' });
+    laydate.render({ elem: '.settleEndTime', type: 'month' });
+    laydate.render({ elem: '.orderStartTime' });
+    laydate.render({ elem: '.orderEndTime' });
 
-    // var incomeDetail = __api__.getIncomeDetail();
-    //
-    // $('.personal.balance').on('click', function (e) {
-    //
-    //     var target = e.target;
-    //     //显示/隐藏金额
-    //     if($(target).hasClass('toggleTotal')){
-    //         var el = $(target).parent().prev('.totalMoney_Balance'),
-    //             money = el.attr('data-num');
-    //         $(target).toggleClass('on');
-    //         $(target).hasClass('on') ? el.html(money) : el.html('****');
-    //     //筛选收入明细
-    //     }else if($(target).hasClass('incomeFilter')){
-    //         incomeDetail.o.current = 1;
-    //         incomeDetail.o.limit = 10;
-    //         incomeDetail.set({
-    //             xhr : {
-    //                 data : {
-    //                     filterStr: target.getAttribute('data-type'),
-    //                     pageNo: incomeDetail.get('current')-1,
-    //                     pageSize: incomeDetail.get('limit')
-    //                 }
-    //             }
-    //         }, true);
-    //         $(target).addClass('active').siblings().removeClass('active');
-    //     }
-    // })
+    __api__.initAccount();
+
+    var incomeDetail = __api__.getIncomeDetail();
+
+    $('.personal.balance').on('click', function (e) {
+
+        var target = e.target;
+        //显示/隐藏金额
+        if($(target).hasClass('toggleTotal')){
+            var el = $(target).parent().prev('.totalMoney_Balance'),
+                money = el.attr('data-num');
+            $(target).toggleClass('on');
+            $(target).hasClass('on') ? el.html(money) : el.html('****');
+        //搜索明细
+        }else if($(target).hasClass('searchDetail')){
+            incomeDetail.o.current = 1;
+            incomeDetail.o.limit = 10;
+            $.loading('获取数据...');
+            incomeDetail.set({
+                xhr : {
+                    data : {
+                        taskNo: $('.taskNo').val(),
+                        settleStartDateTime: $('.settleStartTime').val(),
+                        settleEndDateTime: $('.settleEndTime').val(),
+                        orderOrCashoutStartDateTime: $('.orderStartTime').val(),
+                        orderOrCashoutEndDateTime: $('.orderEndTime').val(),
+                        pageNo: incomeDetail.get('current')-1,
+                        pageSize: incomeDetail.get('limit')
+                    }
+                }
+            }, true);
+        }
+    })
 
 }(document, jQuery))
 </script>

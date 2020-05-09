@@ -4,6 +4,7 @@
 * author：zhaoyong
 * */
 import './modal';
+import './index';
 import promptTxt from './promptTxt';
 import {
     getQueryString,
@@ -14,9 +15,10 @@ import {
     hiddenAccount,
     clearLocalData
 } from './utils';
-import './index';
 
-(function (bundle, global, document, $){
+// import '../ts/bundle'
+
+;(function (bundle, global, document){
 
     function getEl(string){
         return document.querySelector(string);
@@ -40,4 +42,4 @@ import './index';
 //注册到global全局
     global.__bundle__ = bundle;
 
-}(window.__bundle__ || {}, window, document, jQuery));
+}(window.__bundle__ || {}, window, document));

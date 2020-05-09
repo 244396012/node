@@ -5,6 +5,20 @@
                 <nav class="nav">
                     <% include order-nav.ejs %>
                 </nav>
+                <% if(data.message === 'success'){ %>
+                <div class="nav">
+                    <% if(data.data.build || data.data.device){ %>
+                    <div class="search-box searchBox">
+                        <label for="">项目编号：<input class="taskNo lg" type="text" placeholder="输入项目编号"></label>
+                        <label for="">完成时间：
+                            <input type="text" class="am-form-field comStartTime" placeholder="选择开始时间"> -
+                            <input type="text" class="am-form-field comEndTime" placeholder="选择结束时间">
+                        </label>
+                        <label for=""><button class="sy-btn sy-btn-green sy-btn-sm searchBtn">搜索</button></label>
+                    </div>
+                    <% } %>
+                <% } %>
+                <div class="totalBox sy-right" style="padding-bottom: 10px"></div>
                 <section class="cnt orderContent extra">
                     <div class="empty"></div>
                 </section>
@@ -16,32 +30,51 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="/static/lib/laydate.min.js"></script>
 <script>
     (function ($) {
+
+        laydate.render({ elem: '.comStartTime' });
+        laydate.render({ elem: '.comEndTime' });
 
         var baseInfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
 
         __api__.getOrderOther({
-            url: '/pangu/GetTaskList',
+            url: '/EcRmReportInfo/getInterpretDeviceDetailPageList',
             data: {
-                userCode: baseInfo.userCode,
-                taskType: 'S',
-                pageindex: $('.order_PageNo').val(),
-                pagesize: 5
+                "currentPage": $('.order_PageNo').val(),
+                "pageSize": 5,
+                "paramsMap": {
+                    receiver: baseInfo.userCode,
+                    requireTimeStart: $('.comStartTime').val(),
+                    requireTimeEnd: $('.comEndTime').val(),
+                    orderId: $('.taskNo').val()
+                },
+                "sortName": "requireTimeStart",
+                "sortType": "desc"
             }
         });
 
-        $('.order_LoadMoreBtn').click(function () {
+        $('.order_LoadMoreBtn,.searchBtn').click(function () {
+            if($(this).hasClass('searchBtn')) {
+                $(this).prop('disabled', true);
+                $('.order_PageNo').val('1')
+            }
             __api__.getOrderOther({
-                url: '/pangu/GetTaskList',
+                url: '/EcRmReportInfo/getInterpretDeviceDetailPageList',
                 data: {
-                    userCode: baseInfo.userCode,
-                    taskType: 'S',
-                    pageindex: $('.order_PageNo').val(),
-                    pagesize: 5
+                    "currentPage": $('.order_PageNo').val(),
+                    "pageSize": 5,
+                    "paramsMap": {
+                        receiver: baseInfo.userCode,
+                        requireTimeStart: $('.comStartTime').val(),
+                        requireTimeEnd: $('.comEndTime').val(),
+                        orderId: $('.taskNo').val()
+                    },
+                    "sortName": "requireTimeStart",
+                    "sortType": "desc"
                 }
             });
         })
-
     }(jQuery));
 </script>

@@ -155,7 +155,7 @@ jQuery.extend({
                                             <div>
                                                 <span>选择提现方式：</span>
                                                 <label class="am-radio am-success bankCheck">
-                                                    <input type="radio" name="payWay" value="银行卡" data-am-ucheck> 银行卡
+                                                    <input type="radio" name="payWay" value="银行卡" checked data-am-ucheck> 银行卡
                                                 </label>
                                                 <label class="am-radio am-success alipayCheck">
                                                     <input type="radio" name="payWay" value="支付宝" data-am-ucheck> 支付宝
@@ -428,9 +428,9 @@ jQuery.extend({
                                                 <input class="drawPwd" type="password" required placeholder="请输入结算密码">
                                             </div>
                                             <div style="color:#999;font-size: 12px">
-                                             发票抬头：数译（成都）信息技术有限公司 <br>
-                                             税号：91510100MA67A339X0 <br>
-                                             邮寄地址：四川省成都市高新区天府大道北段1288号1号楼8层
+                                             发票抬头：四川语言桥信息技术有限公司 <br>
+                                             税号：91510100686315575Y <br>
+                                             邮寄地址：中国（四川）自由贸易试验区成都高新区天府大道北段1288号1幢1单元801、802、803号
                                             </div>
                                         </div>
                                     </div>
@@ -450,5 +450,38 @@ jQuery.extend({
             const amountEl = document.querySelector('.drawAmount');
             amountEl.value = config.total;
         })
+    },
+    //确认提现信息
+    cashOut_confirm: function (data = {}) {
+        const el = `
+            <div class="am-modal am-modal-confirm apply-detail confirmCashOutModal">
+                <div class="am-modal-dialog">
+                    <div class="am-modal-hd">提现信息确认
+                        <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+                    </div>
+                    <div class="am-modal-bd" style="padding: 10px 25px">
+                        <div class="sy-left sy-orange"
+                             style="padding: 0 30px">尊敬的用户您好，本系统提现一经提交便不可撤回及更改，请确认以下提现信息（数据仅供参考，以实际到账为准）：</div>
+                        <div class="sy-left draw-cash drawCash">
+                            <div class="draw-add sy-font-md">
+                                <div>到账姓名：<label style="color: #666">${data.name}</label></div>
+                                <div>到账账号：<label style="color: #666">${data.account}</label></div>
+                                <div>结算类型：<label style="color: #666">${data.settleType}</label></div>
+                                <div>提现金额：<label style="color: #666">${data.drawTotal}</label></div>
+                                <div>代缴税收：<label style="color: #666">${data.taxTotal}</label></div>
+                                <div>税后所得：<label style="color: #666">${data.afterTaxDrawTotal}</label></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="am-modal-footer">
+                        <span class="am-modal-btn sy-btn sy-btn-white sy-btn-sm" data-am-modal-cancel>取 消</span>
+                        <button type="button"
+                                class="sy-modal-href sy-btn sy-btn-green sy-btn-sm confirmInfoCashOut cashOutBtn_cny">确 认</button>
+                    </div>
+                </div>
+            </div>`;
+        $('.confirmCashOutModal').remove();
+        $('.personal.balance').append(el);
+        $('.am-modal.confirmCashOutModal').modal({closeViaDimmer: false });
     }
 });

@@ -1,31 +1,24 @@
 <% if(data.message === 'success'){ %>
 <div class="nav">
-        <% if(data.data.translation){ %>
+    <% if(data.data.translation){ %>
     <a class="item" href="/order/">订单服务</a>
     <a class="item" href="/order/book">图书翻译</a>
-        <% } %>
-        <% if(data.data.dTP){ %>
+    <% } %>
+    <% if(data.data.dTP){ %>
     <a class="item typeset" href="/order/typeset">桌面排版</a>
-        <% } %>
-        <% if(data.data.exhibition){ %>
+    <% } %>
+    <% if(data.data.exhibition){ %>
     <a class="item meeting" href="/order/meeting">会展</a>
-        <% } %>
-        <% if(data.data.expatriate){ %>
+    <% } %>
+    <% if(data.data.expatriate){ %>
     <a class="item interpret" href="/order/interpret">外派</a>
-        <% } %>
-        <% if(data.data.training){ %>
+    <% } %>
+    <% if(data.data.training){ %>
     <a class="item train" href="/order/train">培训</a>
-        <% } %>
-        <% if(data.data.build || data.data.device){ %>
+    <% } %>
+    <% if(data.data.build || data.data.device){ %>
     <a class="item device" href="/order/device">设备搭建</a>
-        <% } %>
-    <!--<a class="item" href="/order/">订单服务</a>-->
-    <!--<a class="item" href="/order/book">图书翻译</a>-->
-    <!--<a class="item typeset sy-hidden" href="/order/typeset">桌面排版</a>-->
-    <!--<a class="item meeting sy-hidden" href="/order/meeting">会展</a>-->
-    <!--<a class="item interpret sy-hidden" href="/order/interpret">外派</a>-->
-    <!--<a class="item train sy-hidden" href="/order/train">培训</a>-->
-    <!--<a class="item device sy-hidden" href="/order/device">设备搭建</a>-->
+    <% } %>
 </div>
 <% } %>
 <script>
@@ -58,30 +51,30 @@
                 userId: sessionStorage.getItem('sy_rm_client_ud')
             },
             success: function (res) {
-                if(res.message === 'success'){
-                    let isAllEmpty = false,
-                        data = res.data;
-                    for(let key in data){
-                        if(data[key]){
-                            isAllEmpty = true;
-                            break
-                        }
-                    }
-                    //无权限访问
-                    if(!isAllEmpty){
-                        $('nav.nav').empty();
-                        return null
-                    }
-                    $('nav>.filter').removeClass('sy-hidden');
-                    //如果无权限，输入url不匹配，直接跳回首页
-                    const activeLink = $('.nav>.item.active');
-                    if(activeLink.attr('href') !== location.pathname){
-                        location.href = '/'
-                    }
-                }else{
-                    $.error(res.message);
-                    setTimeout('location.href = "/"', 1500)
-                }
+                 if(res.message === 'success'){
+                     let isAllEmpty = false,
+                         data = res.data;
+                     for(let key in data){
+                         if(data[key]){
+                             isAllEmpty = true;
+                             break
+                         }
+                     }
+                     //无权限访问
+                     if(!isAllEmpty){
+                         $('nav.nav').empty();
+                         return null
+                     }
+                     $('nav>.filter').removeClass('sy-hidden');
+                     //如果无权限，输入url不匹配，直接跳回首页
+                     const activeLink = $('.nav>.item.active');
+                     if(activeLink.attr('href') !== location.pathname){
+                         location.href = '/'
+                     }
+                 }else{
+                     $.error(res.message);
+                     setTimeout('location.href = "/"', 1500)
+                 }
             }
         })
 

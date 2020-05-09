@@ -18,18 +18,6 @@ export const orderOtherApi = api_config.orderOtherApi;
 $.ajaxSetup({
     timeout: 60000,
     beforeSend: function (xhr, request) {
-        /*
-        const filterUrl = [
-            '/oauth/token',
-            '/customer/resetPassword',
-            '/customer/setNewPassword',
-            '/customer/customerRegister',
-            '/customer/sendCode',
-            '/interpreterArticle/interpreterArticleListSelect',
-            '/commentAndLog/getCommentAndReply',
-            '/officialArticle/listOfficialArticle'
-        ];
-        */
         const reqUrl = request.url;
         if(reqUrl.includes('/oauth/token') ||
             reqUrl.includes('/customer/resetPassword') ||
@@ -44,7 +32,7 @@ $.ajaxSetup({
             //do something
         }else {
             const token = sessionStorage.getItem('sy_rm_client_access_token');
-            xhr.setRequestHeader('Authorization','bearer '+token);
+            xhr.setRequestHeader('Authorization','bearer ' + token);
         }
     },
     error: function (res) {
@@ -151,11 +139,10 @@ $.ajaxSetup({
                         receiptBtn.removeClass('sy-show-transition');
                         $('.yxz_AsideU').html(data.yxTotalScore ? parseInt(data.yxTotalScore) : '0');
                         $('.score_AsideU').html(parseInt(data.currentPointSummary));
-                        $('.idcardName').val(data.userExtension.realName);
                         $('.account_AsideU').html(data.account?hiddenAccount(data.account):' --');
                         $('.nickName_AsideU')
                             .attr('data-am-popover', `{content: '${data.nickName}', trigger: 'hover focus'}`)
-                            .html(data.nickName?data.nickName:' --')
+                            .html(data.nickName ? data.nickName : ' --')
                             .popover();
 
                         data.picturePath && $('.headIcon_AsideU').attr('src', data.picturePath);

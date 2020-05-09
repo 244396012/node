@@ -73,7 +73,7 @@
             <div class="am-u-lg-12">口译类型(可多项)：</div>
             <div class="am-u-lg-12 labels multiple typeLabel" prop="口译类型">
                 <span>同声传译</span>
-                <span>陪同传译</span>
+                <span>陪同口译</span>
                 <span>大型活动</span>
                 <span>交替传译</span>
             </div>
@@ -120,7 +120,8 @@
                 typeLabel = $('.typeLabel>span'),
                 tbodyEl = $('.lanTarget');
             var trStr = '',
-                trData = JSON.parse(hideData.languageInfo);
+                trData = hideData.languageInfo && JSON.parse(hideData.languageInfo) || [];
+
             expLabel.each(function (index, item) {
                 hideData.interpretationExperience === $(item).text() && $(item).addClass('selected');
             });

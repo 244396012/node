@@ -10,7 +10,7 @@
 
 import { baseRMUrl, loginUrl} from "./interceptor";
 import { getResponse } from "./asyncAjax";
-import { countDown, clearLocalData, throttleFn, getQueryString } from "./utils";
+import { countDown, clearLocalData, getQueryString, formatMoneyTypeEn, formatMoneyType } from "./utils";
 import './modal';
 
 const personalServer = (function (window, document, $, undefined) {
@@ -86,7 +86,8 @@ const personalServer = (function (window, document, $, undefined) {
             res.data.forEach(item => {
                 optionStr += `<option value="${item.chineseName}">${item.chineseName}</option>`
             });
-            $('.languageOption').html(optionStr).val('中文简体');
+            $('.languageOption').html(optionStr);
+            setTimeout("$('.am-selected-status').html('请选择母语')", 1000)
         });
     }
 // 提交个人信息
@@ -102,13 +103,14 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }
         const currencyEl = $('#currencyType'),
+            motherLan = $('#motherTogue').val(),
             birthday = $('#birthday').val();
         const userId = sessionStorage.getItem('sy_rm_client_ud'),
             data = {
                 sex: $('#sex').val(),
                 email: $('#email').val(),
                 telephone: $('#telephone').val(),
-                motherTogue: $('#motherTogue').val(),
+                motherTogue: motherLan && motherLan.toString() || '',
                 nationality: $("#areaSandbar").val()+' '+$('#areaNationality').val(),
                 nickName: $('#nickName').val(),
                 realName: $('#realName').val(),
@@ -124,13 +126,14 @@ const personalServer = (function (window, document, $, undefined) {
         && regNickName.test(data['nickName'])){
             $.warning('请填写正确的昵称');
             return false;
-        }else if(data['telephone'] !== '' && !/^1[1-9][0-9]{9}$/.test(data['telephone'])){
-            $.warning('请填写正确的手机');
-            return false;
-        }else if(data['email'] !== '' && !/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(data['email'])){
-            $.warning('请填写正确的邮箱');
-            return false;
         }
+        // else if(data['telephone'] !== '' && !/^1[1-9][0-9]{9}$/.test(data['telephone'])){
+        //     $.warning('请填写正确的手机');
+        //     return false;
+        // }else if(data['email'] !== '' && !/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(data['email'])){
+        //     $.warning('请填写正确的邮箱');
+        //     return false;
+        // }
         const contactArr = [];
         const itemEls = $('.addItem');
         for(let i = 0, len = itemEls.length; i<len; i++){
@@ -221,7 +224,7 @@ const personalServer = (function (window, document, $, undefined) {
             $.warning('请填写主要联系人');
             return false;
         }else if((data['primaryContactEmail'] !== '' && !regEmail.test(data['primaryContactEmail']))
-            ||(data['otherContactEmail'] !== '' && !regEmail.test(data['otherContactEmail']))){
+            || (data['otherContactEmail'] !== '' && !regEmail.test(data['otherContactEmail']))){
             $.warning('请填写正确的邮箱');
             return false;
         }
@@ -544,8 +547,7 @@ const personalServer = (function (window, document, $, undefined) {
                 const degreeDiv = $('div.degree');
                 if(res.data.educationList.length > 0){
                     res.data.educationList.forEach(item => {
-                        if(item.graduatedSchoolName){
-                            degreeStr += `
+                        degreeStr += `
                                 <div class="info-item">
                                     <div class="item">
                                         <div>毕业院校：</div>
@@ -569,10 +571,11 @@ const personalServer = (function (window, document, $, undefined) {
                                         <a class="sy-delete" href="javascript:;" data-del="deleteEducationInfo" data-u-id="${item.id}">删除</a>
                                     </div>
                                 </div>`
-                        }
                     });
+                    degreeDiv.find('.add-form').addClass('sy-hidden');
+                }else{
+                    degreeDiv.find('.add-form').removeClass('sy-hidden');
                 }
-                !degreeStr && degreeDiv.find('.add-form').removeClass('sy-hidden');
                 degreeDiv.find('.show-info').html(degreeStr);
                 //技能证书
                 if(res.data.userSkillList.length >= 0){
@@ -696,6 +699,8 @@ const personalServer = (function (window, document, $, undefined) {
                     labelDiv.find('.show-info').addClass('sy-hidden');
                 }
                 labelDiv.find('.show-info').html(dataDiv + labelStr + areaStr);
+            }else{
+                $.error(res.data.message)
             }
         })
     }
@@ -1231,11 +1236,11 @@ const personalServer = (function (window, document, $, undefined) {
                     if(res.message === 'success'){
                         $('.transing').remove();
                         let resultStr = `<div class="am-g sy-center result result-tip">
-                                            <img src="/static/image/gongzhonghao.jpg" alt="公众号">
+                                            <img src="/static/image/gongzhonghao.jpg" alt="">
                                             <div class="sy-font-sm">啄语公众号</div>
                                             <div class="tip">
-                                                <p>您的翻译题已经提交，工作人员会在3~5个工作日内审核。</p>
-                                                <p>请关注<span class="sy-orange">啄语公众号</span>！</p>
+                                                <p>您的翻译题已经提交，工作人员会在3~5个工作日内审核。请及时关注平台站内信获知测试结果。</p>
+                                                <p>请关注语言桥官方公众号<span class="sy-orange">语言桥之声</span>！</p>
                                                 <p><a class="sy-btn sy-btn-green sy-btn-sh" href="/personal/skill">确认</a></p>
                                             </div>
                                         </div>`;
@@ -1317,7 +1322,7 @@ const personalServer = (function (window, document, $, undefined) {
                 return false
             }
             data.userId = sessionStorage.getItem('sy_rm_client_ud');
-            data.id = $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):'';
+            data.id = $(_this).attr('data-u-id') ? $(_this).attr('data-u-id') : '';
             $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
             getResponse({
                 type: 'post',
@@ -1417,14 +1422,14 @@ const personalServer = (function (window, document, $, undefined) {
                     return false;
                 }
             }
-            const idCard = parentFrom.find('.teamCardType').val() === '身份证' ? parentFrom.find('.identifyId').val():'';
+            const idCard = $(".isInvoice").val() === '不开发票' ? parentFrom.find('.identifyId').val() : '';
             const data = {
                 "bankBranch": parentFrom.find('.teamBankBranch').val(),
                 "bankNum": parentFrom.find('.teamBankNo').val(),
                 "bankOfDeposit": parentFrom.find('.teamBankDeposit').val(),
-                "idNum": idCard,
                 "idType": parentFrom.find('.teamCardType').val(),
-                "nameOfTheAccountOpener": parentFrom.find('.teamBankName').val(),
+                "idNum": idCard,
+                "nameOfTheAccountOpener": $('.teamBankName').val(),
                 "id": $(_this).attr('data-u-id')?$(_this).attr('data-u-id'):''
             };
             $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
@@ -1482,7 +1487,7 @@ const personalServer = (function (window, document, $, undefined) {
                             <div class="info-item">
                                 <div class="item">
                                     <div>真实姓名：</div>
-                                    <div>${baseinfo.realName}</div>
+                                    <div>${res.data.userName}</div>
                                 </div>
                                 <div class="item">
                                     <div>证件类型：</div>
@@ -1490,8 +1495,9 @@ const personalServer = (function (window, document, $, undefined) {
                                 </div>
                                 <div class="item">
                                     <div>证件号码：</div>
-                                    <div class="certificateNum">${baseinfo.certificateNumFuzzy}</div>
-                                    <div class="certificateNum sy-hidden" style="padding: 0 1rem;">${baseinfo.certificateNum}</div>
+                                    <div class="certificateNum" data="${baseinfo.certificateNum}">${baseinfo.certificateNum.replace(/(\w{3})(\w*)/, function (reg, $1, $2) {
+                                        return $1 + $2.replace(/\w/g, '*')
+                                    })}</div>
                                 </div>
                                 <div class="item" style="padding-left: 152px;padding-top: 1rem;">
                                     <button type="button" 
@@ -1499,16 +1505,14 @@ const personalServer = (function (window, document, $, undefined) {
                                             style="background: #00BDC5;">查看完整信息</button>
                                 </div>
                                 <div class="operation sy-font-md">
-                                    <div class="sy-hidden syHiddenData">${JSON.stringify({
+                                    <div class="sy-hidden syHiddenData cardHiddenData">${JSON.stringify({
                                         cardId: baseinfo.certificateNum,
                                         cardType: baseinfo.certificateType
                                     })}</div>
                                     ${idEdit}
                                 </div>
                             </div>`;
-                    $('.realName').val(baseinfo.realName);
-                    $('.teamName').val(res.data.nickName);
-                    $('.teamBankName').val(baseinfo.realName).attr('data-name', baseinfo.realName);
+                    $('.teamBankName').val(res.data.userName);
                     $('.identifyId').val(baseinfo.certificateNum);
                     $('span.identy').addClass('identy-yes').html('已认证');
                     identyForm.next().html(identifyStr);
@@ -1520,6 +1524,8 @@ const personalServer = (function (window, document, $, undefined) {
                 }else{
                     identyForm.removeClass('sy-hidden');
                 }
+                $('.realName').val(res.data.userName);
+                $('.teamName').val(res.data.nickName);
                 //结算方式
                 const payDiv = $('div.pay');
                 const settleList = res.data.settleList;
@@ -1540,8 +1546,9 @@ const personalServer = (function (window, document, $, undefined) {
                                 <div class="info-item">
                                     <div class="item">
                                         <div>支付宝账号：</div>
-                                        <div><span>${item.settleAccountFuzzy}</span>
-                                        <i class="iconShow am-icon-eye-slash"></i></div>
+                                        <div><span data="${item.settleAccount}">${item.settleAccount.replace(/(\w{1})(\w*)/, function (reg, $1, $2) {
+                                            return $1 + $2.replace(/\w/g, '*')
+                                        })}</span><i class="iconShow am-icon-eye-slash"></i></div>
                                     </div>
                                     <div class="item">
                                         <div>真实姓名：</div>
@@ -1562,8 +1569,9 @@ const personalServer = (function (window, document, $, undefined) {
                                 <div class="info-item">
                                     <div class="item">
                                         <div>银行卡号：</div>
-                                        <div><span>${item.settleAccountFuzzy}</span>
-                                        <i class="iconShow am-icon-eye-slash"></i></div>
+                                        <div><span data="${item.settleAccount}">${item.settleAccount.replace(/(\w{1})(\w*)/, function (reg, $1, $2) {
+                                            return $1 + $2.replace(/\w/g, '*')
+                                        })}</span><i class="iconShow am-icon-eye-slash"></i></div>
                                     </div>
                                     <div class="item">
                                         <div>开户银行：</div>
@@ -1584,8 +1592,9 @@ const personalServer = (function (window, document, $, undefined) {
                                 <div class="info-item">
                                     <div class="item">
                                         <div>Paypal账号：</div>
-                                        <div><span>${item.settleAccountFuzzy}</span>
-                                        <i class="iconShow am-icon-eye-slash"></i></div>
+                                        <div><span data="${item.settleAccount}">${item.settleAccount.replace(/(\w{1})(\w*)/, function (reg, $1, $2) {
+                                            return $1 + $2.replace(/\w/g, '*')
+                                        })}</span><i class="iconShow am-icon-eye-slash"></i></div>
                                     </div>
                                     <div class="item">
                                         <div>真实姓名：</div>
@@ -1616,14 +1625,6 @@ const personalServer = (function (window, document, $, undefined) {
                     if(settleList.length > 0){
                         let teamForm = $('.teamForm');
                         settleList.forEach(item => {
-                            let isCard = item.certificateType === '身份证'
-                                ? `<div class="item">
-                                       <div>证件号码：</div>
-                                       <div>${baseinfo.certificateNum}</div>
-                                   </div>` : '';
-                            let isEdit = item.certificateType !== '身份证'
-                                ? '<a class="sy-edit" href="javascript:;">编辑</a>' : '';
-                            item.certificateType === '身份证' && teamForm.remove();
                             teamPayStr += `
                                 <div class="info-item">
                                      <div class="item">
@@ -1634,7 +1635,10 @@ const personalServer = (function (window, document, $, undefined) {
                                         <div>证件类型：</div>
                                         <div>${item.certificateType}</div>
                                      </div>
-                                     ${isCard}
+									 <div class="item isCard">
+                                       <div>证件号码：</div>
+                                       <div>${baseinfo.certificateNum}</div>
+                                     </div>
                                      <div class="item">
                                         <div>开户人姓名：</div>
                                         <div>${item.realName}</div>
@@ -1653,13 +1657,30 @@ const personalServer = (function (window, document, $, undefined) {
                                     </div>
                                     <div class="operation sy-font-md">
                                         <div class="sy-hidden syHiddenData">${JSON.stringify(item)}</div>
-                                        ${isEdit}
+                                        <a class="sy-edit" href="javascript:;">编辑</a>
                                     </div>
                                 </div>`;
                         });
                         teamForm.addClass('sy-hidden');
                     }
                     payDiv.find('.teamPay').html(teamPayStr);
+					//获取是否开票
+					getResponse({
+						url: '/team/findTeamByUserId',
+						data: {
+							userId: sessionStorage.getItem('sy_rm_client_ud')
+						}
+					}).then(res => {
+						if(res.message === 'success'){
+							$(".isInvoice").val(res.data.invoiceType);
+							if(res.data.invoiceType === "不开发票"){
+								$(".teamCardType").html(`<option value="${baseinfo.certificateType}">${baseinfo.certificateType}</option>`)
+							}else{
+								$(".teamCardType").html(`<option value="公司账户">公司账户</option>`);
+								$(".isCard").remove();
+							}
+						}
+					});
                 }
             }
         })
@@ -1680,18 +1701,6 @@ const personalServer = (function (window, document, $, undefined) {
             }
         }).then(res => {
             if(res.message === 'success'){
-                if(+res.data.userExtension.bindEmail === 1){
-                    const elDiv = $('.updateCode');
-                    $('#updateEmail').val(res.data.email);
-                    elDiv.removeClass('sy-hidden');
-                    elDiv.nextAll('.item').addClass('sy-hidden');
-                }
-                if(res.data.userExtension.settlePassword){
-                    const telBtn = $('#updateTelBtn');
-                    telBtn.removeClass('sy-hidden');
-                    telBtn.prev().addClass('sy-hidden');
-                    telBtn.parents('.item').nextAll('.item').addClass('sy-hidden');
-                }
                 const selEl = $('.accountList'),
                     telEl = $('#telPhone');
                 if(res.data.telephone){
@@ -1703,7 +1712,30 @@ const personalServer = (function (window, document, $, undefined) {
                 selEl.change(() => {
                     const selVal = $('.accountList>option:selected').val();
                     telEl.val(selVal)
-                })
+                });
+                //设置结算密码
+                if(res.data.userExtension.settlePassword){
+                    const telBtn = $('#updateTelBtn');
+                    telBtn.removeClass('sy-hidden');
+                    telBtn.prev().addClass('sy-hidden');
+                    telBtn.parents('.item').nextAll('.item').addClass('sy-hidden');
+                    telEl.val(res.data.telephone ? res.data.telephone : res.data.email);
+                    res.data.telephone ? selEl.find('option').eq(1).attr('selected',true) : selEl.find('option').eq(2).attr('selected',true);
+                }
+                //绑定邮箱
+                if(res.data.email){
+                    const elDiv = $('.bindingMail');
+                    elDiv.find('input').val(res.data.email);
+                    elDiv.removeClass('sy-hidden');
+                    elDiv.nextAll('.item').addClass('sy-hidden');
+                }
+                //绑定手机号
+                if(res.data.telephone){
+                    const elDiv = $('.bindingTel');
+                    elDiv.find('input').val(res.data.telephone);
+                    elDiv.removeClass('sy-hidden');
+                    elDiv.nextAll('.item').addClass('sy-hidden');
+                }
             }
         });
     }
@@ -1745,9 +1777,7 @@ const personalServer = (function (window, document, $, undefined) {
             if(res.message === 'success'){
                 $.success('密码修改成功，请重新登录');
                 sessionStorage.removeItem('sy_rm_client_access_token');
-                setTimeout(() => {
-                    location.href = '/login';
-                },1500);
+                setTimeout(() => { location.href = '/login' }, 1500);
             }else{
                 $.error(res.message);
             }
@@ -1811,11 +1841,10 @@ const personalServer = (function (window, document, $, undefined) {
             return false;
         }
         if(settlePwd !== settleRePwd){
-            $.warning('两次输入新密码不一致');
+            $.warning('两次输入密码不一致');
             return false;
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'put',
             url: '/userExtension/setSettlePassword',
@@ -1828,15 +1857,19 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.message === 'success'){
                 $.success('操作成功');
-                setTimeout('location.reload()', 1000)
+                setTimeout(() => {
+                    getSafetyResult();
+                    $('#telCode').val('');
+                    $('#settlePwd').val('');
+                    $('#settleRePwd').val('');
+                }, 1000)
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('保存');
         })
     }
-//获取邮箱验证码
+//绑定邮箱，获取邮箱验证码
     function getEmailCode(btn){
         const _this = btn,
             email = $('#email').val();
@@ -1857,8 +1890,30 @@ const personalServer = (function (window, document, $, undefined) {
                 : $.error(res.message);
         })
     }
-//提交邮箱绑定
-    function bindingEmail(btn){
+    //绑定手机号，获取短信验证码
+    function getPhoneCode(btn) {
+        const _this = btn;
+        const sMobile = $('.bindingPhone').val();
+        if(!/^1[1-9][0-9]{9}$/.test(sMobile)){
+            $.warning('请输入正确的手机号');
+            return false;
+        }
+        countDown(_this);
+        getResponse({
+            url: '/userExtension/sendCode',
+            data: {
+                validateCodeType: '3',
+                telephone: sMobile
+            }
+        }).then(res => {
+            res.message === 'success'
+                ? $.success('验证码已发送')
+                : $.error(res.message);
+        })
+
+    }
+//提交邮箱/手机号绑定
+    function bindingAccount(btn, type){
         const _this = btn;
         const addForm = $(_this).parents('form'),
             requiredEles = addForm.find('input[required]');
@@ -1870,30 +1925,48 @@ const personalServer = (function (window, document, $, undefined) {
                 return false;
             }
         }
-        const email = $('#email').val();
-        if(!(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email))){
-            $.warning('请输入正确的邮箱地址');
-            return false;
+        let url = "",
+            data = {
+                userId: sessionStorage.getItem('sy_rm_client_ud')
+            };
+        if(type){//手机号绑定
+            const phone = $('.bindingPhone').val();
+            if(!(/^1[1-9][0-9]{9}$/.test(phone))){
+                $.warning('请输入正确的手机号');
+                return false;
+            }
+            url = '/userExtension/bindTel';
+            Object.assign(data, {
+                tel: phone,
+                verifyCode: $('.bindingPhoneCode').val()
+            });
+        }else{
+            const email = $('#email').val();
+            if(!(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email))){
+                $.warning('请输入正确的邮箱地址');
+                return false;
+            }
+            url = '/userExtension/bindEmail';
+            Object.assign(data, {
+                email: email,
+                verifyCode: $('#emailCode').val()
+            });
         }
-        $(_this).attr('disabled','disabled');
-        $(_this).html('<i class="am-icon-spinner am-icon-pulse"></i>');
+
+        $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
         getResponse({
             type: 'put',
-            url: '/userExtension/bindEmail',
-            data: {
-                email: email,
-                verifyCode: $('#emailCode').val(),
-                userId: sessionStorage.getItem('sy_rm_client_ud')
-            }
+            url: url,
+            data: data
         }).then(res => {
             if(res.message === 'success'){
-                $.success('邮箱绑定成功');
+                $.success('绑定成功');
+                getSafetyResult();
                 requiredEles.val('');
             }else{
                 $.error(res.message);
             }
-            $(_this).removeAttr('disabled');
-            $(_this).html('保存');
+            $(_this).removeAttr('disabled').html('保存');
         })
     }
 
@@ -2190,10 +2263,11 @@ const personalServer = (function (window, document, $, undefined) {
             url: '/orderAndComment/getMyCommentStatistics'
         }).then(res => {
             if(res){
-                filter.getElementsByClassName('all')[0].innerHTML = res['全部'];
-                filter.getElementsByClassName('well')[0].innerHTML = res['好评'];
-                filter.getElementsByClassName('medium')[0].innerHTML = res['中评'];
-                filter.getElementsByClassName('bad')[0].innerHTML = res['差评'];
+                filter.getElementsByClassName('all')[0].innerHTML = res['全部'] || 0;
+                filter.getElementsByClassName('well')[0].innerHTML = res['好评'] || 0;
+                filter.getElementsByClassName('medium')[0].innerHTML = res['中评'] || 0;
+                filter.getElementsByClassName('bad')[0].innerHTML = res['差评'] || 0;
+				filter.getElementsByClassName('quality')[0].innerHTML = res['质量事故'] || 0;
             }
         })
 
@@ -2227,58 +2301,69 @@ const personalServer = (function (window, document, $, undefined) {
                         sStr = speedArr.map(item => `<span>${item}</span>`);
                     //评价星星
                     const score = item.score;
-                    let starStr = "", starNo = '';
-                    switch (true){
-                        case score > 90:
-                            starNo = '5星';
-                            starStr = `<i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star yellow"></i>`;
-                            break;
-                        case score >= 75 && score < 90:
-                            starNo = '4星';
-                            starStr = `<i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star grey"></i>`;
-                            break;
-                        case score >= 60 && score < 75:
-                            starNo = '3星';
-                            starStr = `<i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star grey"></i>
-                                        <i class="star grey"></i>`;
-                            break;
-                        case score >= 50 && score < 60:
-                            starNo = '2星';
-                            starStr = `<i class="star yellow"></i>
-                                        <i class="star yellow"></i>
-                                        <i class="star grey"></i>
-                                        <i class="star grey"></i>
-                                        <i class="star grey"></i>`;
-                            break;
-                        case score < 50:
-                            starNo = '1星';
-                            starStr = `<i class="star yellow"></i>
-                                        <i class="star grey"></i>
-                                        <i class="star grey"></i>
-                                        <i class="star grey"></i>
-                                        <i class="star grey"></i>`;
-                            break;
-                    }
-                    let listStr = `<div class="item">
+                    let starStr = "", starNo = '', listStr = '';
+					if(!item.fault){
+						switch (true){
+							case score > 90:
+								starNo = '5星';
+								starStr = `<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star yellow"></i>`;
+								break;
+							case score >= 75 && score < 90:
+								starNo = '4星';
+								starStr = `<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star grey"></i>`;
+								break;
+							case score >= 60 && score < 75:
+								starNo = '3星';
+								starStr = `<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star grey"></i>
+											<i class="star grey"></i>`;
+								break;
+							case score >= 50 && score < 60:
+								starNo = '2星';
+								starStr = `<i class="star yellow"></i>
+											<i class="star yellow"></i>
+											<i class="star grey"></i>
+											<i class="star grey"></i>
+											<i class="star grey"></i>`;
+								break;
+							case score < 50:
+								starNo = '1星';
+								starStr = `<i class="star yellow"></i>
+											<i class="star grey"></i>
+											<i class="star grey"></i>
+											<i class="star grey"></i>
+											<i class="star grey"></i>`;
+								break;
+						}
+						listStr = `<div class="item">
                                         <div class="title">
-                                            <strong class="no">订单编号：${item.orderId}</strong>
-                                            <strong class="name">订单名称：${item.orderName}</strong>
+                                            <strong class="no">任务编号：${item.orderId}</strong>
+                                            <strong class="name">任务名称：${item.orderName}</strong>
                                             <div class="stars">${starStr + starNo}</div>
                                         </div>
                                         <div class="label">${aStr.join('')+qStr.join('')+sStr.join('')}</div>
                                         <div class="font">${item.commentDesc}</div>
                                     </div>`;
+					}else{
+						listStr = `<div class="item">
+									<div class="title">
+										<strong class="no">订单编号：${item.projectId}</strong>
+										<strong class="name">错误类型：${item.errorType}</strong>
+										<strong>扣款：${formatMoneyTypeEn(item.currencyCode)+item.amount}</strong>
+									</div>
+									<div class="font" style="padding-top:15px">错误详情：${item.errorDetail}</div>
+								</div>`;
+					}
                     listArr.push(listStr);
                 });
                 pageNo += 1;
@@ -2309,57 +2394,8 @@ const personalServer = (function (window, document, $, undefined) {
 *
 * */
 
-    function formatMoneyType (type){
-        switch (type.toLowerCase()){
-            case 'cny': return '人民币';
-            case 'usd': return '美元';
-            case 'eur': return '欧元';
-            case 'gbp': return '英镑';
-            default: return '';
-        }
-    }
-
-    function getJudgeResult() {
-        const activeEl = $('.cashFilter>a.active');
-        const judge = JSON.parse($('.judgeStr').text() || '{}');
-        let result = '';
-        if(judge.mainlandOrNot && judge.certificateType === '身份证'){ //大陆
-            if(activeEl[0].className.includes('CNY')){//人民币结算
-                if(judge.ageReuire){//18-60周岁
-                    if(!judge.billingType){
-                        result = '社保51';
-                    }else if(judge.billingType === '非全日制'){
-                        result = '非全日制';
-                    }else if (judge.billingType === '校企合作'){
-                        result = '校企合作';
-                    }
-                }else{//非18-60周岁
-                    if(!judge.billingType){
-                        result = '云账户';
-                    }else if(judge.billingType === '非全日制'){
-                        result = '非全日制';
-                    }else if (judge.billingType === '校企合作'){
-                        result = '校企合作';
-                    }
-                }
-            } else { //非人民币结算
-                result = 'paypal';
-            }
-        }else{//非大陆
-            if(activeEl[0].className.includes('CNY')){//人民币结算
-                result = '云账户';
-            } else { //非人民币结算
-                result = 'PayPal';
-            }
-        }
-        return {
-            result: result
-        }
-    }
-
-
 //获取收入明细
-    function getIncomeDetail(filter = '三个月'){
+    function getIncomeDetail(){
 
         const userinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
 
@@ -2369,7 +2405,11 @@ const personalServer = (function (window, document, $, undefined) {
             xhr : {//与jq的ajax方法属性值相似。不同点:不能设置success回调
                 url : baseRMUrl + '/financeNew/accountDetail',
                 data : {
-                    filterStr: filter,
+                    taskNo: $('.taskNo').val(),
+                    settleStartDateTime: $('.settleStartTime').val(),
+                    settleEndDateTime: $('.settleEndTime').val(),
+                    orderOrCashoutStartDateTime: $('.orderStartTime').val(),
+                    orderOrCashoutEndDateTime: $('.orderEndTime').val(),
                     userCode: userinfo.userCode,
                     pageNo: 0,
                     pageSize: 10
@@ -2377,15 +2417,14 @@ const personalServer = (function (window, document, $, undefined) {
             },
             xhrSuccess : function(res){//ajax中的success回调
                 if(res.message === 'success'){
-                    return {data: res, count : res.data.totalCount}
+                    return {data: res, count : res.data.pageResults.totalCount}
                 }
             },
             operationReady(param){//操作翻页执行前准备钩子
-                const type = $('.incomeFilter.active').attr('data-type');
+                $.loading('获取数据...');
                 income.set({//重置请求参数
                     xhr : {
                         data : {
-                            filterStr: type,
                             pageNo: param.current-1,
                             pageSize: param.limit
                         }
@@ -2395,33 +2434,103 @@ const personalServer = (function (window, document, $, undefined) {
             operationCallback (msg, res){
                 if(res.message === 'success'){
                     let mesStr = '',
-                        dataList = res.data.results;
+                        dataList = res.data.pageResults.results || [];
+                    let incomeArr = [], outcomeArr = [];
+                    for(let key in res.data.inComeMap){
+                        incomeArr.push(formatMoneyTypeEn(key)+res.data.inComeMap[key])
+                    }
+                    for(let key in res.data.outComeMap){
+                        outcomeArr.push(formatMoneyTypeEn(key)+res.data.outComeMap[key])
+                    }
+                    $('.totalDetail').html(`
+                        收入<span style="color: #00BDC5">${incomeArr.join(",") ? incomeArr.join(",") : '--'}</span>；
+                        支出<span style="color: #F1562A">${outcomeArr.join(",") ? outcomeArr.join(",") : '--'}</span>
+                    `);
                     dataList.forEach(item => {
                         let remark = '';
                         if(item.exchangeType === '红包收入'){
                             remark = item.readBagType;
                         }else if(item.exchangeType === '申请提现'){
-                            remark = item.payType + ' - ' + item.settleNo;
+                            remark = item.payType + ' - ' + item.account;
                         }else{
                             remark = item.exchangeType;
                         }
-                        let amountCls = item.exchangeType.indexOf('提现') > -1,
+                        let amountCls = item.exchangeType.includes('提现') || item.exchangeType.includes('扣款'), 
                             amountCol = amountCls ? '#F1562A' : '#00BDC5';
                         mesStr += `<tr>
-                                      <td>${item.gmtCreate}</td>
+                                      <td>${item.gmtCreate.slice(0, -3)}</td>
                                       <td style="color:${amountCol}">${amountCls ? '-'+item.amount : '+'+item.amount}</td>
                                       <td>${formatMoneyType(item.currencyCode)}</td>
-                                      <td>${item.account}</td>
+                                      <td>${item.exchangeType}</td>
+                                      <td>${item.settleYearMonth}</td>
+                                      <td style="padding: 0 5px">${item.taskNo}</td>
                                       <td style="padding: 0 5px">${remark}</td>
                                    </tr>`;
                     });
-                    $('tbody.incomeFinanceList').html(dataList.length > 0 ? mesStr:`<tr class="empty"><td colspan="5">暂无明细</td></tr>`);
+                    $('tbody.incomeFinanceList').html(dataList.length > 0 ? mesStr:`<tr class="empty"><td colspan="7">暂无明细</td></tr>`);
                 }else{
-                    $.error(res.message);
+                    $.error(res.message)
                 }
+                $('.my-loading').remove()
             }
         });
-        return income;
+        return income
+    }
+
+    function getJudgeResult() {
+        const activeEl = $('.cashFilter>a.active');
+        const judge = JSON.parse($('.judgeStr').text() || '{}'),
+            isTeam = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')).isTeam || 0;
+        const payType = judge.billingType.toLowerCase();
+
+        //团队，默认校企合作，否则为设定类型
+        if(isTeam){
+            return {
+                result: !payType ? '校企合作' : payType
+            }
+        }else{
+        //个人（非团队），默认走流程，否则为设定类型
+            if(!payType){ //走流程
+                if(judge.mainlandOrNot && judge.certificateType === '身份证'){ //大陆
+                    if(activeEl[0].className.includes('CNY')){//人民币结算
+                        if(judge.ageReuire){//18-60周岁
+                            return {
+                                result: '社保51'
+                            }
+                        }else{//非18-60周岁
+                            return {
+                                result: '云账户'
+                            }
+                        }
+                    } else { //非人民币结算
+                        return {
+                            result: 'PayPal'
+                        }
+                    }
+                }else{//非大陆
+                    if(activeEl[0].className.includes('CNY')){//人民币结算
+                        return {
+                            result: '云账户'
+                        }
+                    } else { //非人民币结算
+                        return {
+                            result: 'PayPal'
+                        }
+                    }
+                }
+            }else{
+                //设定类型
+                if(activeEl[0].className.includes('CNY')){//人民币
+                    return {
+                        result: payType
+                    }
+                }else{//外币（非人民币）
+                    return {
+                        result: 'PayPal'
+                    }
+                }
+            }
+        }
     }
 
 //获取账户金额、提现条件
@@ -2463,7 +2572,7 @@ const personalServer = (function (window, document, $, undefined) {
                 $('.accountItem.'+tarCls).removeClass('sy-hidden').siblings('.accountItem').addClass('sy-hidden');
                 judgeBtn.removeAttr('disabled').html('申请提现');
 
-                //首先判断，是否在提现时间内
+                // 首先判断，是否在提现时间内
                 if(!judge.currentDayRequire){
                     judgeBtn.prop({'disabled': true, 'title': "当前不在提现时间内"}).html('申请提现');
                     return null;
@@ -2492,6 +2601,9 @@ const personalServer = (function (window, document, $, undefined) {
         //申请提现，根据judge判断，弹哪个结算框
         $('.accountPrev>button').on('click', function (e) {
             const cashTypeEl = $('.cashFilter>a.active');
+            const baseInfo = JSON.parse(sessionStorage.getItem("sy_rm_client_ubase") || "{}") || {},
+                token = sessionStorage.getItem('sy_rm_client_access_token'),
+                uid = sessionStorage.getItem('sy_rm_client_ud');
             if(cashTypeEl.length < 1){
                 $.warning('暂时无法操作');
                 return null
@@ -2506,7 +2618,7 @@ const personalServer = (function (window, document, $, undefined) {
             }
             //未财务认证
             if(!__api__.isAuth.isPassFinance){
-                $.warning('请先进行财务认证');
+                $.warning('请先进行结算方式设置');
                 setTimeout(() => {
                     location.href = '/personal/identification'
                 }, 1000);
@@ -2516,7 +2628,7 @@ const personalServer = (function (window, document, $, undefined) {
             const cashElCls = cashTypeEl[0].classList[0],
                 tarTypeEl = $('.accountItem.'+cashElCls);
             if(cashTypeEl.length < 1 && tarTypeEl.length < 1){
-                $.warning('请选择币种');
+                $.warning('请先选择币种');
                 return null
             }
 
@@ -2527,7 +2639,7 @@ const personalServer = (function (window, document, $, undefined) {
             switch (judge.result.toLowerCase()){
                 case 'paypal':
                     if(!judgeInfo.paypal){
-                        $.warning('请前去完善PayPal信息');
+                        $.warning('请先完善PayPal信息');
                         setTimeout('location.href="/personal/identification"', 1500);
                         return false
                     }
@@ -2535,7 +2647,7 @@ const personalServer = (function (window, document, $, undefined) {
                     break;
                 case '社保51':
                     if(!judgeInfo.alipay && !judgeInfo.bank){
-                        $.warning('请前去完善银行卡/支付宝信息');
+                        $.warning('请先完善银行卡/支付宝信息');
                         setTimeout('location.href="/personal/identification"', 1500);
                         return false
                     }
@@ -2543,7 +2655,7 @@ const personalServer = (function (window, document, $, undefined) {
                     break;
                 case '云账户':
                     if(!judgeInfo.bank){
-                        $.warning('请前去完善银行卡信息');
+                        $.warning('请先完善银行卡信息');
                         setTimeout('location.href="/personal/identification"', 1500);
                         return false
                     }
@@ -2551,7 +2663,7 @@ const personalServer = (function (window, document, $, undefined) {
                     break;
                 case '非全日制':
                     if(!judgeInfo.bank){
-                        $.warning('请前去完善银行卡信息');
+                        $.warning('请先完善银行卡信息');
                         setTimeout('location.href="/personal/identification"', 1500);
                         return false
                     }
@@ -2559,7 +2671,7 @@ const personalServer = (function (window, document, $, undefined) {
                     break;
                 case '校企合作':
                     if(!judgeInfo.bank){
-                        $.warning('请前去完善银行卡信息');
+                        $.warning('请先完善银行卡信息');
                         setTimeout('location.href="/personal/identification"', 1500);
                         return false
                     }
@@ -2567,50 +2679,99 @@ const personalServer = (function (window, document, $, undefined) {
                     break;
             }
 
-            // 确认提现
+            // 提现前，确认提现信息
             $('.confirmCashOut').on('click', function (e) {
-
-                const _this = this;
                 const payWay = $('input[name="payWay"]:checked'),
                     payNum = $('.drawAmount').val(),
                     payPwd = $('.drawPwd').val(),
                     drawImgEl = $('.drawImg');
                 const userinfo = JSON.parse(sessionStorage.getItem('sy_rm_client_ubase')) || {};
                 if(payWay.length < 1 || !payNum.trim() || !payPwd.trim()){
-                    $.warning('请先填写信息');
+                    $.warning('请先完善提现信息');
                     return null
                 }
                 if(drawImgEl[0] && !drawImgEl[0].value){
                     $.warning('请先上传凭证');
                     return null
                 }
-                $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                if(+payNum <= 0){
+                    $.warning('提现金额必须大于0');
+                    return null
+                }
                 getResponse({
-                    type: 'POST',
-                    url: '/financeNew/applyCashWithdrawal',
-                    headers: {
-                        "Content-Type": 'application/json'
-                    },
-                    data: JSON.stringify({
-                        amount: payNum,
-                        currencyCode: drawInfo.type,
-                        currencyName: drawInfo.typeName,
-                        fileUrls: drawImgEl[0] ? drawImgEl.val() : '',
+                    type: 'get',
+                    url: '/financeNew/getCurrentCashoutInfo',
+                    data: {
                         payType: payWay[0].value,
-                        settlePassword: payPwd,
-                        settleType: judge.billingType?judge.billingType:judge.result,
                         userCode: userinfo.userCode
-                    })
+                    }
                 }).then(res => {
                     if(res.message === 'success'){
-                        $.success('申请成功');
-                        setTimeout('location.reload()', 1000);
-                    }else{
-                        $.error(res.message);
+                        const settleType = judge.billingType ? judge.billingType : judge.result,
+                            cashType = formatMoneyTypeEn(drawInfo.type);
+                        let taxTotal = 0, afterTaxDrawTotal = 0;
+                        if(settleType === '社保51'){
+                            taxTotal = payNum * 0.01;
+                        }else if(settleType === '云账户'){
+                            taxTotal = payNum * 0.005
+                        }
+                        afterTaxDrawTotal = (payNum - taxTotal);
+                        $.cashOut_confirm({
+                            name: res.data.realName,
+                            account: res.data.arrivalAccount,
+                            settleType: (settleType === '社保51' || settleType === '云账户') ? '经营所得' : settleType,
+                            drawTotal: cashType + payNum,
+                            taxTotal: cashType + taxTotal.toFixed(2),
+                            afterTaxDrawTotal: cashType + afterTaxDrawTotal.toFixed(2)
+                        });
+                        //确认提现
+                        document.querySelector('.confirmInfoCashOut').onclick = function () {
+                            const _this = this;
+                            $(_this).attr('disabled','disabled').html('<i class="am-icon-spinner am-icon-pulse"></i>');
+                            getResponse({
+                                type: 'POST',
+                                url: '/financeNew/applyCashWithdrawal',
+                                headers: {
+                                    "Content-Type": 'application/json'
+                                },
+                                data: JSON.stringify({
+                                    amount: payNum,
+                                    currencyCode: drawInfo.type,
+                                    currencyName: drawInfo.typeName,
+                                    fileUrls: drawImgEl[0] ? drawImgEl.val() : '',
+                                    payType: payWay[0].value,
+                                    settlePassword: payPwd,
+                                    settleType: judge.billingType ? judge.billingType : judge.result,
+                                    userCode: userinfo.userCode
+                                })
+                            }).then(res => {
+                                if(res.message === 'success'){
+                                    $.success('申请成功');
+                                    setTimeout('location.reload()', 1000);
+                                }else{
+                                    $.error(res.message);
+                                    if(res.code === '025'){//未设置“结算密码”
+                                        setTimeout(() => {
+                                            location.href = "/personal/safety?st=" + new Date().getTime()
+                                        }, 1000)
+                                    }else if(res.message.includes('添加手机号')){//未设置“手机号”
+                                        setTimeout(() => {
+                                            const queryStr = `t=${token}&u=${uid}`;
+                                            if(baseInfo.isTeam === 1){
+                                                location.href = '/personal/baseTeamInfo?'+queryStr
+                                            }else{
+                                                location.href = '/personal/baseInfo?'+queryStr
+                                            }
+                                        }, 1000)
+                                    }
+                                }
+                                $(_this).removeAttr('disabled').html('申请提现')
+                            })
+                        }
+                   }else{
+                        $.error(res.message)
                     }
-                    $(_this).removeAttr('disabled').html('申请提现');
                 })
-
             })
         });
 
@@ -2644,7 +2805,6 @@ const personalServer = (function (window, document, $, undefined) {
                                         <div class="am-u-lg-4">
                                             <p class="remainMoney_Balance">${'￥'+data.cNY_Balance}</p>
                                             <span>账户余额</span>
-                                            <em class="sy-font-sm">（内含有锁红包：${'￥'+data.redBagLocked}）</em>
                                         </div>
                                         <div class="am-u-lg-4">
                                             <p class="outMoney_Balance" 
@@ -2737,11 +2897,6 @@ const personalServer = (function (window, document, $, undefined) {
         if(_this.value.trim() === ''){
             $.warning('请输入提现金额');
             tipEl.html('');
-            return null;
-        }
-        if(+_this.value < 50){
-            $.warning('可提现金额需不得小于50');
-            _this.value = '';
             return null;
         }
         if(+_this.value > +config.total){
@@ -2837,19 +2992,17 @@ const personalServer = (function (window, document, $, undefined) {
         }).then(res => {
             if(res.success){
                 const { data } = res;
-                $('.orderStatus_doing').attr('href', '/order/#10');
-                $('.orderStatus_doing>span').html(data.taskNumIng);
-                $('.orderStatus_waiting').attr('href', '/order/#20');
-                $('.orderStatus_waiting>span').html(data.taskNumNoConfirmed);
+                $('.orderStatus_doing').attr('href', '/order');
+                $('.orderStatus_doing>span').html(data.receiveOrderNum);
+                $('.orderStatus_waiting').attr('href', '/order/#10');
+                $('.orderStatus_waiting>span').html(data.taskNumIng);
                 $('.orderStatus_done').attr('href', '/order/#25');
                 $('.orderStatus_done>span').html(data.taskNumEnd);
                 $('.orderStatus_font').html(data.transWorkNum);
             }
         });
 
-        /*
-
- //获取账户余额
+		//获取账户余额
         getResponse({
             url: '/financeNew/listPersonAccountSummary',
             data: { userCode: userinfo.userCode }
@@ -2876,8 +3029,6 @@ const personalServer = (function (window, document, $, undefined) {
                 }
             }
         });
-
-         */
 
         //获取消息通知
         getResponse({
@@ -3012,7 +3163,8 @@ const personalServer = (function (window, document, $, undefined) {
         getValidateCode,
         settlePwd,
         getEmailCode,
-        bindingEmail
+        getPhoneCode,
+        bindingAccount
     }
 
 })(window, document, jQuery);

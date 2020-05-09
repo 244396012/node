@@ -30,12 +30,12 @@
             <div class="cnt sy-center">
                 <div class="order-item doing">
                     <a href="/personal" class="orderStatus_doing"><i></i>
-                        <span>0</span>进行中
+                        <span>0</span>待领取
                     </a>
                 </div>
                 <div class="order-item waiting">
                     <a href="/personal" class="orderStatus_waiting"><i></i>
-                        <span>0</span>待确认
+                        <span>0</span>进行中
                     </a>
                 </div>
                 <div class="order-item done">
@@ -68,7 +68,7 @@
         <div class="right-short">
             <div class="title">消息通知<a class="sy-float-r" href="/personal/message">查看</a></div>
             <div class="cnt messageCnt sy-default-transition sy-show-transition">
-                <p class="empty sy-left">暂无消息</p>
+                <p class="empty sy-left">暂无消息通知</p>
             </div>
         </div>
     </div>
@@ -76,13 +76,14 @@
         <div class="language">
             <div class="title">我的语言</div>
             <div class="cnt languageCnt sy-default-transition sy-show-transition">
-                <p class="empty">暂未选择语言对</p>
+                <p class="empty">暂无语言信息</p>
             </div>
         </div>
     </div>
 </div>
 <script>
-    (function () {
+    (function ($) {
+
 
         __api__.getUserAllInfo();
 
@@ -93,12 +94,12 @@
                 money = _strong.attr('data-num');
             if($(_this).hasClass('on')){
                 $(_this).removeClass('on');
-                _strong.html('').addClass('empty');
+                _strong.addClass('empty').html('');
             }else{
                 $(_this).addClass('on');
-                _strong.html(money).removeClass('empty');
+                _strong.removeClass('empty').html(money);
             }
         });
 
-    }());
+    }(jQuery));
 </script>

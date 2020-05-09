@@ -13,7 +13,7 @@ const server = require('./promise'),
 routes.get('/login', function (req, res) {
    res.render('account/login', {
        mark: 'account',
-       title: '啄语 | 用户登录',
+       title: '语言桥 | 用户登录',
        layout: 'shared/layout'
    });
 });
@@ -21,7 +21,7 @@ routes.get('/login', function (req, res) {
 routes.get('/register', function (req, res) {
    res.render('account/register', {
        mark: 'account',
-       title: '啄语 | 用户注册',
+       title: '语言桥 | 用户注册',
        layout: 'shared/layout'
    });
 });
@@ -29,7 +29,7 @@ routes.get('/register', function (req, res) {
 routes.get('/forgetPwd', function (req, res) {
    res.render('account/forgetPwd', {
        mark: 'account',
-       title: '啄语 | 忘记密码',
+       title: '语言桥 | 忘记密码',
        layout: 'shared/layout'
    });
 });
@@ -62,7 +62,7 @@ routes.get('/',function (req, res) {
     Promise.all([industry, pecker]).done(data => {
         res.render('index', {
             mark: 'index',
-            title: '啄语 | 首页',
+            title: '语言桥兼职平台',
             layout: 'shared/layout',
             industry: JSON.parse(data[0]),
             pecker: JSON.parse(data[1])
@@ -73,7 +73,7 @@ routes.get('/',function (req, res) {
 routes.get('/about/', function (req, res){
     res.render('about/index', {
         mark: 'aboutExtra',
-        title: '啄语 | 关于我们',
+        title: '语言桥 | 关于我们',
         layout: 'shared/layout'
     });
 });
@@ -81,7 +81,7 @@ routes.get('/about/', function (req, res){
 routes.get('/about/help', function (req, res){
     res.render('about/help', {
         mark: 'about',
-        title: '啄语 | 帮助中心',
+        title: '语言桥 | 帮助中心',
         layout: 'shared/layout'
     });
 });
@@ -89,7 +89,7 @@ routes.get('/about/help', function (req, res){
 routes.get('/about/clause', function (req, res){
     res.render('about/clause', {
         mark: 'about',
-        title: '啄语 | 服务条款',
+        title: '语言桥 | 服务条款',
         layout: 'shared/layout'
     });
 });
@@ -97,7 +97,7 @@ routes.get('/about/clause', function (req, res){
 routes.get('/about/secret', function (req, res){
     res.render('about/secret', {
         mark: 'about',
-        title: '啄语 | 隐私条款',
+        title: '语言桥 | 隐私条款',
         layout: 'shared/layout'
     });
 });
